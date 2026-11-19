@@ -1,0 +1,25 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+.zip
+local.properties
+# Keystores & Backups
+*.jks
+*.keystore
+/keystore_backup/
+.temp
+# Never add a "*.yml" rule: in LLM Central it silently ignored every new workflow file, so its release.yml
+# was never committed.
+# Local execution ledgers of the superpowers plan skills (scratch, never committed)
+.superpowers/
