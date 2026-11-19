@@ -4,6 +4,47 @@ Newest first. Each entry: what changed, why, how it was verified, sizes, and wha
 
 ---
 
+## 2026-11-19 — AdGuard DNS: what the live website does (Phase 1 research, docs + a probe tool)
+
+**What.** Before changing any code for AdGuard, every open question of the plan (`ADGUARD_PLAN.md` §4–§5) was checked
+on the **live** AdGuard website, not from memory. The results are a facts table with a date, a source and a "how
+sure" mark for every row: `docs/research/2026-11-19-adguard-live-probe.md`. New development tool
+`tools/site-probe/` re-checks the most important facts with one command each (sign-in chain, page colours, DNS
+check), because websites change. The app itself is unchanged.
+
+**What was found (the short version).**
+- The dashboard is `adguard-dns.io`; you log in on `auth.adguardaccount.com`; account pages are on `adguardaccount.com`.
+- **Sign in with Apple, Google and Facebook** opens the provider's page in the same tab (no pop-up window). AdGuard
+  tells Google to refuse apps like ours (`disallow_webview=true`), so the plan's "disguise only Google's page" step
+  is really needed.
+- **"Am I using AdGuard DNS?"** works like NextDNS's test, but differently: the app asks for a made-up name that only
+  AdGuard DNS can answer. Its answer has different fields (e.g. `protocol: "dot"` in lower case).
+- **There is no ping page**: the Ping window has nothing to show.
+- **Colours:** white page, dark page `#242d38`, blue accent `#3c81f6`.
+- **One problem found early:** "Export rules" makes a `blob:` file, which the copied NextDNS code can't save.
+
+**Why.** Phase 1 of the plan: nothing is coded from memory. Five things only you can decide came out of it (§3 of the
+research file, Q1–Q5), and six things only a phone can show (§4, P1–P6).
+
+**Verified.** Every row was re-read against the saved evidence before committing (three rows were corrected that
+way). `tools/site-probe` was run in all three modes against the live site, and a wrong argument gives a clear message.
+`test lint assembleDebug assembleRelease` still pass (92 tests, 0 lint issues). **Not verified:** anything that needs
+a phone or a signed-in account (research file §4).
+
+**Size.** App unchanged (no app files touched).
+
+**What to test on your phone**
+
+Nothing to install yet. To help Phase 5 and the downloads question, if you have an AdGuard DNS account:
+
+1. In your phone's browser, open the AdGuard DNS dashboard, go to a server's **user rules** and tap **Export**. Note
+   whether a file `rules.txt` is saved (this is the `blob:` download the app will have to handle).
+2. On a device's page, copy the **Apple configuration profile** download link (long-press → copy link) and open it in a
+   private browser tab where you are **not** logged in. Does the file download? (Tells us if the app can hand such
+   links to the browser; research file P4.)
+
+---
+
 ## 2026-11-19 — CI: retry the Chromium install when Ubuntu's mirror fails
 
 **What.** CI runs 9 and 10 failed in the `pages` job, before any check ran. The app build, tests and lint (`android`

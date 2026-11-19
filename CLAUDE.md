@@ -205,6 +205,17 @@ Reuse **everything** except what names or depends on NextDNS. Recommended: Gradl
   views, and keyboard focus still moves to them. Hide with `IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS` +
   `FOCUS_BLOCK_DESCENDANTS`, and clear existing focus yourself: AOSP `ViewGroup.setDescendantFocusability` only sets a
   flag [read 2026-11-19]; `requestFocus` on a button that isn't focusable-in-touch-mode does nothing in touch mode.
+- **AdGuard DNS site** [live research 2026-11-19, full table with sources: `docs/research/2026-11-19-adguard-live-probe.md`;
+  re-check with `tools/site-probe`]: dashboard `adguard-dns.io/en/dashboard/` → login `auth.adguardaccount.com`
+  (OAuth, `client_id=adguard-dns-website`); account pages on `adguardaccount.com`; API `/api/v1/…` with a Bearer token
+  (not a cookie). Apple/Google/Facebook = whole-page navigations via `/auth/<p>` → `/social_auth/<p>`, **no pop-ups**;
+  Google gets `disallow_webview=true`; Facebook uses `www.` → `m.facebook.com`; all return to
+  `auth.adguardaccount.com/auth/<p>` (Apple by POST). hCaptcha only when the login API asks. Personal DoT host
+  `<device>.d.adguard-dns.com`; public `dns.`/`family.`/`unfiltered.adguard-dns.com`. Check: `https://a<random>-dnscheck.
+  adguard-dns.com/dnscheck/test` resolves only via AdGuard DNS; JSON with `protocol` in lower case and `server_type`
+  `private`/`public` (AdGuardDNS source). **No ping page.** Colours: light `#ffffff`, dark `#242d38`, accent `#3c81f6` /
+  `#639af8`; page theme = account setting (Automatic follows `prefers-color-scheme`, default Light). User rules export
+  is a **`blob:`** download (the NextDNS code can't save it). Zoom banned (`maximum-scale=1`). No WebSocket/EventSource.
 - Not verifiable here: anything on a phone (WebView profiles, unlock sheet, MediaStore, status bar
   colours, the website's dark mode following the app). Live site checks work with curl/Playwright.
 
@@ -238,4 +249,8 @@ tools work).
       `--v1-signing-enabled false` for this app, tested 2026-11-19). First GitHub run (dry run) still to do.
 - [ ] README screenshots, store texts (`title`, `short_description`, `full_description`), release key + secrets (owner).
 - [ ] Translations.
-- [ ] AdGuard DNS Manager (§8, PROJECT.md §11).
+- [ ] AdGuard DNS Manager (§8, PROJECT.md §11; plan `ADGUARD_PLAN.md` §6, kept by the owner).
+  - [x] Phase 0: NextDNS Manager+ `eaa1665` imported unchanged (`abb10bf`, CI green, 2026-11-19).
+  - [x] Phase 1: live research, facts + owner questions Q1–Q5 + phone checks P1–P6 in
+        `docs/research/2026-11-19-adguard-live-probe.md`; `tools/site-probe` (2026-11-19).
+  - [ ] Owner answers Q1–Q5 and plan §13; then Phase 2 (identity).
