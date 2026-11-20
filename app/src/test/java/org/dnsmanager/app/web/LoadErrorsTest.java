@@ -16,10 +16,10 @@ public class LoadErrorsTest {
     public void aFailedPageShowsTheRetryScreenEvenAfterItsErrorPageIsDrawn() {
         LoadErrors.TabState tab = new LoadErrors.TabState();
         tab.pageStarted();
-        tab.failed("https://my.nextdns.io/");
+        tab.failed("https://adguard-dns.io/en/dashboard/");
         assertFalse(tab.pageVisible()); // WebView's own error page under the black screen
         assertTrue(tab.showsRetry());
-        assertEquals("https://my.nextdns.io/", tab.failedUrl());
+        assertEquals("https://adguard-dns.io/en/dashboard/", tab.failedUrl());
     }
 
     @Test
@@ -28,11 +28,11 @@ public class LoadErrorsTest {
         // for as long as the slow retry took.
         LoadErrors.TabState tab = new LoadErrors.TabState();
         tab.pageStarted();
-        tab.failed("https://my.nextdns.io/abc123/logs");
+        tab.failed("https://adguard-dns.io/en/dashboard/some/page");
         tab.pageVisible();
         tab.pageStarted(); // the retry starts
         assertTrue(tab.showsRetry());
-        tab.failed("https://my.nextdns.io/abc123/logs"); // and fails again
+        tab.failed("https://adguard-dns.io/en/dashboard/some/page"); // and fails again
         assertFalse(tab.pageVisible());
         assertTrue(tab.showsRetry());
     }
@@ -41,7 +41,7 @@ public class LoadErrorsTest {
     public void aPageShownWithoutAnErrorRemovesTheRetryScreen() {
         LoadErrors.TabState tab = new LoadErrors.TabState();
         tab.pageStarted();
-        tab.failed("https://my.nextdns.io/abc123/logs");
+        tab.failed("https://adguard-dns.io/en/dashboard/some/page");
         tab.pageVisible();
         tab.pageStarted();
         assertTrue(tab.pageVisible()); // true = the screen must be updated

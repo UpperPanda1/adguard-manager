@@ -59,7 +59,7 @@ Phase 4. That is by design: the plan changes one thing per step so each change c
 
 Package `org.dnsmanager.app` (code, shared with NextDNS Manager+ on purpose), application id
 `org.rafee_m.adguarddnsmanager` (store identity), Java only, no UI library, one library in total (`androidx.webkit`).
-Release APK 187,626 bytes (clean build, 2026-11-20, after Phase 3).
+Release APK 187,638 bytes (clean build, 2026-11-20, after Phase 3 and its comment update).
 
 ---
 
@@ -141,7 +141,7 @@ From the plan's §6, with the owner's answers applied. Details of each phase: [�
 | **NextDNS Manager+ `eaa1665`, unchanged** (shared code; fixes are ported both ways, `UPSTREAM.md`) | everything in `app/` except the files below, all of `tools/page-checks/` (except the stand-in app name), `tools/icon/`, `.github/workflows/`, the Gradle files, the session hook |
 | **Changed for AdGuard so far** | `app/build.gradle` (applicationId, debug name), `res/values/strings.xml` (`app_name`), `assets/about.html` (credits, note), `artwork/icon.svg` + the generated icon files, `gradle.properties` (`app.repoUrl`), `settings.gradle`, `tools/readme-badges/generate.mjs`, `artwork/readme/`, `site/Site.java` + `ui/PingWindow.java` (host rule) and their tests (Phase 3), `assets/settings.html` (stand-in service name), the page checks' stand-in names and the zoom check's sample page, every document |
 | **New in this repository** | `tools/site-probe/` (live probe of AdGuard's site), `docs/ADGUARD_PLAN.md`, `docs/PHASES.md`, `docs/research/`, `docs/superpowers/plans/`, `UPSTREAM.md` |
-| **Still NextDNS-specific, to change** | `site/Site.java` `TEST_URL` + test fields (Phase 6), `PING_URL` + `PING_DOMAINS` (Phase 7), `theme/Themes.java` + `res/values*/colors.xml` (Phase 4), `status/StatusRules` (Phase 6), `ui/PingWindow` (Phase 7), `downloads/Downloads` naming and `blob:` (Phase D), texts in `settings.html` (filled from `Site.NAME`; wording Phase 8), `fastlane/…/changelogs/1.txt` (Phase 8), `release.yml` names (Phase 9), comments naming NextDNS (`Profiles`, `ThemeManager`, `top_bar.xml`, `AndroidManifest.xml`, `zoom_viewport.js`) |
+| **Still NextDNS-specific, to change** | `site/Site.java` `TEST_URL` + test fields (Phase 6), `PING_URL` + `PING_DOMAINS` (Phase 7), `theme/Themes.java` + `res/values*/colors.xml` (Phase 4), `status/StatusRules` (Phase 6), `ui/PingWindow` (Phase 7), `downloads/Downloads` naming and `blob:` (Phase D), texts in `settings.html` (filled from `Site.NAME`; wording Phase 8), `fastlane/…/changelogs/1.txt` (Phase 8), `release.yml` names (Phase 9); comments naming NextDNS were updated after Phase 3, except those describing NextDNS colours still in use (`Themes.java`, `values-night/colors.xml`, `ContrastTest`: Phase 4) |
 
 Where NextDNS Manager+ itself came from (its `PROJECT.md` §2–3): **LLM Central** (`UpperPanda1/assist`: accounts,
 tabs, settings design; everything AI-related stripped) plus the NextDNS-specific *features* of **NextDNS Manager**

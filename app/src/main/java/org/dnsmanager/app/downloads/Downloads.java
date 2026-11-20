@@ -68,7 +68,7 @@ public final class Downloads {
     /**
      * Saves a data: address as a file in Downloads. The page's own file name (its link's
      * {@code download} attribute) is not passed to the app by WebView, so the file is called
-     * "NextDNS download.txt" or similar; Android adds " (1)" etc. if that name exists.
+     * "AdGuard DNS download.txt" or similar; Android adds " (1)" etc. if that name exists.
      */
     private static void saveDataUrl(Activity activity, String url, Executor background) {
         Context app = activity.getApplicationContext();
@@ -111,7 +111,7 @@ public final class Downloads {
         });
     }
 
-    /** @return e.g. "NextDNS download.txt" (plain Java, DownloadsTest). */
+    /** @return e.g. "AdGuard DNS download.txt" (plain Java, DownloadsTest). */
     static String fileName(String mimeType) {
         return Site.NAME + " download." + DataUrl.extensionFor(mimeType);
     }

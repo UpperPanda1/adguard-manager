@@ -23,14 +23,16 @@ import java.util.List;
  * <p><b>The setting</b> (Settings → Appearance → Theme, preference {@value #PREF_MODE}): "system"
  * follows the phone, "light" and "dark" force one.</p>
  *
- * <p><b>How the website learns about it.</b> The NextDNS dashboard has its own light and dark design
- * and picks it with the web standard {@code prefers-color-scheme}. WebView answers that question from
+ * <p><b>How the website learns about it.</b> The AdGuard DNS dashboard has its own light and dark
+ * design. Its theme is an account setting (Automatic / Light / Dark, default Light); only "Automatic"
+ * picks it with the web standard {@code prefers-color-scheme} (research T2). WebView answers that question from
  * the <i>app's</i> theme (dark theme → "dark"; Android 13+ behaviour for apps targeting it). So
  * forcing light or dark is done the way Android's own AppCompat library does it: the activity's
  * configuration is overridden with "night yes/no" ({@link #nightOverride}, used in
  * {@code MainActivity.attachBaseContext}), and the manifest theme {@code Theme.DeviceDefault.DayNight}
  * follows that. Nothing is injected into the page. (If the user picked a theme inside the dashboard's
- * own account settings, the website follows that choice instead; that is the site's decision.)</p>
+ * own account settings, Light or Dark, the website follows that choice instead; that is the site's
+ * decision. Owner Q3: no script forces the dashboard's theme.)</p>
  */
 public final class ThemeManager {
 

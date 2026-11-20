@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Loading the NextDNS website and the connection test. -->
+    <!-- Loading the AdGuard DNS website and the connection test. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Reading whether Private DNS is active (status icon, status/ConnectionStatus). -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

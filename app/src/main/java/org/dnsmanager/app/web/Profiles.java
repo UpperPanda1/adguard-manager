@@ -29,7 +29,7 @@ import java.util.Set;
  * <p><b>What a profile is:</b> a WebView profile is like a separate browser user. Each one has its
  * own cookies (= the login), local storage and HTTP cache, in its own folder. Two WebViews with
  * different profiles can be open side by side and never see each other's data, which is what lets
- * two NextDNS logins stay signed in at the same time.
+ * two AdGuard logins stay signed in at the same time.
  * Docs: https://developer.android.com/reference/androidx/webkit/Profile</p>
  *
  * <p><b>Which profile:</b> the account with the id {@link Account#MAIN_ID} uses WebView's

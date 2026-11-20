@@ -11,6 +11,35 @@ too.
 
 ---
 
+## 2026-11-20 — Comments and sample addresses say AdGuard DNS (after Phase 3)
+
+**What.** Explanations in the code that still named NextDNS now name AdGuard DNS, so the comments match what the code
+does since Phase 3. No behaviour changes.
+
+- `web/Profiles.java` ("two AdGuard logins stay signed in"), `res/layout/top_bar.xml` (status icon), `AndroidManifest.xml`
+  (why the app needs Internet), `downloads/Downloads.java` (file name "AdGuard DNS download.txt").
+- `theme/ThemeManager.java`: how the AdGuard dashboard picks light/dark — its theme is an **account setting**
+  (Automatic / Light / Dark, default Light), and only "Automatic" follows the app (research T2; owner Q3: the app forces
+  nothing).
+- `assets/js/zoom_viewport.js`: AdGuard's site bans zooming with `maximum-scale=1, user-scalable=0` (research F8).
+- Tests that only used NextDNS addresses as **sample text** (`DownloadsTest`, `DataUrlTest`, `LoadErrorsTest`) now use
+  `adguard-dns.io` addresses; what they test is unchanged.
+
+**Left on purpose:** comments describing the NextDNS **colours** the app still uses (`theme/Themes.java`,
+`res/values-night/colors.xml`, `ContrastTest`: Phase 4), the NextDNS test/ping addresses (Phases 6, 7), tests that
+check NextDNS is *outside* the app, and About's credits to NextDNS Manager+ / NextDNS Manager.
+
+**Verified.** `test lint assembleDebug assembleRelease`: 93 tests, 0 lint issues; page checks 6 of 6 (the zoom script
+changed only in a comment); `grep -rni nextdns app/src tools/page-checks` shows only the leftovers above.
+
+**Size.** Release APK (clean build) **187,638 bytes** (+12: the script's comment ships inside the app).
+
+**What to test on your phone**
+
+Nothing new (comments only). The Phase 3 list below covers this build.
+
+---
+
 ## 2026-11-20 — Phase 3: the app opens the AdGuard DNS dashboard
 
 **What.** The app now shows **AdGuard DNS** instead of NextDNS. All of it is one file, `site/Site.java` (the only

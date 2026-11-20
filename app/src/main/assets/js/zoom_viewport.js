@@ -1,8 +1,8 @@
 // zoom_viewport.js — injected into the dashboard by the app (web/PageZoom, setting "Pinch to zoom").
 //
 // Lets a pinch zoom the whole page freely, like in a browser: the page is magnified as it is, nothing
-// re-flows. The NextDNS dashboard (like many sites) forbids that in their <meta name="viewport"> ("user-scalable=no" or
-// "maximum-scale=1"), and Android's WebView has no "force zoom" switch like Chrome's accessibility
+// re-flows. The AdGuard DNS website (like many sites) forbids that in its <meta name="viewport"> ("user-scalable=0" and
+// "maximum-scale=1", research F8), and Android's WebView has no "force zoom" switch like Chrome's accessibility
 // option (checked in Chromium's AwSettings). So this script keeps the page's own viewport values and
 // only lifts the ban: "user-scalable" and "maximum-scale" are replaced by "maximum-scale=5,
 // user-scalable=yes". Whenever the page changes its viewport tag, the ban is lifted again.

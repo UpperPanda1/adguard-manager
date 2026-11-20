@@ -3,7 +3,7 @@
     Native top bar above the page (PROJECT.md §5.1):
       left  = account chip: (number) Name ▾ → the account menu (ui/SwitcherPopup): accounts, then the
               icon row Desktop site / Reload / Hide status bar / Clear cache, then "Manage accounts"
-      right = status icon   → is this phone using NextDNS? (status/ConnectionStatus); tap = explanation
+      right = status icon   → is this phone using AdGuard DNS? (status/ConnectionStatus); tap = explanation
               home icon     → the dashboard's start page
               three dots    → Find in page, Ping, Private DNS settings, Settings (ui/OverflowMenu)
     There is no Back button on purpose: Android's Back goes back inside the page.

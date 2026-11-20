@@ -45,7 +45,7 @@ public class DataUrlTest {
     @Test
     public void brokenAddressesAreRefused() {
         assertNull(DataUrl.parse(null));
-        assertNull(DataUrl.parse("https://my.nextdns.io/"));
+        assertNull(DataUrl.parse("https://adguard-dns.io/en/dashboard/"));
         assertNull(DataUrl.parse("data:text/plain"));        // no comma
         assertNull(DataUrl.parse("data:,%zz"));              // bad escape
         assertNull(DataUrl.parse("data:,abc%4"));            // cut-off escape

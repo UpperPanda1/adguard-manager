@@ -11,9 +11,9 @@ public class DownloadsTest {
 
     @Test
     public void onlyHttpAndHttpsGoToTheBrowser() {
-        assertTrue(Downloads.isWebAddress("https://apple.nextdns.io/?profile=abc"));
+        assertTrue(Downloads.isWebAddress("https://adguard-dns.io/en/dashboard/"));
         assertTrue(Downloads.isWebAddress(" HTTP://example.com/file "));
-        assertFalse(Downloads.isWebAddress("blob:https://my.nextdns.io/123"));
+        assertFalse(Downloads.isWebAddress("blob:https://adguard-dns.io/123"));
         assertFalse(Downloads.isWebAddress("data:,x"));
         assertFalse(Downloads.isWebAddress("file:///sdcard/x"));
         assertFalse(Downloads.isWebAddress(null));
