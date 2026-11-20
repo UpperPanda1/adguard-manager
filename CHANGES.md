@@ -11,6 +11,43 @@ too.
 
 ---
 
+## 2026-11-20 — A latency test of AdGuard's DNS servers (Phase 7, part 1: the measuring)
+
+**What.** The code that measures how fast AdGuard's DNS servers answer this phone. It is shown in the next change
+("Connection details"); on its own this commit changes nothing you can see.
+
+**Why it works this way.**
+
+- **NextDNS's ping page** (`ping.nextdns.io`) lists nearby NextDNS servers. Their names look like other companies'
+  (`vultr-dal-1`, `anexia-chi-1`, `zepto-mci-1`…) because the first word is the **hosting company** whose data centre
+  runs the machine; they are still NextDNS's servers (`….edge.nextdns.io`). Each one reports the round trip it
+  measured (research D10).
+- **AdGuard publishes no such list.** Its servers are **anycast**: one address (e.g. `94.140.14.14`) that the nearest
+  AdGuard location answers (D9). So the app times AdGuard's four public addresses — *Default*, *Non-filtering*,
+  *Family* and the *personal servers'* address (`d.adguard-dns.com`) — over IPv4 and IPv6. The times show how quickly
+  AdGuard answers *you*; which city answered comes from the DNS check (next change).
+- **How a time is taken.** Apps can't send real "pings" (ICMP) without root. The usual stand-in: open a TCP connection
+  to port 443 and time the handshake, which is exactly one round trip; close it at once, send nothing. Three tries per
+  address, the **best** counts (like ping's "min"); 2 s timeout (as NextDNS); after one try without an answer the
+  other two are skipped. IPv6 rows appear only when IPv6 works on your network.
+
+**Files.** New `status/Latency.java` + `LatencyTest` (7 tests: best-of rule, IPv4/IPv6 choice, a real handshake with a
+small local server and a refused one, measuring order and live updates, stopping when the window closes, display
+order); `site/Site.java` `LATENCY_SERVERS`.
+
+**Verified.** `test lint assembleDebug assembleRelease`: **112 tests**, 0 lint issues. Mutation checks (all caught):
+worst instead of best try; IP version ignored (2 tests fail); IPv6 always shown; slowest first; closing ignored.
+**Not verified:** real times to AdGuard (the sandbox can't open direct connections: `connection refused`); on a phone.
+
+**Size.** Release APK (clean build) **189,470 bytes** (+236): R8 leaves out `Latency` until something uses it (next
+change); only the server list is new.
+
+**What to test on your phone**
+
+Nothing yet: see the next change.
+
+---
+
 ## 2026-11-20 — Phase 6: the status icon asks AdGuard's own DNS check
 
 **What.** The icon in the top bar ("is this phone using AdGuard DNS, and is it encrypted?") now uses **the same check as

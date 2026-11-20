@@ -96,6 +96,25 @@ public final class Site {
             Arrays.asList("doh", "dot", "doq", "dnscrypt"));
 
     /**
+     * The servers the Connection details window times (status/Latency), by name → host. AdGuard DNS's own
+     * public names (research D2, D9): default filtering, no filtering, family filtering, and the host of
+     * the personal servers ({@code <device id>.d.adguard-dns.com} share its addresses). They are
+     * <b>anycast</b> addresses: one address, answered by the nearest AdGuard location, so the times show
+     * how quickly AdGuard answers this phone, not a list of cities (AdGuard publishes none). The page
+     * turns the names into words.
+     */
+    public static final Map<String, String> LATENCY_SERVERS;
+
+    static {
+        Map<String, String> servers = new LinkedHashMap<>();
+        servers.put("default", "dns.adguard-dns.com");
+        servers.put("unfiltered", "unfiltered.adguard-dns.com");
+        servers.put("family", "family.adguard-dns.com");
+        servers.put("personal", "d.adguard-dns.com");
+        LATENCY_SERVERS = Collections.unmodifiableMap(servers);
+    }
+
+    /**
      * Web pages the Settings screen may open in the browser, by name. The settings page only ever
      * sends the name, never an address, so it can't be used to open something else. Both are the
      * addresses AdGuard DNS's own website footer links (research L1).

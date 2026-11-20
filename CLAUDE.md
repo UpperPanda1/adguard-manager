@@ -23,7 +23,7 @@
    **`docs/PHASES.md`**; facts about AdGuard's website are in **`docs/research/2026-11-19-adguard-live-probe.md`**.
 3. The cloud sandbox is prepared by `.claude/hooks/session-start.sh` (Android SDK, Maven mirror, Gradle warm-up).
    Confirm before changing code: `./gradlew --no-daemon test lint assembleDebug assembleRelease` must pass
-   (105 tests, **0 lint issues**) and the page checks must pass (6). If the hook didn't run, see §5 "manual set-up".
+   (112 tests, **0 lint issues**) and the page checks must pass (6). If the hook didn't run, see §5 "manual set-up".
 4. Work on the branch the session instructions name. Never claim on-device behaviour was tested: there is no phone
    or emulator here.
 

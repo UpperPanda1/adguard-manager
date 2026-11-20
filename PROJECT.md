@@ -59,7 +59,7 @@ check since Phase 6. That is by design: the plan changes one thing per step so e
 
 Package `org.dnsmanager.app` (code, shared with NextDNS Manager+ on purpose), application id
 `org.rafee_m.adguarddnsmanager` (store identity), Java only, no UI library, one library in total (`androidx.webkit`).
-Release APK 189,234 bytes (clean build, 2026-11-20, after Phase 6).
+Release APK 189,470 bytes (clean build, 2026-11-20, after Phase 6 and the latency code).
 
 ---
 
@@ -251,6 +251,7 @@ Java: `app/src/main/java/org/dnsmanager/app/` (43 files, 6,128 lines). Tests: `a
 | `LockRules.java` | When to lock (fresh start, away > 1 minute) | `LockRulesTest` | |
 | **status/** | | | |
 | `ConnectionStatus.java` | Listens to the network, runs AdGuard's DNS check (a "not in use" is confirmed once, 3 s later), paints the icon | — | 6 ✅ |
+| `Latency.java` | Latency test: TCP handshake time to port 443 of each AdGuard server (`Site.LATENCY_SERVERS`), IPv4 + IPv6, best of 3, 2 s timeout; display order (fastest first, IPv6 only if it works) | `LatencyTest` (incl. a local server) | 7 ✅ (new) |
 | `DnsCheck.java` | AdGuard's DNS check: fresh random name, request, answer → in use / not in use / unknown + validated details (protocol, own/public server, device, location) | `DnsCheckTest` (incl. a local HTTP server) | 6 ✅ (new) |
 | `StatusRules.java` | Private DNS (suffix rule) + DNS check → state and colour | `StatusRulesTest` | 6 ✅ |
 | **downloads/** | | | |
@@ -641,7 +642,7 @@ add the row in both repositories).
 
 | Layer | What | Command |
 |---|---|---|
-| Unit tests | 105 JUnit tests of the plain-Java rules (accounts, site, status, lock, colours/contrast, theme rebuild, downloads/data URLs, tab LRU, start URLs, load errors, desktop mode, find, scripts, cache size, insets, badge, external links, wipe gate). Phases 3–6 change `SiteTest`, `StatusRulesTest`, `ContrastTest` and add the sign-in tests | `./gradlew test` |
+| Unit tests | 112 JUnit tests of the plain-Java rules (accounts, site, status, lock, colours/contrast, theme rebuild, downloads/data URLs, tab LRU, start URLs, load errors, desktop mode, find, scripts, cache size, insets, badge, external links, wipe gate). Phases 3–6 change `SiteTest`, `StatusRulesTest`, `ContrastTest` and add the sign-in tests | `./gradlew test` |
 | Lint | Android lint, warnings = errors | `./gradlew lint` |
 | Builds | debug + release (R8) | `./gradlew assembleDebug assembleRelease` |
 | Page checks | 6 Chromium checks of Settings, About and the zoom script with stand-in bridges (accounts flow, options, permissions = manifest, dark colours = `Themes.java`, 360 px width, About links) | `tools/page-checks` (README) |
