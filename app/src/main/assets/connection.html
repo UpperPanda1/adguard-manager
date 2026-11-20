@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection details</title>
+    <!--
+        Three-dots menu → Connection details (opened by ui/ConnectionWindow.java in its own full-screen window).
+        Shows what AdGuard's DNS check saw (status/DnsCheck) and how fast AdGuard's DNS servers answer (status/Latency).
+
+        HOW TO CHANGE THIS PAGE (PROJECT.md §7):
+          - Texts: right here (the HTML below, and the WORDS table in the script for the values).
+          - The app sends codes and numbers only (status/ConnectionReport): onStatus({...}) and onLatency({...}).
+            Everything is inserted with textContent, never as HTML.
+          - Colours: the --md-* variables follow the app's theme (<style id="app-theme"> at the end of <head>, as in
+            about.html and settings.html). The status colour is the top bar icon's own (status/StatusRules.color).
+        Page check: tools/page-checks/connection.mjs (screenshots light/dark, 360 px).
+    -->
+    <style>
+        :root {
+            --md-primary: #0056B3;
+            --md-secondary-container: #DCE8FA; --md-on-secondary-container: #0B2545;
+            --md-surface: #FFFFFF; --md-on-surface: #212529; --md-on-surface-variant: #495057;
+            --md-surface-container: #F1F3F5;
+            color-scheme: light;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --md-primary: #6EA8FE;
+                --md-secondary-container: #1F3A5F; --md-on-secondary-container: #D6E4FF;
+                --md-surface: #212529; --md-on-surface: #DEE2E6; --md-on-surface-variant: #ADB5BD;
+                --md-surface-container: #2B3035;
+                color-scheme: dark;
+            }
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        /* A row's display:flex would otherwise beat the browser's own rule for the hidden attribute. */
+        [hidden] { display: none !important; }
+        html, body { background: var(--md-surface); }
+        body {
+            font-family: "Google Sans Text", "Google Sans", Roboto, system-ui, sans-serif;
+            color: var(--md-on-surface); font-size: 16px; line-height: 1.4; min-height: 100vh;
+        }
+        button { font: inherit; color: inherit; }
+        svg { width: 24px; height: 24px; fill: currentColor; flex-shrink: 0; }
+
+        .appbar { display: flex; align-items: center; gap: 4px; height: 64px; padding: 0 4px; }
+        .appbar h1 { font-size: 22px; font-weight: 400; margin-left: 4px; }
+        .appbar .end { margin-left: auto; }
+        .icon-btn {
+            position: relative; display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border-radius: 50%; border: 0; background: transparent;
+            color: var(--md-on-surface-variant); cursor: pointer; flex-shrink: 0;
+        }
+        .icon-btn[disabled] { opacity: .38; pointer-events: none; }
+
+        main { max-width: 640px; margin: 0 auto; padding: 8px 16px 48px; }
+        .group { display: flex; flex-direction: column; gap: 2px; }
+        .row {
+            position: relative; overflow: hidden; display: flex; align-items: center; gap: 16px;
+            min-height: 72px; padding: 12px 16px; background: var(--md-surface-container);
+            border-radius: 4px;
+        }
+        .group > .row:first-child { border-top-left-radius: 24px; border-top-right-radius: 24px; }
+        .group > .row:last-child { border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; }
+        .row > svg { color: var(--md-on-surface-variant); }
+        .text { flex: 1; min-width: 0; }
+        .title { font-size: 16px; overflow-wrap: anywhere; }
+        .sub { font-size: 14px; color: var(--md-on-surface-variant); margin-top: 2px; overflow-wrap: anywhere; }
+        .section-label { font-size: 14px; font-weight: 500; color: var(--md-primary); margin: 28px 16px 8px; }
+        .hint { font-size: 14px; color: var(--md-on-surface-variant); margin: 8px 16px 0; }
+        .hint + .hint { margin-top: 8px; }
+        .chip {
+            display: inline-block; font-size: 12px; font-weight: 500; line-height: 20px;
+            padding: 0 8px; border-radius: 8px; margin-left: 6px; vertical-align: 1px;
+            background: var(--md-secondary-container); color: var(--md-on-secondary-container);
+        }
+
+        /* The status: the same symbol and colour as the top bar's icon (tick = encrypted AdGuard DNS). */
+        .status .title { font-size: 18px; }
+        .status > svg { width: 32px; height: 32px; color: var(--status, var(--md-on-surface-variant)); }
+
+        /* Latency: the time on the right, digits of equal width so the column lines up. */
+        .value { font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .value.none { font-weight: 400; color: var(--md-on-surface-variant); }
+
+        /* Touch feedback ("state layer"), as in settings.html and about.html. */
+        .icon-btn::after {
+            content: ""; position: absolute; inset: 0; border-radius: inherit;
+            background: currentColor; opacity: 0; transition: opacity .15s; pointer-events: none;
+        }
+        .icon-btn:active::after { opacity: .1; }
+        :focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
+        /* "Checking…": the refresh symbol turns while the app is working. */
+        .spin svg { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+    </style>
+    <!-- App theme (light / dark) from theme/ThemeBridge; must stay last in <head>. -->
+    <script>if (window.AndroidTheme) { document.write('<style id="app-theme">' + AndroidTheme.css() + '</style>'); }</script>
+</head>
+<body>
+    <header class="appbar">
+        <button type="button" class="icon-btn" onclick="closeWindow()" aria-label="Back">
+            <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </button>
+        <h1>Connection details</h1>
+        <button type="button" class="icon-btn end" id="refresh" onclick="refresh()" aria-label="Check again">
+            <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        </button>
+    </header>
+    <main>
+        <!-- The status: what the top bar icon says, in words. -->
+        <div class="group" role="status" aria-live="polite">
+            <div class="row status" id="status">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path id="statusShape" d="M1,21h22L12,2 1,21zM13,18h-2v-2h2v2zM13,14h-2v-4h2v4z"/></svg>
+                <div class="text"><div class="title" id="statusText">Checking…</div><div class="sub" id="statusSub">Asking AdGuard's DNS check</div></div>
+            </div>
+        </div>
+
+        <!-- What AdGuard's DNS check saw. Rows without a value are hidden. -->
+        <h3 class="section-label">This connection</h3>
+        <div class="group" id="details">
+            <div class="row" id="notSeen" hidden>
+                <svg viewBox="0 0 24 24"><path d="M1,21h22L12,2 1,21zM13,18h-2v-2h2v2zM13,14h-2v-4h2v4z"/></svg>
+                <div class="text"><div class="title" id="notSeenTitle"></div><div class="sub" id="notSeenSub"></div></div>
+            </div>
+            <div class="row" id="protocolRow">
+                <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <div class="text"><div class="title">Protocol</div><div class="sub" id="protocol">Checking…</div></div>
+            </div>
+            <div class="row" id="serverRow">
+                <svg viewBox="0 0 24 24"><path d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zM7 19c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM20 3H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1zM7 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                <div class="text"><div class="title">AdGuard server</div><div class="sub" id="server">Checking…</div></div>
+            </div>
+            <div class="row" id="deviceRow" hidden>
+                <svg viewBox="0 0 24 24"><path d="M17 1.01 7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+                <div class="text"><div class="title">Device ID</div><div class="sub" id="device"></div></div>
+            </div>
+            <div class="row" id="locationRow">
+                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+                <div class="text"><div class="title">AdGuard location</div><div class="sub" id="location">Checking…</div></div>
+            </div>
+            <div class="row">
+                <svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+                <div class="text"><div class="title">Android's Private DNS</div><div class="sub" id="privateDns">Checking…</div></div>
+            </div>
+        </div>
+        <p class="hint">From AdGuard's own DNS check, the same one the AdGuard DNS dashboard uses.</p>
+
+        <!-- How fast AdGuard answers: one row per address (IPv4, and IPv6 where it works), fastest first. -->
+        <h3 class="section-label">Latency</h3>
+        <div class="group" id="latency"></div>
+        <p class="hint">Time for one round trip from this phone to each AdGuard DNS address (best of 3 tries). The nearest AdGuard location answers each address, so the times are usually close.</p>
+        <p class="hint" id="noIpv6" hidden>IPv6 didn't answer on this network, so only IPv4 is listed.</p>
+    </main>
+
+    <script>
+        const APP = window.AndroidConnection;
+        function closeWindow() { if (APP) APP.close(); else history.back(); }
+
+        // Words for the codes the app sends (status/ConnectionReport). A code not listed is shown as it is.
+        const WORDS = {
+            protocol: { dot: 'DNS-over-TLS', doh: 'DNS-over-HTTPS', doq: 'DNS-over-QUIC', dnscrypt: 'DNSCrypt', dns: 'Plain DNS' },
+            server: {
+                private: 'Your own server · your account’s settings apply',
+                public: 'AdGuard’s public server · your account’s settings don’t apply'
+            },
+            latency: { default: 'Default', unfiltered: 'Non-filtering', family: 'Family protection', personal: 'Personal servers' }
+        };
+        // The top bar's two symbols (res/drawable/ic_status_ok.xml and ic_status_warn.xml).
+        const SHAPE = {
+            ok: 'M12,1L3,5v6c0,5.55 3.84,10.74 9,12 5.16,-1.26 9,-6.45 9,-12V5l-9,-4zM10,17l-4,-4 1.41,-1.41L10,14.17l6.59,-6.59L18,9l-8,8z',
+            warn: 'M1,21h22L12,2 1,21zM13,18h-2v-2h2v2zM13,14h-2v-4h2v4z'
+        };
+        const $ = id => document.getElementById(id);
+        let servers = {};               // name → host, from the app
+        let statusBusy = false, latencyBusy = false;
+
+        function setText(id, text) { $(id).textContent = text; }
+        function showRow(id, show) { $(id).hidden = !show; }
+        function updateRefresh() {
+            const busy = statusBusy || latencyBusy;
+            $('refresh').disabled = busy;
+            $('refresh').classList.toggle('spin', busy);
+        }
+
+        // ---------------------------------------------------------------- the status and the DNS check
+        window.onStatus = function (s) {
+            servers = s.servers || servers;
+            statusBusy = !!s.checking;
+            updateRefresh();
+            setText('statusText', s.sentence || 'Checking…');
+            $('statusShape').setAttribute('d', s.state === 'SECURE' ? SHAPE.ok : SHAPE.warn);
+            $('status').style.setProperty('--status', /^#[0-9a-f]{6}$/.test(s.color || '') ? s.color : '');
+
+            const c = s.check;
+            const outcome = c ? c.outcome : null;
+            setText('statusSub', s.checking ? 'Asking AdGuard’s DNS check'
+                : outcome === 'IN_USE' ? 'Seen by AdGuard’s DNS check'
+                : outcome === 'NOT_IN_USE' ? 'AdGuard’s DNS check didn’t see this phone'
+                : outcome === 'UNKNOWN' ? 'AdGuard’s DNS check didn’t answer · from Android’s Private DNS'
+                : 'From Android’s Private DNS setting');
+
+            const seen = outcome === 'IN_USE';
+            const waiting = !c && s.checking;
+            // AdGuard didn't see the phone, or didn't answer: one row says so instead of four empty ones.
+            showRow('notSeen', !seen && !waiting);
+            if (outcome === 'NOT_IN_USE') {
+                setText('notSeenTitle', 'AdGuard didn’t see this phone’s DNS');
+                setText('notSeenSub', 'Its DNS requests go to another service');
+            } else {
+                setText('notSeenTitle', 'No answer from AdGuard’s DNS check');
+                setText('notSeenSub', 'Try again in a moment');
+            }
+            for (const id of ['protocolRow', 'serverRow', 'locationRow']) showRow(id, seen || waiting);
+            if (seen) {
+                const name = WORDS.protocol[c.protocol] || (c.protocol ? c.protocol.toUpperCase() : 'Unknown');
+                setText('protocol', c.protocol ? name + (c.encrypted ? ' · encrypted' : ' · not encrypted') : 'Unknown');
+                setText('server', WORDS.server[c.serverType] || 'Unknown');
+                setText('device', c.deviceId || '');
+                setText('location', c.location ? c.location.toUpperCase() + (c.node ? ' · server ' + c.node : '') : 'Unknown');
+            } else {
+                for (const id of ['protocol', 'server', 'location']) setText(id, 'Checking…');
+            }
+            showRow('deviceRow', seen && !!c.deviceId);
+
+            const p = s.privateDns || {};
+            setText('privateDns', p.active ? (p.host || 'Automatic') : 'Not in use');
+        };
+
+        // ---------------------------------------------------------------- latency
+        function latencyRow(title, sub, value, valueClass, fastest) {
+            const row = document.createElement('div');
+            row.className = 'row';
+            const text = document.createElement('div');
+            text.className = 'text';
+            const t = document.createElement('div');
+            t.className = 'title';
+            t.textContent = title;
+            if (fastest) {
+                const chip = document.createElement('span');
+                chip.className = 'chip';
+                chip.textContent = 'Fastest';
+                t.append(chip);
+            }
+            const s = document.createElement('div');
+            s.className = 'sub';
+            s.textContent = sub;
+            text.append(t, s);
+            const v = document.createElement('div');
+            v.className = 'value' + (valueClass ? ' ' + valueClass : '');
+            v.textContent = value;
+            row.append(text, v);
+            return row;
+        }
+        function formatMs(ms) { return (ms < 10 ? ms.toFixed(1) : String(Math.round(ms))) + ' ms'; }
+
+        window.onLatency = function (l) {
+            latencyBusy = !l.done;
+            updateRefresh();
+            const list = $('latency');
+            list.replaceChildren();
+            const rows = l.rows || [];
+            // The app sends them fastest first; the first one that answered is the fastest.
+            const fastest = rows.findIndex(r => r.ms !== null && r.ms !== undefined);
+            rows.forEach((r, i) => {
+                const host = servers[r.server] || '';
+                const sub = (host ? host + ' · ' : '') + 'IPv' + r.ip;
+                const answered = r.ms !== null && r.ms !== undefined;
+                list.append(latencyRow(WORDS.latency[r.server] || r.server, sub,
+                    answered ? formatMs(r.ms) : 'No answer', answered ? '' : 'none', l.done && i === fastest));
+            });
+            if (!l.done) list.append(latencyRow('Measuring…', 'One AdGuard address after another', '', '', false));
+            showRow('noIpv6', l.done && !l.ipv6 && rows.length > 0);
+        };
+
+        function refresh() {
+            statusBusy = latencyBusy = true;
+            updateRefresh();
+            if (APP) APP.refresh();
+        }
+
+        // Opening the window starts a fresh check and latency test.
+        window.onLatency({ done: false, ipv6: false, rows: [] });
+        refresh();
+    </script>
+</body>
+</html>

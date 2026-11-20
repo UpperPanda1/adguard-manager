@@ -11,6 +11,19 @@ too.
 
 ---
 
+## 2026-11-20 — The Connection details page and window (Phase 7, part 3: not reachable yet)
+
+**What.** The new screen itself: `assets/connection.html` (the page), `ui/ConnectionWindow.java` (the full-screen
+window that shows it, like About) and its page check `tools/page-checks/connection.mjs`. Nothing opens it yet: the
+next change puts it in the ⋮ menu and removes the Ping window. Everything about the screen is described there.
+
+**Verified** (this commit built alone in a clean checkout): `test lint assembleDebug assembleRelease`: 116 tests,
+0 lint issues; page checks 7 of 7 (new `connection`); screenshots looked at. **Size:** see the next change (measured once the screen is reachable).
+
+**What to test on your phone:** nothing yet.
+
+---
+
 ## 2026-11-20 — Connection details can ask for a fresh check (Phase 7, part 2: the data)
 
 **What.** Preparation for the Connection details screen, nothing visible: `status/ConnectionStatus` can now run a
