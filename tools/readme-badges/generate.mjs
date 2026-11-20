@@ -1,6 +1,6 @@
 // Development-time tool (not part of the app): writes the README's badges and banner into artwork/readme/.
 // Ported from LLM Central (UpperPanda1/assist, tools/readme-badges, 2026-11-16) for NextDNS Manager+, then copied to
-// AdGuard Manager: BRAND = the icon's blue, a "WebView 119+" chip, and the banner drawn here from artwork/icon.svg.
+// AdGuardDNS Manager: BRAND = the icon's blue, a "WebView 119+" chip, and the banner drawn here from artwork/icon.svg.
 //
 //   cd tools/readme-badges && npm install && npm run generate
 //
@@ -201,7 +201,7 @@ function banner() {
     const fg = `<g transform="${groupTransform}">${group[2]}</g>`;
     const c = { bg: BRAND, ring: hexFromArgb(Hct.from(HUE, 60, 28).toInt()), title: '#FFFFFF',
         sub: hexFromArgb(Hct.from(HUE, 18, 90).toInt()) };
-    const title = 'AdGuard Manager', sub = 'Every AdGuard DNS account, one private Android app';
+    const title = 'AdGuardDNS Manager', sub = 'Every AdGuard DNS account, one private Android app';
     // Sized by capital letters only: a sample with a descender ("g") would make the title smaller.
     const TITLE = sizeForHeight(BOLD, 'ADGUARD', 64), SUB = sizeForHeight(MEDIUM, 'Every', 22);
     // Icon drawing: the icon's safe zone (21–87 of its 108 × 108 canvas, where tools/icon keeps the foreground)

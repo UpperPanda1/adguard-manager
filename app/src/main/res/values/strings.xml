@@ -6,7 +6,7 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Used by app/build.gradle (manifestPlaceholders), which lint can't see. -->
-    <string name="app_name" tools:ignore="UnusedResources">AdGuard Manager</string>
+    <string name="app_name" tools:ignore="UnusedResources">AdGuardDNS Manager</string>
 
     <!-- Top bar -->
     <string name="switch_account">Switch account</string>

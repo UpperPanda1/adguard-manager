@@ -1,12 +1,48 @@
 # Changes
 
-What changed in **AdGuard Manager**, newest first. Each entry: what changed, why, how it was verified, sizes, and a
+What changed in **AdGuardDNS Manager** (called *AdGuard Manager* in the entries of 2026-11-20 before the rename),
+newest first. Each entry: what changed, why, how it was verified, sizes, and a
 numbered "What to test on your phone" list written for a beginner.
 
 The app started on 2026-11-19 as an unchanged copy of NextDNS Manager+ (bottom entry). Changes made **before** that, to
 the code both apps share (accounts, tabs, app lock, settings, downloads…), are described in NextDNS Manager+'s own
 `CHANGES.md` (`UpperPanda1/nextdnsmanager-plus`, commit `eaa1665`); its phone-test lists apply to the shared parts here
 too.
+
+---
+
+## 2026-11-20 — Renamed to "AdGuardDNS Manager" (`org.rafee_m.adguarddnsmanager`)
+
+**What.** The owner changed the identity chosen earlier the same day:
+
+| | Before (this morning) | Now |
+|---|---|---|
+| Name (launcher, About, Settings, unlock prompt, README banner) | AdGuard Manager | **AdGuardDNS Manager** |
+| Debug build's name | AdGuard Manager (Debug) | AdGuardDNS Manager (Debug) |
+| applicationId | `org.rafee_m.adguardmanager` | **`org.rafee_m.adguarddnsmanager`** (`.debug` for debug builds) |
+| Repository | `UpperPanda1/adguard-manager` | **unchanged for now**; the owner will rename it `adguard-dns-manager` later (PROJECT.md §7 lists what to change then) |
+
+Also renamed: the Gradle project (`AdGuardDNSManager`), the tool package names, the release key file/alias in
+`RELEASE.md` (`adguarddnsmanager`), the future APK name (`AdGuardDNS-Manager-<version>.apk`) and the F-Droid recipe
+draft (`metadata/org.rafee_m.adguarddnsmanager.yml`). Earlier entries below keep the names they had at the time.
+
+**Why it is safe now:** the applicationId may change freely **before the first public release**; nobody has the app
+installed from a release. After the first release it is frozen.
+
+**Verified.** Clean `test lint assembleDebug assembleRelease`: 92 tests, 0 lint issues. `aapt dump badging`: release
+`org.rafee_m.adguarddnsmanager` / "AdGuardDNS Manager", debug `….debug` / "AdGuardDNS Manager (Debug)";
+`BuildConfig.REPO_URL` still `https://github.com/UpperPanda1/adguard-manager`. Page checks 6 of 6. Banner regenerated
+and looked at (the longer title fits). No old name or id left outside historical records (grep). **Not verified:** on a
+phone.
+
+**Size.** Release APK (clean build) **187,414 bytes** (unchanged).
+
+**What to test on your phone**
+
+1. If you installed an earlier debug build ("AdGuard Manager (Debug)"), uninstall it: the new id makes this a
+   **different app**, so it would stay next to the new one.
+2. Install this commit's debug APK: it is called **AdGuardDNS Manager (Debug)**; ⋮ → Settings → **About AdGuardDNS
+   Manager** shows the name, and Source code still opens `UpperPanda1/adguard-manager`.
 
 ---
 

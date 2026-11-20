@@ -29,8 +29,8 @@
 
 ## 2. The project in one paragraph
 
-**AdGuard Manager** (applicationId `org.rafee_m.adguardmanager`, code package `org.dnsmanager.app`, repository
-`UpperPanda1/adguard-manager`, public) will wrap the **AdGuard DNS dashboard** (`adguard-dns.io/en/dashboard/`) in
+**AdGuardDNS Manager** (applicationId `org.rafee_m.adguarddnsmanager`, code package `org.dnsmanager.app`, repository
+`UpperPanda1/adguard-manager`, public; the owner will rename it `adguard-dns-manager` later: PROJECT.md §7) will wrap the **AdGuard DNS dashboard** (`adguard-dns.io/en/dashboard/`) in
 WebViews with a native top bar: several isolated accounts (one androidx.webkit **Profile** per account), a numbered
 account chip and menu, find in page, app lock, a connection-status icon, Private DNS shortcut, downloads, desktop site,
 pinch to zoom, White/Black/Match-system theme, and sign-in with Apple, Google and Facebook. It is an **unchanged copy of
@@ -143,7 +143,7 @@ cd tools/readme-badges && npm ci && npm run generate; cd ../..
 - Everything about the DNS service in `site/Site.java`; all colours in `theme/Themes.java`; the icon only in
   `artwork/icon.svg` (`drawable/ic_launcher_*.xml`, the store icon and the README banner are generated; never edit
   them by hand).
-- **applicationId `org.rafee_m.adguardmanager`**: frozen after the first public release. Java package
+- **applicationId `org.rafee_m.adguarddnsmanager`**: frozen after the first public release. Java package
   `org.dnsmanager.app` stays (shared with NextDNS Manager+, so fixes port as near-identical diffs).
 - `adguardaccount.com` loads inside the account; `adguardcheckout.com` (payment) opens in the browser (owner Q4).
 
@@ -253,8 +253,8 @@ owner's sign-in on claude.ai (Settings → Connectors).
 - [x] Phase 0: NextDNS Manager+ `eaa1665` imported unchanged (`abb10bf`, CI green, 2026-11-19).
 - [x] Phase 1: live research; `tools/site-probe`; facts, owner questions and phone checks P1–P6 (`8642642`, 2026-11-19).
 - [x] `UPSTREAM.md` (`19fa650`); the plan in `docs/ADGUARD_PLAN.md` (`2c2cf8b`).
-- [x] Phase 2 (2026-11-20): name AdGuard Manager + id `org.rafee_m.adguardmanager` + repository (`8d6c321`), icon
-      (`9197934`), README + badges (`1fa8540`), docs for AdGuard Manager.
+- [x] Phase 2 (2026-11-20): name AdGuardDNS Manager + id `org.rafee_m.adguarddnsmanager` + repository (`8d6c321`), icon
+      (`9197934`), README + badges (`1fa8540`), docs for AdGuardDNS Manager.
 - [ ] **Owner:** Q2 (Ping: remove / connection details / latency, PROJECT.md §11 Phase 7); phone test of Phase 2.
 - [ ] Phase 3 Site → 4 Theme → 5 Sign-in → 6 Status → D Downloads → 7 Ping → 8 Texts → 9 Workflows → 10 Review →
       11 Docs (PROJECT.md §11).

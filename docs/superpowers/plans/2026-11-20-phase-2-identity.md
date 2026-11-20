@@ -1,5 +1,9 @@
 # Phase 2 — Identity (plan and result)
 
+> **Later the same day** the owner renamed the app to **AdGuardDNS Manager**, id `org.rafee_m.adguarddnsmanager`
+> (repository unchanged until the owner renames it `adguard-dns-manager`). This record keeps the names as they were;
+> the rename is in CHANGES.md.
+
 **Goal** (`docs/ADGUARD_PLAN.md` §6, Phase 2): the app becomes *AdGuard Manager* — name, applicationId, repository
 address and author, icon, About credits, README with new badges and banner — and the documentation describes this app.
 **Done when:** it builds; About shows the new repository and Rafee-M; the icon check passes.

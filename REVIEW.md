@@ -1,4 +1,4 @@
-# Reviews of AdGuard Manager
+# Reviews of AdGuardDNS Manager
 
 **No review of the AdGuard changes yet.** The plan's Phase 10 is an adversarial review of everything since the import
 (`abb10bf`): sign-in hosts and the user-agent scope (Phase 5), the blob download bridge (Phase D), the status check
@@ -45,7 +45,7 @@ the `\r` of `gradle.properties`' Windows line endings). For this repository the 
 | B | Ping window shares account `main`'s cookie jar (default profile) | depends on Q2 (PROJECT.md §11 Phase 7): moot if it is removed or becomes "Connection details" |
 | C | GPL credit chain beyond LLM Central (duckAssist/gptAssist) in README/About | same question |
 | D | Working files (`CLAUDE.md`, `handoff.md`, `.claude/`, this file) in the public repository: keep or remove | **this repository is public** (checked 2026-11-20), so they are visible now |
-| E | Name vs trademark | "AdGuard Manager" chosen 2026-11-20; the F-Droid question is in `fdroid.md` §3.2 |
+| E | Name vs trademark | "AdGuardDNS Manager" chosen 2026-11-20; the F-Droid question is in `fdroid.md` §3.2 |
 | F | Status icon rule once a real "in use" answer is seen | Phase 6 + phone check P6 |
 
 ## 3. What the reviews checked and found correct

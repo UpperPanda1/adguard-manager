@@ -20,7 +20,7 @@ Updated only when the owner asks for a handoff.
 
 | | |
 |---|---|
-| App | **AdGuard Manager** 0.1.0, applicationId **`org.rafee_m.adguardmanager`** (debug `….debug`, "AdGuard Manager (Debug)"), own icon (two server units on `#1A6BF4`). **Still opens the NextDNS dashboard**: `site/Site.java` is Phase 3 |
+| App | **AdGuardDNS Manager** 0.1.0, applicationId **`org.rafee_m.adguarddnsmanager`** (debug `….debug`, "AdGuardDNS Manager (Debug)"), own icon (two server units on `#1A6BF4`). **Still opens the NextDNS dashboard**: `site/Site.java` is Phase 3 |
 | Origin | Unchanged copy of NextDNS Manager+ `eaa1665` (import `abb10bf`, 2026-11-19); port list `UPSTREAM.md` |
 | Repository | `UpperPanda1/adguard-manager` (**public**); `gradle.properties` `app.repoUrl` points at it |
 | Branch | `claude/trusting-wozniak-hk9afh` (all work so far) |
@@ -50,7 +50,7 @@ Updated only when the owner asks for a handoff.
 ## 3. Where things are
 
 ```
-app/build.gradle          applicationId org.rafee_m.adguardmanager, minSdk 29, lint = errors, repoUrl/author → BuildConfig
+app/build.gradle          applicationId org.rafee_m.adguarddnsmanager, minSdk 29, lint = errors, repoUrl/author → BuildConfig
 gradle.properties         app.repoUrl, app.author (About screen); CRLF line endings; never override with -P in a release
 app/src/main/java/org/dnsmanager/app/
   MainActivity.java       wiring only      site/Site.java   EVERYTHING about the DNS service (still NextDNS → Phase 3)
@@ -131,7 +131,7 @@ dry run on GitHub, `v0.1.0` tag, the recipe, `fdroid lint/build/scanner`. Anti-f
 
 Full list: PROJECT.md §10. In short: nothing has run on a phone; the app still opens NextDNS; the signed-in AdGuard
 dashboard, hCaptcha, Google's WebView refusal and the server download links were not seen live (research P1–P6);
-English only; "AdGuard Manager" may raise a trademark question.
+English only; "AdGuardDNS Manager" may raise a trademark question.
 
 ## 10. Prompt for a new session
 
@@ -139,7 +139,7 @@ Short on purpose: CLAUDE.md is loaded automatically and holds the rules, so the 
 "done" means, and the task. Copy the box, fill in the last line:
 
 ```text
-AdGuard Manager (Android, Java, WebView), a copy of NextDNS Manager+ being adapted phase by phase
+AdGuardDNS Manager (Android, Java, WebView), a copy of NextDNS Manager+ being adapted phase by phase
 (docs/ADGUARD_PLAN.md). Work on the branch the session instructions name.
 
 Start:

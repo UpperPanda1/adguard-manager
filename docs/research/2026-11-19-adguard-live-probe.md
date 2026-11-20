@@ -117,7 +117,8 @@ Answers given by the owner on 2026-11-20 (also in PROJECT.md §2.2) are marked *
 - **Q5 Providers.** Plan §13.3: all three (Apple, Google, Facebook; all seen working up to the provider's page) or
   fewer?
   **→ All three.** Also decided: name *AdGuard Manager*, id `org.rafee_m.adguardmanager`, repository
-  `UpperPanda1/adguard-manager`.
+  `UpperPanda1/adguard-manager`; **changed the same day** to *AdGuardDNS Manager*, `org.rafee_m.adguarddnsmanager`,
+  repository to be renamed `adguard-dns-manager` later.
 
 ## 4. Still open
 

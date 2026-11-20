@@ -1,5 +1,5 @@
 {
-  "name": "adguardmanager-readme-badges",
+  "name": "adguarddnsmanager-readme-badges",
   "private": true,
   "description": "Development-time tool: writes the README's Material 3 badges (artwork/readme/*.svg, light + dark) in the app's colours. Not part of the app.",
   "type": "module",

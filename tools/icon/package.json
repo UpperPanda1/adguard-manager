@@ -1,5 +1,5 @@
 {
-  "name": "adguardmanager-icon-generator",
+  "name": "adguarddnsmanager-icon-generator",
   "private": true,
   "description": "Development-time tool: writes the launcher icon files (vector drawables, store icon, preview) from artwork/icon.svg. Not part of the app.",
   "type": "module",

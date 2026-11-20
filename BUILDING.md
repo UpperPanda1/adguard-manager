@@ -1,4 +1,4 @@
-# Building AdGuard Manager
+# Building AdGuardDNS Manager
 
 From nothing to a running build, with Android Studio or the command line. The app is plain Java on the Android
 framework with a single library (`androidx.webkit`), so there is not much to install. (Copied from NextDNS Manager+,
@@ -43,7 +43,7 @@ published APK can be rebuilt byte for byte.
    Package Details*): **Build-Tools 35.0.0**.
 4. **Settings → Build, Execution, Deployment → Build Tools → Gradle → Gradle JDK** = 17 or newer.
 5. Run configuration **app** on a phone (USB debugging) or emulator → **Run ▶**. The debug build installs as
-   **"AdGuard Manager (Debug)"** (`org.rafee_m.adguardmanager.debug`), next to a released copy, never over it.
+   **"AdGuardDNS Manager (Debug)"** (`org.rafee_m.adguarddnsmanager.debug`), next to a released copy, never over it.
 
 > **If Studio offers to upgrade the Android Gradle Plugin or Gradle, decline.** The versions are pinned on purpose:
 > F-Droid rebuilds the app from source and compares it byte for byte with the published APK.
@@ -151,6 +151,6 @@ It is not a secret.
 | Missing `android-36` or Build-Tools | `sdkmanager "platforms;android-36" "build-tools;35.0.0"` |
 | `repoUrl must look like https://github.com/<owner>/<repo>` | `app.repoUrl` in `gradle.properties` (or a `-PrepoUrl` you passed) is malformed |
 | Lint fails on a warning | Fix it; accept it only in `app/lint.xml` with a reason |
-| "App not installed" for a debug APK | A debug build with a different key is installed; uninstall *AdGuard Manager (Debug)* first |
+| "App not installed" for a debug APK | A debug build with a different key is installed; uninstall *AdGuardDNS Manager (Debug)* first |
 | Only one account possible in the app | The phone's *Android System WebView* is older than 119; update it |
 | Page checks can't find a browser | `npx playwright install chromium` in `tools/page-checks/`, or set `CHROMIUM_PATH` |

@@ -1,4 +1,4 @@
-# AdGuard Manager — project guide
+# AdGuardDNS Manager — project guide
 
 The one document that explains **what this app is, how it is being made, how it is built, what every file does, and
 how to change each feature**. Start at the top for the big picture or jump to the part you need.
@@ -35,7 +35,7 @@ how to change each feature**. Start at the top for the big picture or jump to th
 
 ## 1. The app in one page
 
-**AdGuard Manager** will be an Android app that shows the official **AdGuard DNS dashboard**
+**AdGuardDNS Manager** will be an Android app that shows the official **AdGuard DNS dashboard**
 (`https://adguard-dns.io/en/dashboard/`) with a native top bar and extras a browser doesn't have:
 
 | Feature | In short | State (2026-11-20) |
@@ -51,12 +51,12 @@ how to change each feature**. Start at the top for the big picture or jump to th
 | Downloads | Files the dashboard makes itself (exported user rules) saved to Downloads; server files open in the browser. | Phase D (`blob:` capture) |
 | Ping test, Private DNS shortcut | From NextDNS Manager+; Ping has no AdGuard page (§11, Phase 7). | shortcut works; Ping open |
 
-**Today the app is named AdGuard Manager, has its own id and icon, but still opens the NextDNS dashboard**: everything
+**Today the app is named AdGuardDNS Manager, has its own id and icon, but still opens the NextDNS dashboard**: everything
 about the DNS service is in one file, `site/Site.java`, which Phase 3 rewrites (§11). That is by design: the plan
 changes one thing per step so each change can be reviewed on its own.
 
 Package `org.dnsmanager.app` (code, shared with NextDNS Manager+ on purpose), application id
-`org.rafee_m.adguardmanager` (store identity), Java only, no UI library, one library in total (`androidx.webkit`).
+`org.rafee_m.adguarddnsmanager` (store identity), Java only, no UI library, one library in total (`androidx.webkit`).
 Release APK 187,414 bytes (clean build, 2026-11-20).
 
 ---
@@ -84,9 +84,9 @@ and keeping it makes a NextDNS fix apply here as a near-identical diff. Only the
 
 | # | Question | Decision | When |
 |---|---|---|---|
-| — | Repository | **`UpperPanda1/adguard-manager`** (public) | 2026-11-20 |
-| — | App name | **AdGuard Manager** (plan §13 had "AdGuard DNS Manager+"; the trademark question is in `fdroid.md` §3.2) | 2026-11-20 |
-| — | applicationId | **`org.rafee_m.adguardmanager`** (frozen after the first public release) | 2026-11-20 |
+| — | Repository | **`UpperPanda1/adguard-manager`** (public) for now; the owner will rename it to **`adguard-dns-manager`** later. Until then `app.repoUrl` keeps the current address (§7 "Change the repository address" lists what to change after the rename) | 2026-11-20 |
+| — | App name | **AdGuardDNS Manager** (first "AdGuard Manager", changed the same day; plan §13 had "AdGuard DNS Manager+"; the trademark question is in `fdroid.md` §3.2) | 2026-11-20 |
+| — | applicationId | **`org.rafee_m.adguarddnsmanager`** (first `org.rafee_m.adguardmanager`, changed the same day, before any release; frozen after the first public release) | 2026-11-20 |
 | Q1 | The dashboard's "Export rules" makes a `blob:` file the copied code can't save | **Port LLM Central's blob capture** (new phase D, §11) | 2026-11-20 |
 | Q2 | AdGuard has no ping page: remove the Ping window? | **Open.** The owner asked why remove it; the options are in §11 Phase 7 | asked 2026-11-20 |
 | Q3 | The dashboard follows the phone's dark mode only if the account's theme is "Automatic" | **Keep as is**: no script forces the page's theme; README/Settings say so | 2026-11-20 |
@@ -97,7 +97,7 @@ and keeping it makes a NextDNS fix apply here as a near-identical diff. Only the
 Hard limits carried over from NextDNS Manager+ (CLAUDE.md §6): Java only, minSdk 29, one library, no UI libraries, no
 analytics or crash reporting, no swipe to refresh, no text-size feature, no back button in the top bar, theme exactly
 White/Black/Match system, status bar = page background. **One rule is reversed for AdGuard:** NextDNS Manager+ had
-"no Google/Apple sign-in code"; AdGuard Manager **needs** Apple, Google and Facebook sign-in (Q5).
+"no Google/Apple sign-in code"; AdGuardDNS Manager **needs** Apple, Google and Facebook sign-in (Q5).
 
 ### 2.3 The phases and where they stand
 
@@ -245,7 +245,7 @@ Java: `app/src/main/java/org/dnsmanager/app/` (43 files, 6,128 lines). Tests: `a
 | `UnloadedPlaceholder.java` | Black "Tap to load" / "Tap to retry" screens | — | |
 | `Windows.java` | Makes a dialog full-screen; `setSecure` for the app lock | — | |
 | **lock/** | | | |
-| `AppLock.java` | Setting + Android's unlock sheet ("Unlock AdGuard Manager") | — | |
+| `AppLock.java` | Setting + Android's unlock sheet ("Unlock AdGuardDNS Manager") | — | |
 | `LockRules.java` | When to lock (fresh start, away > 1 minute) | `LockRulesTest` | |
 | **status/** | | | |
 | `ConnectionStatus.java` | Listens to the network, runs the test request, paints the icon | — | 6 (random test name) |
@@ -266,7 +266,7 @@ Other files:
 | `app/src/main/assets/js/zoom_viewport.js`, `desktop_viewport.js`, `find_highlight.js` | Scripts added to the dashboard |
 | `app/src/main/assets/lib/reorder.js` | Drag-to-reorder for the account list |
 | `app/src/main/res/layout/activity_main.xml`, `top_bar.xml` | The screen and the top bar |
-| `app/src/main/res/values/strings.xml` | Texts of the native parts; `app_name` = "AdGuard Manager" |
+| `app/src/main/res/values/strings.xml` | Texts of the native parts; `app_name` = "AdGuardDNS Manager" |
 | `app/src/main/res/drawable/ic_*.xml` | Icons (Material Icons, vector) |
 | `app/src/main/res/mipmap-anydpi/ic_launcher.xml` + `drawable/ic_launcher_*.xml` | Launcher icon (own design since 2026-11-20: two white server units on `#1A6BF4`, AdGuard dashboard blue; vector adaptive icon, no PNGs needed at minSdk 29). The two `drawable` files are **generated** from `artwork/icon.svg` |
 | `app/src/main/res/xml/*backup*.xml` | Backup: settings yes, logins/site data never |
@@ -356,7 +356,7 @@ What each tap does is in `MainActivity.switcherHost`.
 | Behaviour | Pinch to zoom · Accounts kept loaded (1–10) |
 | Security | App lock |
 | Data | Clear cache (shows the current size) |
-| About & legal | About AdGuard Manager · Privacy (what the app stores/sends) · *service* privacy policy · *service* user agreement · Permissions · Disclaimer |
+| About & legal | About AdGuardDNS Manager · Privacy (what the app stores/sends) · *service* privacy policy · *service* user agreement · Permissions · Disclaimer |
 
 - *service* = `Site.NAME`, filled into every `.svc` element: today "NextDNS", "AdGuard DNS" from Phase 3. The Privacy
   and Disclaimer texts are rewritten for AdGuard in Phase 8 (sign-in pages, hCaptcha, AdGuard's own telemetry).
@@ -387,7 +387,7 @@ What each tap does is in `MainActivity.switcherHost`.
 
 ### 5.7 App lock
 
-- **Sees:** with App lock on, opening the app shows a cover and Android's unlock sheet ("Unlock AdGuard Manager":
+- **Sees:** with App lock on, opening the app shows a cover and Android's unlock sheet ("Unlock AdGuardDNS Manager":
   fingerprint, face, or the phone's PIN/pattern/password). Cancel leaves the cover with an Unlock button; Back leaves the
   app. The app also becomes "secure": blank in recent apps, no screenshots. Every dialog is its own window and gets the
   mark too (`ui/Windows.setSecure`), and `applySecureFlag` updates open dialogs when the lock is switched. While the
@@ -570,6 +570,15 @@ time (`app/build.gradle` → `BuildConfig` → `ui/AboutWindow` → `about.html`
 GitHub addresses only. `-PrepoUrl=…` is for test builds only, **never** a release (`fdroid.md` §4). Also change the
 static mentions in `README.md` and the F-Droid recipe.
 
+**After the planned rename to `adguard-dns-manager`** (owner, 2026-11-20): GitHub redirects the old address, so nothing
+breaks at once; then, in one commit: `app.repoUrl` in `gradle.properties` (keep the CRLF line ending) → check with
+`grep REPO_URL app/build/generated/source/buildConfig/release/org/dnsmanager/app/BuildConfig.java`; the Obtainium link
+in `README.md`; the five addresses of the recipe draft in `fdroid.md` §3.5 and the table in §4; the repository line in
+`CLAUDE.md` §2, `handoff.md` §1 and `RELEASE.md` §1; `git remote set-url origin
+https://github.com/UpperPanda1/adguard-dns-manager.git`. Find them all with
+`grep -rn "UpperPanda1/adguard-manager" --exclude-dir=.git --exclude-dir=build .` (historical `CHANGES.md` entries
+stay as they are). `release.yml` needs nothing: it compares `app.repoUrl` with the repository it runs in.
+
 **Change the README banner or badges:** `tools/readme-badges/generate.mjs` (`BRAND` = one hex re-colours everything;
 `WEBVIEW_FOR_ACCOUNTS`; texts of the banner in `banner()`); then `cd tools/readme-badges && npm ci && npm run generate`
 after a release build, and look at the README in light and dark. Never edit `artwork/readme/*.svg` by hand.
@@ -599,7 +608,7 @@ add the row in both repositories).
 | Java | source/target 11; builds with JDK 17 or 21 | |
 | Libraries | `androidx.webkit:webkit:1.17.1`; tests: JUnit 4.13.2, `org.json` | |
 | Release | R8 shrinking + resource shrinking, no dependency metadata (reproducible) | |
-| applicationId | `org.rafee_m.adguardmanager` (debug: `.debug` suffix, "AdGuard Manager (Debug)") | owner, 2026-11-20; never change after the first public release |
+| applicationId | `org.rafee_m.adguarddnsmanager` (debug: `.debug` suffix, "AdGuardDNS Manager (Debug)") | owner, 2026-11-20; never change after the first public release |
 | Version | `versionName` 0.1.0, `versionCode` 1 | first release planned as 0.1.0 (plan §6 Phase 12) |
 | Lint | every warning fails the build; accepted ones in `app/lint.xml` with reasons | |
 | Repository address, author | `gradle.properties` `app.repoUrl` = `https://github.com/UpperPanda1/adguard-manager`, `app.author` = `Rafee-M` → `BuildConfig.REPO_URL` / `AUTHOR` | committed, not `git remote`: same APK from every clone (§7) |
@@ -638,7 +647,7 @@ status bar colours, cache size, sign-in). See the phone checklists in `CHANGES.m
   `DNS_SERVER_DOMAIN`, `LOGOUT_PATH`), the DNS check's JSON from a phone that uses AdGuard DNS (format read in
   AdGuard's open-source server), hCaptcha with third-party cookies off, Google's `403 disallowed_useragent` in a real
   WebView, whether server download links work without login. Research file §4 (P1–P6).
-- **Name/trademark:** "AdGuard" is AdGuard's trademark and "AdGuard Manager" could be read as an official AdGuard app;
+- **Name/trademark:** "AdGuard" is AdGuard's trademark and "AdGuardDNS Manager" could be read as an official AdGuard app;
   F-Droid reviewers (or AdGuard) may ask. `fdroid.md` §3.2.
 - **`data:` downloads** are named "*Site.NAME* download.txt", not the page's name (WebView doesn't pass it).
 - **Translations:** English only.
@@ -710,7 +719,7 @@ passes, with its CHANGES.md entry and phone-test list (CLAUDE.md §4a).
 DNS check request), `fastlane/…/title.txt`, `short_description.txt`, `full_description.txt`, `changelogs/1.txt`,
 honest note on Google's user agent (F-Droid).
 
-**Phase 9 — Workflows:** `release.yml`: APK `AdGuard-Manager-<version>.apk`, release title "AdGuard Manager
+**Phase 9 — Workflows:** `release.yml`: APK `AdGuardDNS-Manager-<version>.apk`, release title "AdGuardDNS Manager
 <version>", dry-run certificate name; re-run its `run:` blocks locally with a test key and `apksigcopier compare`.
 
 **Phase 10 — Review:** adversarial review of everything since `abb10bf` (sign-in hosts, user-agent scope, blob bridge,

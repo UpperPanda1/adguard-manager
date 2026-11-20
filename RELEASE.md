@@ -1,4 +1,4 @@
-# Releasing AdGuard Manager (GitHub + F-Droid)
+# Releasing AdGuardDNS Manager (GitHub + F-Droid)
 
 Written for a first-time Android publisher. Copied from NextDNS Manager+'s `RELEASE.md` (same workflow, same signing
 rules) and adapted to this app. It covers:
@@ -26,8 +26,8 @@ signing table below were tested on NextDNS Manager+'s APK (2026-11-19); the buil
 | 3 | `changelogs/1.txt` | the workflow refuses to release without the versionCode's changelog | exists, **still NextDNS text** (Phase 8) |
 | 4 | `title.txt`, `short_description.txt` (≤ 80), `full_description.txt` (≤ 4000) | F-Droid listing; what to say: `fdroid.md` §3.1 | **to do** (Phase 8) |
 | 5 | Screenshots `fastlane/…/images/phoneScreenshots/1.png …` | F-Droid's listing; the README can show them too | **to do (phone)** |
-| 6 | Name/trademark ("AdGuard Manager" is chosen; reviewers may ask) | `fdroid.md` §3.2 | **owner** |
-| 7 | `release.yml` names: `AdGuard-Manager-<version>.apk`, title "AdGuard Manager <version>" | the F-Droid recipe's `Binaries:` line must match | **Phase 9** |
+| 6 | Name/trademark ("AdGuardDNS Manager" is chosen; reviewers may ask) | `fdroid.md` §3.2 | **owner** |
+| 7 | `release.yml` names: `AdGuardDNS-Manager-<version>.apk`, title "AdGuardDNS Manager <version>" | the F-Droid recipe's `Binaries:` line must match | **Phase 9** |
 | 8 | Phone test (`CHANGES.md` checklists) | nothing has run on a phone yet | **owner** |
 | 9 | Signing key + 4 GitHub secrets (§3) | needed for a real release | **owner (once)** |
 | 10 | Dry run with the test key, then with the real key (§4) | proves the workflow on GitHub; gives the fingerprint for F-Droid | after 7 and 9 |
@@ -39,7 +39,7 @@ Paths from F-Droid's "All About Descriptions, Graphics and Screenshots":
 
 ```
 fastlane/metadata/android/en-US/
-├── title.txt               app name, max 50 characters             ("AdGuard Manager"; Phase 8)
+├── title.txt               app name, max 50 characters             ("AdGuardDNS Manager"; Phase 8)
 ├── short_description.txt   one line, max 80 characters, no final "."
 ├── full_description.txt    max 4000 characters, simple HTML allowed
 ├── changelogs/
@@ -58,23 +58,23 @@ plus an offline copy). Use a **different key from NextDNS Manager+'s**: they are
 
 1. **Create the key** on your computer (`keytool` comes with any JDK):
    ```bash
-   keytool -genkeypair -v -keystore adguardmanager-release.jks -alias adguardmanager \
+   keytool -genkeypair -v -keystore adguarddnsmanager-release.jks -alias adguarddnsmanager \
      -keyalg RSA -keysize 4096 -validity 10000
    ```
-   When it asks for your name, type e.g. **AdGuard Manager**: avoid `+` and `,` (special characters in certificate
+   When it asks for your name, type e.g. **AdGuardDNS Manager**: avoid `+` and `,` (special characters in certificate
    names; `keytool` refuses `+` with "Incorrect AVA format", seen 2026-11-19). **Never commit the `.jks`**; keep it
    outside the repository folder (`*.jks` is git-ignored anyway).
 2. **Add four secrets** to this repository: Settings → Secrets and variables → Actions → *New repository secret*:
 
    | Secret | Value |
    |---|---|
-   | `RELEASE_KEYSTORE_BASE64` | `base64 -w0 adguardmanager-release.jks` (macOS: `base64 -i …`; Windows PowerShell: `[Convert]::ToBase64String([IO.File]::ReadAllBytes("adguardmanager-release.jks"))`) |
+   | `RELEASE_KEYSTORE_BASE64` | `base64 -w0 adguarddnsmanager-release.jks` (macOS: `base64 -i …`; Windows PowerShell: `[Convert]::ToBase64String([IO.File]::ReadAllBytes("adguarddnsmanager-release.jks"))`) |
    | `RELEASE_KEYSTORE_PASSWORD` | the keystore password |
-   | `RELEASE_KEY_ALIAS` | `adguardmanager` |
+   | `RELEASE_KEY_ALIAS` | `adguarddnsmanager` |
    | `RELEASE_KEY_PASSWORD` | **the same password**: current `keytool` makes a PKCS12 keystore with one password for store and key |
 
 3. **Note the fingerprint** for F-Droid's `AllowedAPKSigningKeys`: the workflow prints it on the run's summary page
-   (`Signer #1 certificate SHA-256 digest`), or `keytool -list -v -keystore adguardmanager-release.jks` (SHA256 line,
+   (`Signer #1 certificate SHA-256 digest`), or `keytool -list -v -keystore adguarddnsmanager-release.jks` (SHA256 line,
    colons removed, lower case).
 
 ## 4. Publishing a release on GitHub
@@ -102,9 +102,9 @@ the same dry run with a test key.)
    3. signs it with `apksigner` 34, v1 off;
    4. runs F-Droid's check (`apksigcopier compare`);
    5. shows the APK's SHA-256, the unsigned APK's SHA-256 and the key fingerprint on the summary page;
-   6. creates the release (after Phase 9: "AdGuard Manager 0.1.0" with `AdGuard-Manager-0.1.0.apk`; notes = changelog +
+   6. creates the release (after Phase 9: "AdGuardDNS Manager 0.1.0" with `AdGuardDNS-Manager-0.1.0.apk`; notes = changelog +
       SHA-256).
-7. Install that APK on your phone. It is a different app from the debug build (`org.rafee_m.adguardmanager` vs
+7. Install that APK on your phone. It is a different app from the debug build (`org.rafee_m.adguarddnsmanager` vs
    `….debug`) and from NextDNS Manager+, so all can be installed; accounts and settings don't move between them.
 
 **Why signing is done this way** (tested on NextDNS Manager+'s APK, 2026-11-19; same Gradle/AGP/build set-up here; to
@@ -127,7 +127,7 @@ Never re-use a versionCode that users may have installed.
 
 Everything about the submission (checklist, recipe draft, anti-feature, reproducibility evidence, risks) is in
 [`fdroid.md`](fdroid.md). In short: after the first GitHub release, fork `gitlab.com/fdroid/fdroiddata`, add
-`metadata/org.rafee_m.adguardmanager.yml` with `Binaries:` pointing at `AdGuard-Manager-%v.apk` and
+`metadata/org.rafee_m.adguarddnsmanager.yml` with `Binaries:` pointing at `AdGuardDNS-Manager-%v.apk` and
 `AllowedAPKSigningKeys:` = your fingerprint (§3), run `fdroid lint` / `fdroid build`, open the merge request. Later
 releases are picked up from the tags automatically.
 

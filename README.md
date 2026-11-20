@@ -1,12 +1,12 @@
 <div align="center">
-  <img src="artwork/readme/banner.svg" alt="AdGuard Manager" width="100%">
+  <img src="artwork/readme/banner.svg" alt="AdGuardDNS Manager" width="100%">
 
   <h3>Every AdGuard DNS account in one small, private Android app.</h3>
 
   <p>
     <a href="../../releases/latest"><picture><source media="(prefers-color-scheme: dark)" srcset="artwork/readme/get-github-dark.svg"><img alt="Get it on GitHub" src="artwork/readme/get-github-light.svg" height="60"></picture></a>
     <!-- Un-comment when the app is listed (fdroid.md), and put the public repository's address into the Obtainium link:
-    <a href="https://f-droid.org/packages/org.rafee_m.adguardmanager/"><picture><source media="(prefers-color-scheme: dark)" srcset="artwork/readme/get-fdroid-dark.svg"><img alt="Get it on F-Droid" src="artwork/readme/get-fdroid-light.svg" height="60"></picture></a>
+    <a href="https://f-droid.org/packages/org.rafee_m.adguarddnsmanager/"><picture><source media="(prefers-color-scheme: dark)" srcset="artwork/readme/get-fdroid-dark.svg"><img alt="Get it on F-Droid" src="artwork/readme/get-fdroid-light.svg" height="60"></picture></a>
     <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/UpperPanda1/adguard-manager"><picture><source media="(prefers-color-scheme: dark)" srcset="artwork/readme/get-obtainium-dark.svg"><img alt="Get it on Obtainium" src="artwork/readme/get-obtainium-light.svg" height="60"></picture></a>
     -->
   </p>
@@ -36,10 +36,10 @@
 
 ---
 
-## Why AdGuard Manager?
+## Why AdGuardDNS Manager?
 
 Managing more than one AdGuard DNS account on a phone means signing out and in again, or a browser full of private
-tabs. AdGuard Manager keeps each account in its own sealed container, so they stay signed in **at the same time** and
+tabs. AdGuardDNS Manager keeps each account in its own sealed container, so they stay signed in **at the same time** and
 never see each other's data; one tap on the numbered chip in the top bar switches between them, and the page you left
 is still there when you come back.
 
@@ -59,7 +59,7 @@ tab can't: the connection-status icon, app lock, a theme that matches the dashbo
 |---|---|
 | Shared app copied from NextDNS Manager+ (accounts, tabs, app lock, find, desktop site, pinch zoom, theme, downloads) | ✅ |
 | Research of the live AdGuard DNS website ([findings](docs/research/2026-11-19-adguard-live-probe.md)) | ✅ |
-| Name **AdGuard Manager**, app id `org.rafee_m.adguardmanager`, own icon | ✅ |
+| Name **AdGuardDNS Manager**, app id `org.rafee_m.adguarddnsmanager`, own icon | ✅ |
 | Opens the AdGuard DNS dashboard; AdGuard's colours | next |
 | Sign-in with Apple, Google and Facebook | planned |
 | "Am I using AdGuard DNS?" icon from AdGuard's own check | planned |
@@ -110,7 +110,7 @@ sees the app's real identity. No Google, Apple or Facebook code is in the app: t
 
 ## What the app adds, and what WebView decides
 
-AdGuard Manager shows the website in **Android System WebView**, the browser engine your phone already has. Some
+AdGuardDNS Manager shows the website in **Android System WebView**, the browser engine your phone already has. Some
 features depend on that engine's version, not on the app:
 
 | Feature | Needs | Without it |

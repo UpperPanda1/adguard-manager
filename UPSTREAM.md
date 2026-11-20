@@ -1,4 +1,4 @@
-# Upstream: keeping AdGuard Manager and NextDNS Manager+ in step
+# Upstream: keeping AdGuardDNS Manager and NextDNS Manager+ in step
 
 This app started as an **unchanged copy** of NextDNS Manager+ (one import commit, no history). From then on the two
 apps live in separate repositories, so a fix made in one of them reaches the other only if someone ports it by hand.
