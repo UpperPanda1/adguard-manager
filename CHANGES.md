@@ -11,6 +11,79 @@ too.
 
 ---
 
+## 2026-11-20 — Phase 6: the status icon asks AdGuard's own DNS check
+
+**What.** The icon in the top bar ("is this phone using AdGuard DNS, and is it encrypted?") now uses **the same check as
+AdGuard's dashboard**, instead of NextDNS's test page.
+
+**How AdGuard's check works (explained simply).** The app makes up a brand-new name such as
+`a3f9c1d2e4b5a6f7-dnscheck.adguard-dns.com` and tries to open `https://<that name>/dnscheck/test`.
+
+1. To open any address, the phone first has to look the name up in DNS. **Only AdGuard's DNS servers know these
+   names.** When one is asked, it writes down what it saw: the protocol, whether it was your own server or AdGuard's
+   public one, and which AdGuard location answered.
+2. If your phone's DNS goes through AdGuard, the name is found and the page answers with that note (JSON) → **in use**.
+   If your phone uses something else, the name doesn't exist (`UnknownHostException`) → **not in use**.
+3. A **new random name every time**, so no DNS cache can answer from an old lookup.
+
+**What the icon shows now:**
+
+| Icon | When |
+|---|---|
+| green ✓ | AdGuard saw the lookup over an **encrypted** protocol: DNS-over-HTTPS, -TLS, -QUIC, or DNSCrypt |
+| orange ⚠ | AdGuard saw it over **plain DNS** (e.g. AdGuard DNS set on your router without encryption) |
+| yellow ⚠ | Private DNS is on but points to **another** service |
+| red ⚠ | **not** using AdGuard DNS |
+
+Two improvements on the way:
+
+- **Private DNS is matched exactly** (REVIEW.md F3): a name counts as AdGuard's only if it *is* `adguard-dns.com` or
+  *ends in* `.adguard-dns.com`. Before, any name that merely *contained* the text counted (e.g. `adguard-dns.com.evil.com`).
+- **A clear "not in use" now wins** over a green Private DNS setting (also F3). So that a short DNS hiccup right after
+  switching Wi-Fi ↔ mobile doesn't flash red, a "not in use" is **asked once more, 3 seconds later**, before the icon
+  turns red. Rate limits, timeouts and server errors give **no verdict**: the Private DNS state stays.
+
+**Decisions.** DNSCrypt counts as encrypted (it encrypts and signs every query; only apps such as AdGuard's own can use
+it on Android). HTTP 404 counts as "not in use", as on the dashboard (AdGuard never saw the name).
+
+**Safety.** Everything taken from AdGuard's answer is checked against a narrow pattern before it is used (protocol
+`a–z 0–9 _`, ids `A–Z a–z 0–9 -`…), the answer is limited to 16 KB, redirects are not followed, and nothing about your
+account is sent (the request carries only the random name).
+
+**Files.** New `status/DnsCheck.java` (+ `DnsCheckTest`, 10 tests: address shape and freshness, every kind of answer,
+real requests to a small local HTTP server, an unknown name, a too-big answer). `status/StatusRules.java` (suffix
+marker, `fromCheck`, new `combine`; `StatusRulesTest` rewritten, 7 tests), `status/ConnectionStatus.java` (uses the
+check; confirm step), `site/Site.java` (`PRIVATE_DNS_DOMAIN` + `isPrivateDnsHost`, `DNS_CHECK_DOMAIN`/`PATH`,
+`SECURE_PROTOCOLS` in lower case with `dnscrypt`; the NextDNS test fields are gone; the Ping window's NextDNS test page is
+now `PING_TEST_URL` until Phase 7), docs.
+
+**Verified.**
+- Facts re-checked first: the dashboard's check (D3), only AdGuard resolves the names (D4, `tools/site-probe dnscheck`),
+  the answer's fields and codes in AdGuard's open-source server `af31bb8` (D5). New D8: the dashboard calls a device
+  "connected" only with a `device_id`.
+- `test lint assembleDebug assembleRelease`: **105 tests** (+12), **0 lint issues**.
+- **Mutation checks** (all caught): marker back to "contains" (1 test fails); plain `dns` counted as encrypted (3);
+  DNSCrypt not encrypted (2); 404 read as "no verdict" (2); unknown name read as "no verdict" (1); the old F3 behaviour
+  (1); no validation of ids (1).
+- **Not verified:** the real JSON from a phone on AdGuard DNS (the sandbox's proxy resolves names itself: research D6,
+  phone check P6); the icon on a phone.
+
+**Size.** Release APK (clean build) **189,234 bytes** (+1,596: the check class and its validation).
+
+**What to test on your phone**
+
+1. Android Settings → Network → **Private DNS** → your AdGuard address (`<device id>.d.adguard-dns.com`, shown in the
+   dashboard under your device). Open the app: the icon turns **green** within a few seconds. Tap it: "This phone uses
+   AdGuard DNS over an encrypted connection."
+2. Private DNS **Off** (and your Wi-Fi/router not using AdGuard): the icon turns **red** after about 3–4 seconds.
+3. Private DNS → `dns.google`: **yellow** ("points to another DNS service").
+4. Private DNS → `dns.adguard-dns.com` (AdGuard's public server): **green**.
+5. With Private DNS on your AdGuard address, switch between Wi-Fi and mobile data a few times: the icon must **not**
+   flash red.
+6. (If you can) set AdGuard DNS's plain addresses on your router and turn Private DNS off: **orange** ("not encrypted").
+
+---
+
 ## 2026-11-20 — Comments and sample addresses say AdGuard DNS (after Phase 3)
 
 **What.** Explanations in the code that still named NextDNS now name AdGuard DNS, so the comments match what the code

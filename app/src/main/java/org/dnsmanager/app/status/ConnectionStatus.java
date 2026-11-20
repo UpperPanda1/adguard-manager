@@ -15,11 +15,6 @@ import org.dnsmanager.app.site.Site;
 import org.dnsmanager.app.theme.Scheme;
 import org.dnsmanager.app.theme.Themes;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executor;
 
 /**
@@ -28,27 +23,31 @@ import java.util.concurrent.Executor;
  *
  * <p><b>How:</b> between {@link #start} and {@link #stop} (the screen is visible) it listens to the
  * phone's active network. Whenever the network or its Private DNS setting changes, it shows the
- * Private DNS state at once and then, on a background thread, asks the service's test address
- * ({@link Site#TEST_URL}). Network calls must never run on the main thread (Android throws
+ * Private DNS state at once and then, on a background thread, runs AdGuard's DNS check
+ * ({@link DnsCheck}). Network calls must never run on the main thread (Android throws
  * {@code NetworkOnMainThreadException}), hence the executor; the result is posted back to the main
  * thread, the only thread allowed to touch views.
  * Docs: https://developer.android.com/develop/connectivity/network-ops/reading-network-state</p>
  *
- * <p>Uses Java's built-in {@link HttpURLConnection}: one tiny request doesn't justify a library.</p>
+ * <p>The check uses Java's built-in {@code HttpURLConnection}: one tiny request doesn't justify a library.</p>
  */
 public final class ConnectionStatus {
 
     private static final String TAG = "ConnectionStatus";
     /** Several network callbacks arrive in a burst; test once after things settle. */
     private static final long TEST_DELAY_MS = 400;
-    private static final int TIMEOUT_MS = 6000;
-    private static final int MAX_ANSWER_BYTES = 16 * 1024;
+    /**
+     * A "not in use" answer is confirmed once, this much later, with a fresh name before the icon turns red:
+     * just after a network switch, DNS can fail for a moment although the phone does use AdGuard DNS.
+     */
+    private static final long CONFIRM_DELAY_MS = 3000;
 
     private final Context context;
     private final ImageView icon;
     private final Executor background;
     private final Handler main = new Handler(Looper.getMainLooper());
-    private final Runnable startTest = this::runTest;
+    private final Runnable startTest = () -> runTest(false);
+    private final Runnable confirmTest = () -> runTest(true);
 
     private ConnectivityManager.NetworkCallback callback;
     private StatusRules.State privateDnsState = StatusRules.State.NOT_PROTECTED;
@@ -99,6 +98,7 @@ public final class ConnectionStatus {
     /** Stops listening (MainActivity.onStop), so nothing runs while the app is in the background. */
     public void stop() {
         main.removeCallbacks(startTest);
+        main.removeCallbacks(confirmTest);
         generation++; // an answer still on its way is ignored
         ConnectivityManager manager = context.getSystemService(ConnectivityManager.class);
         if (manager != null && callback != null) {
@@ -145,18 +145,24 @@ public final class ConnectionStatus {
         state = fromPrivateDns;
         show();
         main.removeCallbacks(startTest);
+        main.removeCallbacks(confirmTest);
         main.postDelayed(startTest, TEST_DELAY_MS);
     }
 
-    private void runTest() {
+    /** @param confirming true for the second check that confirms a first "not in use" answer */
+    private void runTest(boolean confirming) {
         int mine = generation;
         background.execute(() -> {
-            String answer = fetch(Site.TEST_URL);
+            DnsCheck.Result check = DnsCheck.run();
             main.post(() -> {
-                if (mine != generation || answer == null) {
-                    return; // the network changed meanwhile, or no answer: keep what is shown
+                if (mine != generation) {
+                    return; // the network changed meanwhile: this answer is about the old one
                 }
-                state = StatusRules.combine(privateDnsState, StatusRules.fromTest(answer));
+                if (check.outcome == DnsCheck.Outcome.NOT_IN_USE && !confirming) {
+                    main.postDelayed(confirmTest, CONFIRM_DELAY_MS); // ask once more before saying "no"
+                    return;
+                }
+                state = StatusRules.combine(privateDnsState, check);
                 show();
             });
         });
@@ -170,35 +176,5 @@ public final class ConnectionStatus {
                 : (darkTheme ? Themes.DARK : Themes.LIGHT).get(Scheme.ON_SURFACE_VARIANT);
         icon.setImageTintList(ColorStateList.valueOf(color));
         icon.setContentDescription(description());
-    }
-
-    /** @return the address's answer as text, or null if it can't be fetched. Background thread only. */
-    private static String fetch(String address) {
-        HttpURLConnection connection = null;
-        try {
-            connection = (HttpURLConnection) new URL(address).openConnection();
-            connection.setConnectTimeout(TIMEOUT_MS);
-            connection.setReadTimeout(TIMEOUT_MS);
-            connection.setUseCaches(false);
-            connection.setRequestProperty("Accept", "application/json");
-            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                return null;
-            }
-            try (InputStream in = connection.getInputStream()) {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                byte[] buffer = new byte[2048];
-                int read;
-                while ((read = in.read(buffer)) != -1 && out.size() < MAX_ANSWER_BYTES) {
-                    out.write(buffer, 0, read);
-                }
-                return new String(out.toByteArray(), StandardCharsets.UTF_8);
-            }
-        } catch (Exception e) {
-            return null; // offline, blocked, timed out: all mean "no answer"
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
     }
 }

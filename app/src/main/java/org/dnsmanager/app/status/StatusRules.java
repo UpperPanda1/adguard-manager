@@ -1,9 +1,6 @@
 package org.dnsmanager.app.status;
 
 import org.dnsmanager.app.site.Site;
-import org.json.JSONObject;
-
-import java.util.Locale;
 
 /**
  * Decides what the top bar's status icon shows: is this phone's DNS going through the service, and
@@ -14,10 +11,9 @@ import java.util.Locale;
  * <ol>
  *   <li>Android's <b>Private DNS</b> setting (Settings → Network → Private DNS): on with a host name
  *       of the service, on with something else, or off. Known at once, without the network.</li>
- *   <li>The service's <b>test address</b> ({@link Site#TEST_URL}): a small JSON text saying whether
- *       the request's DNS lookup came through the service and with which protocol. This also catches
- *       set-ups Android can't see (the service configured on the router, or in a VPN app), so when it
- *       says "in use" it wins over source 1.</li>
+ *   <li>AdGuard's <b>DNS check</b> ({@link DnsCheck}): did a lookup of a name only AdGuard knows go
+ *       through AdGuard, and with which protocol? This also catches set-ups Android can't see (AdGuard
+ *       DNS configured on the router, or in a VPN app), so a clear answer wins over source 1.</li>
  * </ol>
  */
 public final class StatusRules {
@@ -46,32 +42,41 @@ public final class StatusRules {
         if (!active) {
             return State.NOT_PROTECTED;
         }
-        boolean ours = serverName != null
-                && serverName.toLowerCase(Locale.ROOT).contains(Site.PRIVATE_DNS_MARKER);
-        return ours ? State.SECURE : State.OTHER_DNS;
+        return Site.isPrivateDnsHost(serverName) ? State.SECURE : State.OTHER_DNS;
     }
 
     /**
-     * @param json the text {@link Site#TEST_URL} answered with
-     * @return SECURE or INSECURE if the answer says the service is in use; null if it isn't in use
-     *         or the text can't be read (then the Private DNS state stands)
+     * @return what the DNS check alone says: SECURE or INSECURE when AdGuard saw the lookup (by its
+     *         protocol), NOT_PROTECTED when it didn't, null when the check gave no verdict
      */
-    public static State fromTest(String json) {
-        try {
-            JSONObject o = new JSONObject(json);
-            if (!Site.TEST_STATUS_IN_USE.equalsIgnoreCase(o.optString(Site.TEST_STATUS_FIELD))) {
-                return null;
-            }
-            String protocol = o.optString(Site.TEST_PROTOCOL_FIELD).toUpperCase(Locale.ROOT);
-            return Site.SECURE_PROTOCOLS.contains(protocol) ? State.SECURE : State.INSECURE;
-        } catch (Exception e) {
+    public static State fromCheck(DnsCheck.Result check) {
+        if (check == null) {
             return null;
+        }
+        switch (check.outcome) {
+            case IN_USE:
+                return check.encrypted() ? State.SECURE : State.INSECURE;
+            case NOT_IN_USE:
+                return State.NOT_PROTECTED;
+            default:
+                return null;
         }
     }
 
-    /** @return what to show: the test's answer if it has one, else the Private DNS state. */
-    public static State combine(State privateDns, State test) {
-        return test != null ? test : privateDns;
+    /**
+     * @return what to show. The check wins when it has a verdict, with one exception: if it says "not in
+     *         use" while Private DNS points to another service, "another DNS" (yellow) stays, because it says
+     *         more. Without a verdict (no network, timeout, rate limit) the Private DNS state stands.
+     */
+    public static State combine(State privateDns, DnsCheck.Result check) {
+        State fromCheck = fromCheck(check);
+        if (fromCheck == null) {
+            return privateDns;
+        }
+        if (fromCheck == State.NOT_PROTECTED && privateDns == State.OTHER_DNS) {
+            return State.OTHER_DNS;
+        }
+        return fromCheck;
     }
 
     /**

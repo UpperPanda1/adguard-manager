@@ -29,24 +29,53 @@ public class StatusRulesTest {
     }
 
     @Test
-    public void theTestAnswerIsRead() {
-        // The real answer format (test.nextdns.io, checked 2026-11-15).
-        assertEquals(StatusRules.State.SECURE,
-                StatusRules.fromTest("{\"status\":\"ok\",\"protocol\":\"DOH\",\"profile\":\"abc123\"}"));
-        assertEquals(StatusRules.State.SECURE, StatusRules.fromTest("{\"status\":\"OK\",\"protocol\":\"dot\"}"));
-        assertEquals(StatusRules.State.INSECURE, StatusRules.fromTest("{\"status\":\"ok\",\"protocol\":\"UDP\"}"));
-        assertNull(StatusRules.fromTest("{\n\t\"status\": \"unconfigured\",\n\t\"resolver\": \"192.178.67.18\"\n}"));
-        assertNull(StatusRules.fromTest("<html>"));
-        assertNull(StatusRules.fromTest(""));
-        assertNull(StatusRules.fromTest(null));
+    public void thePrivateDnsMarkerIsASuffixNotAPartOfTheName() {
+        // REVIEW.md F3: "contains" let lookalikes count as the service.
+        assertEquals(StatusRules.State.OTHER_DNS, StatusRules.fromPrivateDns(true, "adguard-dns.com.evil.com"));
+        assertEquals(StatusRules.State.OTHER_DNS, StatusRules.fromPrivateDns(true, "evil-adguard-dns.com"));
+        assertEquals(StatusRules.State.OTHER_DNS, StatusRules.fromPrivateDns(true, "adguard-dns.com.example"));
+        assertEquals(StatusRules.State.SECURE, StatusRules.fromPrivateDns(true, "adguard-dns.com"));
     }
 
     @Test
-    public void aPositiveTestWinsOverPrivateDns() {
-        // e.g. the service set up on the router: Android sees no Private DNS, the test sees the service.
+    public void theChecksAnswerSaysInUseAndEncrypted() {
+        assertEquals(StatusRules.State.SECURE, StatusRules.fromCheck(inUse("dot")));
+        assertEquals(StatusRules.State.SECURE, StatusRules.fromCheck(inUse("doh")));
+        assertEquals(StatusRules.State.SECURE, StatusRules.fromCheck(inUse("doq")));
+        assertEquals(StatusRules.State.SECURE, StatusRules.fromCheck(inUse("dnscrypt")));
+        assertEquals(StatusRules.State.INSECURE, StatusRules.fromCheck(inUse("dns")));
+        assertEquals(StatusRules.State.INSECURE, StatusRules.fromCheck(inUse("")));      // protocol missing
+        assertEquals(StatusRules.State.NOT_PROTECTED,
+                StatusRules.fromCheck(DnsCheck.Result.of(DnsCheck.Outcome.NOT_IN_USE)));
+        assertNull(StatusRules.fromCheck(DnsCheck.Result.of(DnsCheck.Outcome.UNKNOWN)));
+        assertNull(StatusRules.fromCheck(null));
+    }
+
+    @Test
+    public void aClearCheckWinsOverPrivateDns() {
+        // AdGuard DNS set up on the router: Android sees no Private DNS, the check sees AdGuard.
         assertEquals(StatusRules.State.INSECURE,
-                StatusRules.combine(StatusRules.State.NOT_PROTECTED, StatusRules.State.INSECURE));
-        assertEquals(StatusRules.State.OTHER_DNS, StatusRules.combine(StatusRules.State.OTHER_DNS, null));
+                StatusRules.combine(StatusRules.State.NOT_PROTECTED, inUse("dns")));
+        assertEquals(StatusRules.State.SECURE,
+                StatusRules.combine(StatusRules.State.OTHER_DNS, inUse("doh")));       // e.g. "automatic" mode
+        // A green Private DNS state no longer survives a clear "not in use" (REVIEW.md F3).
+        assertEquals(StatusRules.State.NOT_PROTECTED,
+                StatusRules.combine(StatusRules.State.SECURE, DnsCheck.Result.of(DnsCheck.Outcome.NOT_IN_USE)));
+        // ...but "another DNS service" says more than "not protected", so it stays.
+        assertEquals(StatusRules.State.OTHER_DNS,
+                StatusRules.combine(StatusRules.State.OTHER_DNS, DnsCheck.Result.of(DnsCheck.Outcome.NOT_IN_USE)));
+    }
+
+    @Test
+    public void withoutAVerdictPrivateDnsStands() {
+        for (StatusRules.State privateDns : StatusRules.State.values()) {
+            assertEquals(privateDns, StatusRules.combine(privateDns, DnsCheck.Result.of(DnsCheck.Outcome.UNKNOWN)));
+            assertEquals(privateDns, StatusRules.combine(privateDns, null));
+        }
+    }
+
+    private static DnsCheck.Result inUse(String protocol) {
+        return new DnsCheck.Result(DnsCheck.Outcome.IN_USE, protocol, "private", "", "", "");
     }
 
     @Test

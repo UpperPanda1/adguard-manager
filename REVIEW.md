@@ -22,7 +22,7 @@ absorbed by a phase, noted in the last column.
 
 | ID | Finding | Severity | For AdGuard |
 |---|---|---|---|
-| 4.5 / F3 | `status/StatusRules.fromPrivateDns` counts a Private DNS host that merely *contains* the marker ("nextdns") as the service's; an explicit "not using" test answer never overrides a green Private DNS state | low–medium | **Phase 6 replaces it**: marker as a host suffix (`.adguard-dns.com`), and AdGuard's check answers only when the service is in use (research D3–D5) |
+| 4.5 / F3 | `status/StatusRules.fromPrivateDns` counts a Private DNS host that merely *contains* the marker ("nextdns") as the service's; an explicit "not using" test answer never overrides a green Private DNS state | low–medium | ✅ **Fixed in Phase 6** (2026-11-20): `Site.isPrivateDnsHost` is a suffix rule; a clear "not in use" from AdGuard's check now overrides a green Private DNS state (`StatusRules.combine`; tests + mutation checks) |
 | F2 | `downloads/DataUrl` saves any well-formed MIME type the page names (e.g. an APK type) to Downloads; MediaStore may add the type's extension | low | **Phase D**: the blob path will save through the same code; restrict unknown types to `application/octet-stream` there |
 | R4 | `Profiles.clearAllCaches` clears closed profiles in a tight loop; one per posted message would keep the screen responsive with many accounts | low | unchanged (shared; port to/from NextDNS, `UPSTREAM.md`) |
 | R6 | `Downloads.start` hands web addresses to the browser itself instead of through `web/ExternalLinks.open` (the one guarded place) | very low | **Phase D** touches this method; do it there |
@@ -46,7 +46,7 @@ the `\r` of `gradle.properties`' Windows line endings). For this repository the 
 | C | GPL credit chain beyond LLM Central (duckAssist/gptAssist) in README/About | same question |
 | D | Working files (`CLAUDE.md`, `handoff.md`, `.claude/`, this file) in the public repository: keep or remove | **this repository is public** (checked 2026-11-20), so they are visible now |
 | E | Name vs trademark | "AdGuardDNS Manager" chosen 2026-11-20; the F-Droid question is in `fdroid.md` §3.2 |
-| F | Status icon rule once a real "in use" answer is seen | Phase 6 + phone check P6 |
+| F | Status icon rule once a real "in use" answer is seen | rule built in Phase 6; still needs phone check P6 |
 
 ## 3. What the reviews checked and found correct
 

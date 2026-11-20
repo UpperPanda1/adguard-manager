@@ -77,6 +77,13 @@ only; all requests from `adguard-dns.io`, `auth.adguardaccount.com`, `st2.adguar
 | D5 | Answer (JSON, `Access-Control-Allow-Origin: *`): `client_ip`, `device_id`, `profile_id`, `server_group_name`, `server_name`, **`server_type` = `"private"` / `"public"`**, `node_location`, `node_name`, **`protocol` = `dns` / `doh` / `dot` / `doq` / `dnscrypt` (lower case)**, `tls_curve_id`. `404` when the name never reached AdGuard; `429` when rate-limited. | source | AdGuardDNS `internal/dnscheck/remotekv.go`, `internal/dnsserver/protocol.go` |
 | D6 | The JSON answer itself was **not** read live: the sandbox proxy resolves names itself (`502` for a name only AdGuard knows), and an IP can't be forced through it. | live (limitation) | curl |
 | D7 | **No ping page**: `ping.adguard-dns.io` / `ping.adguard-dns.com` don't exist, and neither the dashboard nor the website mentions ping, latency or a speed test. | live + bundle | curl, grep |
+| D8 | The dashboard calls the current device **connected** when the check's answer has a `device_id`, or `server_group_name` is `"clients"`; otherwise it shows "not connected" with a "Connect device" button (2026-11-20). So a *public* AdGuard server is "AdGuard DNS" but not the user's own settings. | bundle | `dashboard.min.js` (`dns_current_device_not_connected`, `t_.CLIENTS="clients"`) |
+
+**Re-checked 2026-11-20 for Phase 6:** D3 (same `checkDnsUsage`: `a${id}-dnscheck.${DNS_SERVER_DOMAIN}/dnscheck/test`,
+10 s, JSON = in use), D4 (`tools/site-probe dnscheck`: AdGuard `NOERROR`, Google `NXDOMAIN`), D5 (AdGuardDNS `af31bb8`:
+same fields; `protocol` from `dnsserver/protocol.go` = `dns`/`doh`/`doq`/`dot`/`dnscrypt`; `404` for an unknown id,
+`429` rate limit, `500` server error; `node_location` a short code such as `ams` in `config.dist.yaml`), D6 (sandbox
+still can't fetch the JSON): **unchanged**. New: D8.
 
 ### 1.4 Theme, links, downloads, background work (→ `theme/Themes`, `Site.LINKS`, `downloads/`)
 

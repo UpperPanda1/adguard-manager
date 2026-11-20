@@ -49,12 +49,12 @@ public class SiteTest {
     @Test
     public void untilPhases6And7TheTestPagesStayOutOfTheAccountTabs() {
         // Still NextDNS's pages (docs/PHASES.md): https, allowed in the Ping window, never in a tab.
-        for (String url : new String[]{Site.TEST_URL, Site.PING_URL}) {
+        for (String url : new String[]{Site.PING_TEST_URL, Site.PING_URL}) {
             assertTrue(url, url.startsWith("https://"));
             assertFalse(url, Site.ownsHost(hostOf(url)));
             assertTrue(url, Site.pingWindowAllows(hostOf(url)));
         }
-        assertTrue(Site.pingWindowAllows("jhdnjx4dwhi3lajgxxpt.test.nextdns.io")); // TEST_URL's redirect
+        assertTrue(Site.pingWindowAllows("jhdnjx4dwhi3lajgxxpt.test.nextdns.io")); // PING_TEST_URL's redirect
         assertTrue(Site.pingWindowAllows("adguard-dns.io"));                       // the service's own pages
         assertFalse(Site.pingWindowAllows("evilnextdns.io"));
         assertFalse(Site.pingWindowAllows("nextdns.io.evil.com"));

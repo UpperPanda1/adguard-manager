@@ -29,7 +29,7 @@ import org.dnsmanager.app.web.ExternalLinks;
 /**
  * Three-dots menu → "Ping test": a full-screen window with two of the service's own diagnostic
  * pages, one above the other: the speed test ({@link Site#PING_URL}: how fast each server location
- * answers) and the connection test ({@link Site#TEST_URL}: what the service sees of this phone).
+ * answers) and the connection test ({@link Site#PING_TEST_URL}: what the service sees of this phone).
  *
  * <p>Both WebViews use WebView's default profile and need no login. They are separate from the
  * account tabs and are destroyed when the window closes.</p>
@@ -98,7 +98,7 @@ public final class PingWindow {
         dialog.show();
         Windows.fill(dialog);
         ping.loadUrl(Site.PING_URL);
-        test.loadUrl(Site.TEST_URL);
+        test.loadUrl(Site.PING_TEST_URL);
         return dialog;
     }
 

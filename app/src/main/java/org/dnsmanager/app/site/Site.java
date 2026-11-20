@@ -17,9 +17,8 @@ import java.util.Set;
  *
  * <p>Plain Java (no Android classes), so SiteTest checks the rules on the computer.</p>
  *
- * <p><b>Still NextDNS on purpose</b> (each replaced by a later phase, see docs/PHASES.md):
- * {@link #TEST_URL} and the {@code TEST_*}/{@link #SECURE_PROTOCOLS} fields (Phase 6, AdGuard's DNS
- * check), {@link #PING_URL} and {@link #PING_DOMAINS} (Phase 7, owner question Q2).</p>
+ * <p><b>Still NextDNS on purpose</b> (replaced by Phase 7, see docs/PHASES.md): {@link #PING_URL},
+ * {@link #PING_TEST_URL} and {@link #PING_DOMAINS}.</p>
  */
 public final class Site {
 
@@ -53,42 +52,48 @@ public final class Site {
             Arrays.asList("adguard-dns.io", "adguardaccount.com"));
 
     /**
-     * Answers with a small JSON text that says whether this phone's DNS goes through the service.
-     * <b>Still NextDNS's test until Phase 6</b> (AdGuard's own check works differently: research D4,
-     * D5). Meanwhile it answers "unconfigured" for a phone on AdGuard DNS, which the app reads as "no
-     * answer", so the icon goes by the Private DNS setting and {@link #PRIVATE_DNS_MARKER} alone.
-     */
-    public static final String TEST_URL = "https://test.nextdns.io/";
-
-    /**
      * The speed test page (three-dots menu → Ping test). <b>Still NextDNS's until Phase 7</b>:
      * AdGuard has no such page (research D7); the owner decides what the window becomes (Q2).
      */
     public static final String PING_URL = "https://ping.nextdns.io/";
 
+    /** The Ping window's lower page (NextDNS's connection test). <b>Removed in Phase 7.</b> */
+    public static final String PING_TEST_URL = "https://test.nextdns.io/";
+
     /**
      * Extra domains whose pages may stay inside the Ping window (and only there; never in an
-     * account tab). Needed while that window still shows NextDNS's two pages: {@link #TEST_URL}
+     * account tab). Needed while that window still shows NextDNS's two pages: {@link #PING_TEST_URL}
      * redirects to a random subdomain ({@code <random>.test.nextdns.io}, checked 2026-11-20), and
      * without this the redirect would be sent to the browser. <b>Removed in Phase 7.</b>
      */
     public static final List<String> PING_DOMAINS = Collections.singletonList("nextdns.io");
 
     /**
-     * A Private DNS host name containing this text belongs to the service: personal servers are
-     * {@code <device id>.d.adguard-dns.com}, public ones {@code dns.}/{@code family.}/{@code
-     * unfiltered.adguard-dns.com} (research D1, D2). Phase 6 turns the "contains" into a proper
-     * suffix rule (REVIEW.md F3).
+     * Android's Private DNS host names that belong to the service: this domain or any name under it.
+     * Personal servers are {@code <device id>.d.adguard-dns.com}, public ones {@code dns.}, {@code
+     * family.}, {@code unfiltered.adguard-dns.com} (research D1, D2). Checked by {@link #isPrivateDnsHost}.
      */
-    public static final String PRIVATE_DNS_MARKER = "adguard-dns.com";
+    public static final String PRIVATE_DNS_DOMAIN = "adguard-dns.com";
 
-    /** TEST_URL's JSON: field that says whether the service is in use, and the value that means yes. (Phase 6) */
-    public static final String TEST_STATUS_FIELD = "status";
-    public static final String TEST_STATUS_IN_USE = "ok";
+    /**
+     * AdGuard's "am I using AdGuard DNS?" check (research D3–D5), the same one the dashboard runs. The
+     * address is {@code https://a<random>-}{@value #DNS_CHECK_DOMAIN}{@value #DNS_CHECK_PATH}, with a new
+     * random part every time. <b>Only AdGuard's DNS servers know such a name</b>: if the phone's DNS
+     * goes through AdGuard, the name resolves and the page answers with what AdGuard saw (as JSON);
+     * otherwise the name can't even be looked up. Built and read by status/DnsCheck.
+     */
+    public static final String DNS_CHECK_DOMAIN = "dnscheck.adguard-dns.com";
+    public static final String DNS_CHECK_PATH = "/dnscheck/test";
 
-    /** TEST_URL's JSON: field with the DNS protocol, and the values that are encrypted. (Phase 6) */
-    public static final String TEST_PROTOCOL_FIELD = "protocol";
-    public static final List<String> SECURE_PROTOCOLS = Arrays.asList("DOH", "DOT", "DOQ", "DOH3");
+    /**
+     * Values of the check's {@code protocol} field that are encrypted. AdGuard's server writes
+     * {@code dns}, {@code doh}, {@code dot}, {@code doq} or {@code dnscrypt} (AdGuardDNS
+     * {@code dnsserver/protocol.go}); compared without case. DNSCrypt counts: it encrypts and signs
+     * every query (only an app can use it on Android). Plain {@code dns}, or a word not listed here,
+     * is "not encrypted", so a new protocol name can never turn the icon green by accident.
+     */
+    public static final List<String> SECURE_PROTOCOLS = Collections.unmodifiableList(
+            Arrays.asList("doh", "dot", "doq", "dnscrypt"));
 
     /**
      * Web pages the Settings screen may open in the browser, by name. The settings page only ever
@@ -123,6 +128,15 @@ public final class Site {
      */
     public static boolean pingWindowAllows(String host) {
         return ownsHost(host) || matches(host, PING_DOMAINS);
+    }
+
+    /**
+     * @return true if Android's Private DNS host name {@code host} is one of the service's servers.
+     *         A suffix rule, not "contains": "abc.d.adguard-dns.com" yes, "adguard-dns.com.evil.com"
+     *         and "evil-adguard-dns.com" no (REVIEW.md F3).
+     */
+    public static boolean isPrivateDnsHost(String host) {
+        return matches(host, Collections.singletonList(PRIVATE_DNS_DOMAIN));
     }
 
     /**

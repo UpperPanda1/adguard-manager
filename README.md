@@ -53,7 +53,7 @@ tab can't: the connection-status icon, app lock, a theme that matches the dashbo
 > of its sibling [NextDNS Manager+](https://github.com/UpperPanda1/nextdnsmanager-plus) and is being adapted step by
 > step ([the plan](docs/ADGUARD_PLAN.md)). Done so far: the shared app (accounts, tabs, lock, settings…), research of
 > the live AdGuard website, the new name, id and icon, and **the app now opens the AdGuard DNS dashboard**. The
-> status icon and the Ping window still use NextDNS's test pages until their steps. Built, unit-tested and linted on
+> status icon uses AdGuard's own DNS check; the Ping window still shows NextDNS's pages until its step. Built, unit-tested and linted on
 > every change; **not yet tested on a phone**.
 
 | Step | State |
@@ -64,7 +64,7 @@ tab can't: the connection-status icon, app lock, a theme that matches the dashbo
 | Opens the AdGuard DNS dashboard (AdGuard's login stays in the app, payment opens the browser) | ✅ |
 | AdGuard's colours | planned |
 | Sign-in with Apple, Google and Facebook | planned |
-| "Am I using AdGuard DNS?" icon from AdGuard's own check | next |
+| "Am I using AdGuard DNS?" icon from AdGuard's own check | ✅ |
 | Saving the dashboard's exported files (e.g. user rules) | planned |
 | Store texts, release, F-Droid | planned |
 
@@ -82,7 +82,7 @@ works in the code (shared with NextDNS Manager+); AdGuard-specific parts are mar
 - Rename, reorder (drag), sign out or remove accounts in Settings. Signing out or removing deletes that account's data
   on the phone.
 
-### Knows whether AdGuard DNS is working *(planned)*
+### Knows whether AdGuard DNS is working
 - **Connection-status icon:** green tick when this phone uses AdGuard DNS with encryption, warning sign otherwise; tap it
   for the explanation. It uses the same check as AdGuard's own dashboard (a name only AdGuard DNS can answer), when the
   network changes and only while the app is on screen.

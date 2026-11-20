@@ -16,7 +16,7 @@ The owner's plan is [`ADGUARD_PLAN.md`](ADGUARD_PLAN.md) (§6 phases, §7 rules,
 - [Phase 3 — Site: point the app at AdGuard DNS](#phase-3--site-point-the-app-at-adguard-dns) ✅
 - [Phase 4 — Theme: AdGuard's colours](#phase-4--theme-adguards-colours)
 - [Phase 5 — Sign-in with Apple, Google, Facebook](#phase-5--sign-in-with-apple-google-facebook)
-- [Phase 6 — Status icon from AdGuard's DNS check](#phase-6--status-icon-from-adguards-dns-check)
+- [Phase 6 — Status icon from AdGuard's DNS check](#phase-6--status-icon-from-adguards-dns-check) ✅
 - [Phase D — Downloads: save blob: files](#phase-d--downloads-save-blob-files)
 - [Phase 7 — Ping window (owner decision first)](#phase-7--ping-window-owner-decision-first)
 - [Phase 8 — Texts and store files](#phase-8--texts-and-store-files)
@@ -25,7 +25,7 @@ The owner's plan is [`ADGUARD_PLAN.md`](ADGUARD_PLAN.md) (§6 phases, §7 rules,
 - [Phase 11 — Docs](#phase-11--docs)
 - [Phase 12 — Owner: phone, key, release, F-Droid](#phase-12--owner-phone-key-release-f-droid)
 
-**Suggested order:** ~~3~~ ✅ → **6** → 4 → 5 → D → 7 → 8 → 9 → 10 → 11 → 12. Phase 6 moves up because after Phase 3 the
+**Suggested order:** ~~3~~ ✅ → ~~6~~ ✅ → **7** (owner: together with 6) → 4 → 5 → D → 7 → 8 → 9 → 10 → 11 → 12. Phase 6 moves up because after Phase 3 the
 status icon mixes AdGuard's Private DNS marker with NextDNS's test page (harmless in a development build, but wrong
 until Phase 6). Every other dependency is noted in its phase.
 
@@ -197,6 +197,12 @@ rule → test fails; disguise on a non-Google host → test fails).
 ---
 
 ## Phase 6 — Status icon from AdGuard's DNS check
+
+> **✅ Done 2026-11-20** (CHANGES.md; plan and result: `superpowers/plans/2026-11-20-phases-6-7-status-and-connection.md`).
+> New `status/DnsCheck` (address, request, answer → in use / not in use / unknown, validated details); `StatusRules`
+> suffix marker + new `combine` (REVIEW F3 fixed); `ConnectionStatus` uses it and confirms a "not in use" once, 3 s
+> later. **Decided:** `dnscrypt` counts as encrypted (it is: every query encrypted and signed); 404 = not in use,
+> like the dashboard. Tests 105 (+12), mutation checks M1–M7 all caught. Facts D3–D6 re-checked; new D8.
 
 **Goal:** the top-bar icon says correctly whether this phone uses AdGuard DNS, encrypted or not.
 
