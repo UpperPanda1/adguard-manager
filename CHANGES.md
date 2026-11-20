@@ -11,6 +11,37 @@ too.
 
 ---
 
+## 2026-11-20 — Handoff and a step-by-step guide for every remaining phase (docs only)
+
+**What.** So that a new session can continue without this one:
+
+- **`docs/PHASES.md` (new):** for every remaining phase (3 Site, 6 Status, 4 Theme, 5 Sign-in, D Downloads, 7 Ping,
+  8 Texts, 9 Workflows, 10 Review, 11 Docs, 12 Owner): the goal, the owner's decisions, the files, the steps, the tests
+  and mutation checks, how to verify, "done when", the phone tests to write; plus the rules for every phase, the tools
+  and packages each phase needs (and which are not installed in the sandbox: apksigner 34, apksigcopier, JDK 17), and
+  the LLM Central files to port with their sizes and test counts.
+- **`handoff.md`** rewritten: state (incl. the rename and CI runs 1–4), Phase 3 in one paragraph, documents, a map of
+  where things are, tools and packages, set-up/build/verify commands and the routine every commit follows, rules, open
+  tasks and owner questions, limits, and a **structured prompt** for the next session (what to read in which order,
+  how to set up and check the baseline, how to do and prove a phase).
+- `PROJECT.md` §11 is now a summary table pointing to `docs/PHASES.md` (no duplicate); suggested order **3 → 6 → 4 →
+  5 → D → 7…** (Phase 6 right after 3, because Phase 3 leaves the status icon half NextDNS); `CLAUDE.md` §1/§8/§11
+  point to the guide.
+
+**Found while writing it (checked in the code / repositories):** the LLM Central code to port is on its **`master`**
+branch (`1102f48`; the old note named another branch); Phase 3 breaks exactly `SiteTest`, `TabManagerTest`,
+`DownloadsTest` line 24 and `StatusRulesTest` lines 17–18 (`LoadErrorsTest` and `DataUrlTest` only use NextDNS
+addresses as sample text).
+
+**Verified.** Links and anchors of every document checked by script; build unchanged (`test lint assembleDebug
+assembleRelease`: 92 tests, 0 lint issues). **Size.** App unchanged.
+
+**What to test on your phone**
+
+Nothing new. Answer **Q2** (Ping window) when you can: `docs/PHASES.md` → Phase 7.
+
+---
+
 ## 2026-11-20 — Renamed to "AdGuardDNS Manager" (`org.rafee_m.adguarddnsmanager`)
 
 **What.** The owner changed the identity chosen earlier the same day:

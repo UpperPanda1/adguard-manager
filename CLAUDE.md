@@ -19,8 +19,8 @@
 1. If **`handoff.md`** exists, read it first: the last session's state, open tasks and a ready prompt.
 2. Read this file completely, then **`PROJECT.md`** (decisions, phases, file map, how each feature works and how to
    change it; §11 = what each AdGuard phase changes) and the newest entry of **`CHANGES.md`**. Keep them in sync with
-   the code. The owner's plan is **`docs/ADGUARD_PLAN.md`**; facts about AdGuard's website are in
-   **`docs/research/2026-11-19-adguard-live-probe.md`**.
+   the code. The owner's plan is **`docs/ADGUARD_PLAN.md`**; the step-by-step guide for each remaining phase is
+   **`docs/PHASES.md`**; facts about AdGuard's website are in **`docs/research/2026-11-19-adguard-live-probe.md`**.
 3. The cloud sandbox is prepared by `.claude/hooks/session-start.sh` (Android SDK, Maven mirror, Gradle warm-up).
    Confirm before changing code: `./gradlew --no-daemon test lint assembleDebug assembleRelease` must pass
    (92 tests, **0 lint issues**) and the page checks must pass (6). If the hook didn't run, see §5 "manual set-up".
@@ -174,10 +174,10 @@ cd tools/readme-badges && npm ci && npm run generate; cd ../..
 |---|---|
 | The plan (phases, rules, testing, F-Droid) | `docs/ADGUARD_PLAN.md` (owner's, unchanged) |
 | Owner decisions (name, id, Q1–Q5) and phase status | PROJECT.md §2.2, §2.3 |
-| What each phase changes, file by file | PROJECT.md §11 and the "AdGuard" column of §4.3 |
+| **What each remaining phase does, step by step** (files, tests, checks, done-when, tools, code to port) | **`docs/PHASES.md`**; summary PROJECT.md §11; per file: the "AdGuard" column of §4.3 |
 | Facts about AdGuard's website, with sources | `docs/research/2026-11-19-adguard-live-probe.md` (rows F, S, D, T, L, W, B) |
 | Re-check those facts | `tools/site-probe` |
-| Code still to port from LLM Central | `UpperPanda1/assist`, branch `claude/confident-brahmagupta-9iiv9x`: `web/SignInUserAgent` (+ tests), `provider/SignInHosts`, `blob_capture.js` + `AppBridge` (blob part). Attach it with `add_repo` |
+| Code still to port from LLM Central | `UpperPanda1/assist`, branch **`master`** (`1102f48`): `web/SignInUserAgent` (+ 4 tests), `provider/SignInHosts`, `assets/js/blob_capture.js`, `blob_fetch.js`, `web/AppBridge` (blob part, + tests), `downloads/DownloadNames` (+ tests). Sizes: `docs/PHASES.md`. Attach it with `add_repo` |
 | Keeping in step with NextDNS Manager+ | `UPSTREAM.md` |
 
 ## 9. Verified facts and gotchas
@@ -255,8 +255,10 @@ owner's sign-in on claude.ai (Settings → Connectors).
 - [x] `UPSTREAM.md` (`19fa650`); the plan in `docs/ADGUARD_PLAN.md` (`2c2cf8b`).
 - [x] Phase 2 (2026-11-20): name AdGuardDNS Manager + id `org.rafee_m.adguarddnsmanager` + repository (`8d6c321`), icon
       (`9197934`), README + badges (`1fa8540`), docs for AdGuardDNS Manager.
-- [ ] **Owner:** Q2 (Ping: remove / connection details / latency, PROJECT.md §11 Phase 7); phone test of Phase 2.
-- [ ] Phase 3 Site → 4 Theme → 5 Sign-in → 6 Status → D Downloads → 7 Ping → 8 Texts → 9 Workflows → 10 Review →
-      11 Docs (PROJECT.md §11).
+- [ ] **Owner:** Q2 (Ping: remove / connection details / latency, `docs/PHASES.md` Phase 7); phone test of Phase 2.
+- [x] Renamed **AdGuardDNS Manager**, id `org.rafee_m.adguarddnsmanager` (`d671501`, 2026-11-20); repository stays
+      `UpperPanda1/adguard-manager` until the owner renames it `adguard-dns-manager` (PROJECT.md §7).
+- [ ] Phase 3 Site → 6 Status → 4 Theme → 5 Sign-in → D Downloads → 7 Ping → 8 Texts → 9 Workflows → 10 Review →
+      11 Docs (step by step: `docs/PHASES.md`).
 - [ ] Owner: release key + secrets, dry run, tag `v0.1.0`, F-Droid (RELEASE.md, fdroid.md); name/trademark answer.
 - [ ] Inherited review items (REVIEW.md); translations.

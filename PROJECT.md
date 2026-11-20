@@ -4,7 +4,8 @@ The one document that explains **what this app is, how it is being made, how it 
 how to change each feature**. Start at the top for the big picture or jump to the part you need.
 
 - For Claude sessions: [`CLAUDE.md`](CLAUDE.md) (working rules, commands, verified facts).
-- The plan the work follows: [`docs/ADGUARD_PLAN.md`](docs/ADGUARD_PLAN.md) (phases 0–12). What the live AdGuard site
+- The plan the work follows: [`docs/ADGUARD_PLAN.md`](docs/ADGUARD_PLAN.md) (phases 0–12); the step-by-step guide for
+  the remaining phases: [`docs/PHASES.md`](docs/PHASES.md). What the live AdGuard site
   does: [`docs/research/2026-11-19-adguard-live-probe.md`](docs/research/2026-11-19-adguard-live-probe.md).
 - What changed and when: [`CHANGES.md`](CHANGES.md). Where the last session stopped: [`handoff.md`](handoff.md).
 - Keeping in step with the sibling app: [`UPSTREAM.md`](UPSTREAM.md).
@@ -49,7 +50,7 @@ how to change each feature**. Start at the top for the big picture or jump to th
 | Theme | White, Black or Match system; the status bar matches the page. | works; AdGuard colours in Phase 4 |
 | Account menu tools | Desktop site, Reload, Hide status bar, Clear cache, unload an account. | works |
 | Downloads | Files the dashboard makes itself (exported user rules) saved to Downloads; server files open in the browser. | Phase D (`blob:` capture) |
-| Ping test, Private DNS shortcut | From NextDNS Manager+; Ping has no AdGuard page (§11, Phase 7). | shortcut works; Ping open |
+| Ping test, Private DNS shortcut | From NextDNS Manager+; Ping has no AdGuard page (`docs/PHASES.md`, Phase 7). | shortcut works; Ping open |
 
 **Today the app is named AdGuardDNS Manager, has its own id and icon, but still opens the NextDNS dashboard**: everything
 about the DNS service is in one file, `site/Site.java`, which Phase 3 rewrites (§11). That is by design: the plan
@@ -88,7 +89,7 @@ and keeping it makes a NextDNS fix apply here as a near-identical diff. Only the
 | — | App name | **AdGuardDNS Manager** (first "AdGuard Manager", changed the same day; plan §13 had "AdGuard DNS Manager+"; the trademark question is in `fdroid.md` §3.2) | 2026-11-20 |
 | — | applicationId | **`org.rafee_m.adguarddnsmanager`** (first `org.rafee_m.adguardmanager`, changed the same day, before any release; frozen after the first public release) | 2026-11-20 |
 | Q1 | The dashboard's "Export rules" makes a `blob:` file the copied code can't save | **Port LLM Central's blob capture** (new phase D, §11) | 2026-11-20 |
-| Q2 | AdGuard has no ping page: remove the Ping window? | **Open.** The owner asked why remove it; the options are in §11 Phase 7 | asked 2026-11-20 |
+| Q2 | AdGuard has no ping page: remove the Ping window? | **Open.** The owner asked why remove it; the options are in `docs/PHASES.md` Phase 7 | asked 2026-11-20 |
 | Q3 | The dashboard follows the phone's dark mode only if the account's theme is "Automatic" | **Keep as is**: no script forces the page's theme; README/Settings say so | 2026-11-20 |
 | Q4 | Account and payment pages | **`adguardaccount.com` inside the account's container, `adguardcheckout.com` in the browser** | 2026-11-20 |
 | Q5 | Which sign-in providers | **All three: Apple, Google, Facebook** | 2026-11-20 |
@@ -107,8 +108,8 @@ From the plan's §6, with the owner's answers applied. Details of each phase: [�
 |---|---|---|
 | 0 Set-up | Import NextDNS Manager+ `eaa1665` unchanged; build, tests, page checks, CI green | ✅ `abb10bf` (2026-11-19) |
 | 1 Research | Live probe of the dashboard, login, sign-in, DNS check, colours | ✅ `8642642`; [research file](docs/research/2026-11-19-adguard-live-probe.md), `tools/site-probe` |
-| 2 Identity | Name, applicationId, repository, About credits, icon, README, docs | ✅ 2026-11-20 (`8d6c321`, `9197934`, `1fa8540`, docs) |
-| 3 Site | `site/Site.java` for AdGuard + `SiteTest` | **next** |
+| 2 Identity | Name, applicationId, repository, About credits, icon, README, docs | ✅ 2026-11-20 (`8d6c321`, `9197934`, `1fa8540`, docs `7ec4967`; renamed AdGuardDNS Manager `d671501`) |
+| 3 Site | `site/Site.java` for AdGuard + `SiteTest` | **next** (then 6 right after it: `docs/PHASES.md`) |
 | 4 Theme | `theme/Themes.java` from AdGuard's CSS | to do |
 | 5 Sign-in | Apple, Google, Facebook inside the container; Google's user agent | to do |
 | 6 Status | Status icon from AdGuard's DNS check | to do |
@@ -138,7 +139,7 @@ From the plan's §6, with the owner's answers applied. Details of each phase: [�
 |---|---|
 | **NextDNS Manager+ `eaa1665`, unchanged** (shared code; fixes are ported both ways, `UPSTREAM.md`) | everything in `app/` except the files below, all of `tools/page-checks/` (except the stand-in app name), `tools/icon/`, `.github/workflows/`, the Gradle files, the session hook |
 | **Changed for AdGuard so far** | `app/build.gradle` (applicationId, debug name), `res/values/strings.xml` (`app_name`), `assets/about.html` (credits, note), `artwork/icon.svg` + the generated icon files, `gradle.properties` (`app.repoUrl`), `settings.gradle`, `tools/readme-badges/generate.mjs`, `artwork/readme/`, the page checks' stand-in app name, every document |
-| **New in this repository** | `tools/site-probe/` (live probe of AdGuard's site), `docs/ADGUARD_PLAN.md`, `docs/research/`, `docs/superpowers/plans/`, `UPSTREAM.md` |
+| **New in this repository** | `tools/site-probe/` (live probe of AdGuard's site), `docs/ADGUARD_PLAN.md`, `docs/PHASES.md`, `docs/research/`, `docs/superpowers/plans/`, `UPSTREAM.md` |
 | **Still NextDNS-specific, to change** | `site/Site.java` (Phase 3), `theme/Themes.java` + `res/values*/colors.xml` (Phase 4), `status/StatusRules` (Phase 6), `ui/PingWindow` (Phase 7), `downloads/Downloads` naming and `blob:` (Phase D), texts in `settings.html` (filled from `Site.NAME`; wording Phase 8), `fastlane/…/changelogs/1.txt` (Phase 8), `release.yml` names (Phase 9), comments naming NextDNS (`Profiles`, `ThemeManager`, `top_bar.xml`, `AndroidManifest.xml`, `zoom_viewport.js`) |
 
 Where NextDNS Manager+ itself came from (its `PROJECT.md` §2–3): **LLM Central** (`UpperPanda1/assist`: accounts,
@@ -282,7 +283,7 @@ Other files:
 | `.github/workflows/release.yml` | Release: on a `v*` tag builds unsigned, signs with apksigner 34 (v1 off), runs F-Droid's `apksigcopier compare`, publishes; dry runs by hand or on PRs (`RELEASE.md`). **Still names the APK `NextDNS-Manager-Plus-…` until Phase 9** |
 | `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` | Release notes / F-Droid "What's new" (≤ 500 characters); `1.txt` still describes NextDNS (Phase 8) |
 | `BUILDING.md`, `RELEASE.md`, `fdroid.md`, `re-sign.md` | How to build; how to release and sign; the F-Droid submission; re-signing commits with GPG |
-| `docs/ADGUARD_PLAN.md`, `docs/research/`, `docs/superpowers/plans/` | The owner's plan; research results; work plans of single phases |
+| `docs/ADGUARD_PLAN.md`, `docs/PHASES.md`, `docs/research/`, `docs/superpowers/plans/` | The owner's plan; **the step-by-step guide for every remaining phase**; research results; records of finished phases |
 | `UPSTREAM.md` | Port list with NextDNS Manager+ |
 | `.claude/hooks/session-start.sh` | Sets up the Android SDK in Claude's cloud sandbox |
 
@@ -431,7 +432,7 @@ Code: `ui/FindBar`, `web/FindInPage`, `assets/js/find_highlight.js`.
 
 - **Ping test** (`ui/PingWindow`): two of the service's web pages in a full-screen window, default profile, no login:
   `Site.PING_URL` (NextDNS: `ping.nextdns.io`, how fast each server location answers) above `Site.TEST_URL` (what the
-  service sees of this phone). **AdGuard has neither page** [research D7]; see §11 Phase 7 for the options (Q2).
+  service sees of this phone). **AdGuard has neither page** [research D7]; see `docs/PHASES.md` Phase 7 for the options (Q2).
 - **Private DNS settings:** Android has no direct screen for it; the app opens the network settings
   (`Settings.ACTION_WIRELESS_SETTINGS`) where it sits.
 
@@ -660,78 +661,29 @@ status bar colours, cache size, sign-in). See the phone checklists in `CHANGES.m
 
 ## 11. The AdGuard work, phase by phase
 
-What each remaining phase changes, from the research ([file](docs/research/2026-11-19-adguard-live-probe.md); row
-ids like F1, S4 refer to it) and the owner's answers (§2.2). Each phase = at least one commit, each commit builds and
-passes, with its CHANGES.md entry and phone-test list (CLAUDE.md §4a).
+**The detailed guide is [`docs/PHASES.md`](docs/PHASES.md)**: for every remaining phase the goal, the owner's decisions,
+the files, the steps, the tests and mutation checks, how to verify, "done when", the phone tests to write, the tools
+and packages it needs, and the LLM Central code to port. Summary:
 
-**Phase 3 — Site** (`site/Site.java`, `SiteTest`, test hosts in `TabManagerTest`/`LoadErrorsTest`)
-- `NAME` "AdGuard DNS"; `HOME_URL` `https://adguard-dns.io/en/dashboard/` (signed out it redirects to
-  `auth.adguardaccount.com`, F1).
-- `DOMAINS` = `adguard-dns.io`, `adguardaccount.com` (covers `auth.adguardaccount.com` and the account pages, Q4; the
-  API is under `adguard-dns.io`, F5). **Not** `adguardcheckout.com` (browser, Q4).
-- `PRIVATE_DNS_MARKER`: a host **ending in** `.adguard-dns.com` (D1, D2); write it as a suffix rule, not `contains`
-  (NextDNS's `contains` is review finding F3, inherited).
-- `LINKS`: privacy `https://adguard-dns.io/en/privacy.html`, terms `https://adguard-dns.io/en/eula.html` (L1).
-- `TEST_URL`/fields and `PING_URL`: leave for Phases 6/7 so this commit stays one change.
-- `SiteTest`: lookalikes `adguard-dns.io.evil.com`, `evil-adguard-dns.io`, `adguardaccount.com.evil.com`, trailing dot;
-  mutation-check `ownsHost`. Also read the dashboard files' `Cache-Control` (§6 rule 2).
-
-**Phase 4 — Theme** (`theme/Themes.java`, `ContrastTest`, `colors.xml`, page HTML fallbacks)
-- Surfaces `#ffffff` / `#242d38`, text `#333e4c` / white; accent from AdGuard's blue scale: `#3c81f6` gives only
-  3.71:1 with white (too low for text), `#1a6bf4` gives 4.72:1 (the icon already uses it). `ContrastTest` decides.
-- Q3: no injected theme script.
-
-**Phase 5 — Sign-in** (owner Q5: Apple, Google, Facebook)
-- A sign-in host list in `site/Site.java`: `accounts.google.com`, `appleid.apple.com`, `idmsa.apple.com` (from LLM
-  Central, not seen at AdGuard's first step), `www.facebook.com`, `m.facebook.com`. Used **only** by the tab's
-  main-frame decision (`TabClient.shouldOverrideUrlLoading`), as LLM Central's `loadsInApp`; `ownsHost` stays for
-  scripts and everything else.
-- Port `web/SignInUserAgent` (LLM Central, 4 tests): only while `accounts.google.com` is on screen the tab gets
-  geminiAssist's desktop-Linux user agent; restored when it leaves. AdGuard sends `disallow_webview=true` (S4).
-- **No `PopupWindows`**: all three are whole-page navigations (S2, S3).
-- Apple returns by **POST** (S6): WebView doesn't ask the app about POSTs, nothing to do. Facebook's "log in with app"
-  step (S7): `fb:`/`intent:` links are dropped by `ExternalLinks`; check on a phone.
-- hCaptcha (S9): sub-frames already load; third-party cookies stay off unless the phone test (P3) shows it fails.
-- Check: `tools/site-probe signin Google --disguised`; unit tests + mutation checks of the host list and UA scope.
-
-**Phase 6 — Status** (`status/StatusRules`, `ConnectionStatus`, `Site`)
-- Test address with a fresh random part each check (`a` + 4–63 of `a–z A–Z 0–9 -`), 10 s timeout as the dashboard.
-- In use = HTTP 200 + JSON; `protocol` compared case-insensitively against `doh`/`dot`/`doq`; `server_type` private vs
-  public could be shown in the explanation. Not in use = lookup failure / 404. Tests for every answer.
-
-**Phase 7 — Ping** (owner Q2, open). The window shows two of the service's **web pages**; AdGuard has no such pages
-(D7). Options:
-1. **Remove** the menu item, `PingWindow` and its strings (smallest; lint then needs no unused resources).
-2. **Turn it into "Connection details"**: show the DNS check's answer as text (server location `node_location`,
-   protocol, your own server or a public one, device id): the same information `test.nextdns.io` gave, from AdGuard's
-   own check. Small, reuses Phase 6's request; no web page.
-3. **Measure latency in the app**: time a few DNS-over-HTTPS requests to `dns.adguard-dns.com` /
-   `d.adguard-dns.com`. A real ping, but new code and only the server location the phone is routed to.
-
-**Phase D — Downloads** (owner Q1: yes)
-- Port LLM Central's `blob:` capture (`assets/js/blob_capture.js` + a message bridge limited to the service's origin):
-  the page hands the file's bytes and name to the app, which saves them through MediaStore (the `data:` path already
-  exists). Only the user rules export uses it today (W1).
-- Server files (W2): keep the browser hand-off if the phone check P4 shows the links work without login; otherwise
-  download them in the app with the account's cookies.
-
-**Phase 8 — Texts:** Settings Privacy/Disclaimer for AdGuard (sign-in pages, hCaptcha, AdGuard's own telemetry F9, the
-DNS check request), `fastlane/…/title.txt`, `short_description.txt`, `full_description.txt`, `changelogs/1.txt`,
-honest note on Google's user agent (F-Droid).
-
-**Phase 9 — Workflows:** `release.yml`: APK `AdGuardDNS-Manager-<version>.apk`, release title "AdGuardDNS Manager
-<version>", dry-run certificate name; re-run its `run:` blocks locally with a test key and `apksigcopier compare`.
-
-**Phase 10 — Review:** adversarial review of everything since `abb10bf` (sign-in hosts, user-agent scope, blob bridge,
-lock), recorded in `REVIEW.md`.
-
-**Phase 11 — Docs** and **Phase 12 — Owner** (phone test, name decision, key + secrets, dry run, tag `v0.1.0`, F-Droid).
+| Phase | Changes | Rests on | Owner input |
+|---|---|---|---|
+| **3 Site** (next) | `site/Site.java`: name "AdGuard DNS", home `adguard-dns.io/en/dashboard/`, domains `adguard-dns.io` + `adguardaccount.com`, marker `adguard-dns.com`, AdGuard's legal links; tests `SiteTest`, `TabManagerTest`, `DownloadsTest`, `StatusRulesTest` | F1–F7, D1–D2, L1 | Q4 ✅ |
+| **6 Status** (right after 3) | `status/StatusRules` + `ConnectionStatus`: AdGuard's DNS check (`a<random>-dnscheck.adguard-dns.com`), lower-case protocols, marker as a host suffix | D3–D6 | — |
+| **4 Theme** | `theme/Themes.java` etc.: `#ffffff`/`#242d38`, AdGuard blue accent chosen by `ContrastTest` | T1–T2 | Q3 ✅ |
+| **5 Sign-in** | sign-in host list in `Site` (main frame only), `web/SignInUserAgent` from LLM Central, Desktop site interplay | S1–S10 | Q5 ✅ |
+| **D Downloads** | `blob:` capture script + origin-restricted message listener + MediaStore save; R6 and F2 fixed on the way | W1–W3 | Q1 ✅ |
+| **7 Ping** | remove / "Connection details" (recommended) / latency test | D7 | **Q2 open** |
+| **8 Texts** | Settings Privacy/Disclaimer, store texts, changelog 1, README | F9, S9 | — |
+| **9 Workflows** | `release.yml` names (`AdGuardDNS-Manager-<version>.apk`), local release rehearsal with apksigner 34 + apksigcopier | — | — |
+| **10 Review** | adversarial + security review of `abb10bf..HEAD` (REVIEW.md §4) | — | — |
+| **11 Docs**, **12 Owner** | final docs pass; phone tests, name answer, key + secrets, dry run, `v0.1.0`, F-Droid | — | owner |
 
 ---
 
 ## 12. Roadmap
 
-1. Owner: answer Q2 (Ping, §11 Phase 7). Phone test of the identity (CHANGES.md).
-2. Phase 3 (Site) → 4 (Theme) → 5 (Sign-in) → 6 (Status) → D (Downloads) → 7 (Ping) → 8 → 9 → 10 → 11.
-3. Owner: phone tests along the way, release key + secrets, first `v0.1.0`, F-Droid.
+1. Owner: answer Q2 (Ping, `docs/PHASES.md` Phase 7). Phone test of the identity (CHANGES.md).
+2. Phase 3 (Site) → 6 (Status) → 4 (Theme) → 5 (Sign-in) → D (Downloads) → 7 (Ping) → 8 → 9 → 10 → 11
+   (`docs/PHASES.md`).
+3. Owner: phone tests along the way, repository rename (§7), release key + secrets, first `v0.1.0`, F-Droid.
 4. Later: translations; inherited review items (REVIEW.md); keep `UPSTREAM.md` current.
