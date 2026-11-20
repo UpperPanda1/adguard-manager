@@ -18,14 +18,14 @@ The owner's plan is [`ADGUARD_PLAN.md`](ADGUARD_PLAN.md) (§6 phases, §7 rules,
 - [Phase 5 — Sign-in with Apple, Google, Facebook](#phase-5--sign-in-with-apple-google-facebook)
 - [Phase 6 — Status icon from AdGuard's DNS check](#phase-6--status-icon-from-adguards-dns-check) ✅
 - [Phase D — Downloads: save blob: files](#phase-d--downloads-save-blob-files)
-- [Phase 7 — Ping window (owner decision first)](#phase-7--ping-window-owner-decision-first)
+- [Phase 7 — Ping window (owner decision first)](#phase-7--ping-window-owner-decision-first) ✅
 - [Phase 8 — Texts and store files](#phase-8--texts-and-store-files)
 - [Phase 9 — Release workflow](#phase-9--release-workflow)
 - [Phase 10 — Review](#phase-10--review)
 - [Phase 11 — Docs](#phase-11--docs)
 - [Phase 12 — Owner: phone, key, release, F-Droid](#phase-12--owner-phone-key-release-f-droid)
 
-**Suggested order:** ~~3~~ ✅ → ~~6~~ ✅ → **7** (owner: together with 6) → 4 → 5 → D → 7 → 8 → 9 → 10 → 11 → 12. Phase 6 moves up because after Phase 3 the
+**Suggested order:** ~~3~~ ✅ → ~~6~~ ✅ → ~~7~~ ✅ (owner: together with 6) → **4** → 5 → D → 7 → 8 → 9 → 10 → 11 → 12. Phase 6 moves up because after Phase 3 the
 status icon mixes AdGuard's Private DNS marker with NextDNS's test page (harmless in a development build, but wrong
 until Phase 6). Every other dependency is noted in its phase.
 
@@ -264,6 +264,13 @@ page check for the script (a page that makes a blob and clicks a download link; 
 ---
 
 ## Phase 7 — Ping window (owner decision first)
+
+> **✅ Done 2026-11-20: owner Q2 = option 2 "Connection details" + a latency test** (like `ping.nextdns.io`, but
+> AdGuard has no per-location list: research D9, D10). New `assets/connection.html`, `ui/ConnectionWindow`,
+> `status/ConnectionReport`, `status/Latency`; `ConnectionStatus.checkNow` + listener; menu item "Connection details" and
+> a *Details* button in the status explanation; `PingWindow`, `Site.PING_*`, `pingWindowAllows`, `menu_ping`,
+> `ping_title`, `back`, `ic_arrow_back` removed. Tests 117, page checks 7 (new `connection`). Plan and result:
+> `superpowers/plans/2026-11-20-phases-6-7-status-and-connection.md`.
 
 **Goal:** decide what the three-dots → "Ping test" item becomes. The window shows two of the service's **web pages**
 (`ping.nextdns.io`, `test.nextdns.io`); AdGuard has neither (D7).

@@ -42,7 +42,7 @@ the `\r` of `gradle.properties`' Windows line endings). For this repository the 
 | ID | Decision | For AdGuard |
 |---|---|---|
 | A | Final LLM Central address (`UpperPanda1/assist` or a renamed repository) | README credits and About "Built on" name it |
-| B | Ping window shares account `main`'s cookie jar (default profile) | depends on Q2 (PROJECT.md §11 Phase 7): moot if it is removed or becomes "Connection details" |
+| B | Ping window shares account `main`'s cookie jar (default profile) | ✅ moot (Phase 7, 2026-11-20): the Ping window is gone; Connection details shows only the app's own local page |
 | C | GPL credit chain beyond LLM Central (duckAssist/gptAssist) in README/About | same question |
 | D | Working files (`CLAUDE.md`, `handoff.md`, `.claude/`, this file) in the public repository: keep or remove | **this repository is public** (checked 2026-11-20), so they are visible now |
 | E | Name vs trademark | "AdGuardDNS Manager" chosen 2026-11-20; the F-Droid question is in `fdroid.md` §3.2 |
@@ -53,7 +53,7 @@ the `\r` of `gradle.properties`' Windows line endings). For this repository the 
 In the shared code, summarised from NextDNS Manager+ review 3 §10.2 (still the same code):
 
 - **Lock rules:** lock on a fresh process and after > 60 s away; turning the lock on and off needs the phone's unlock;
-  Back on the cover leaves the app; Settings/About/Ping/status/menus/find bar close before locking; content under the
+  Back on the cover leaves the app; Settings/About/Connection details/status/menus/find bar close before locking; content under the
   cover hidden from TalkBack and keyboard (fixed F1).
 - **Navigation:** `Site.ownsHost` = exact host or real subdomain; a trailing dot or empty host fails closed. Injected
   scripts come only from assets and run only on the service's https origins (`Site.originRules`).

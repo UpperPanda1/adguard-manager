@@ -5,7 +5,7 @@
               icon row Desktop site / Reload / Hide status bar / Clear cache, then "Manage accounts"
       right = status icon   → is this phone using AdGuard DNS? (status/ConnectionStatus); tap = explanation
               home icon     → the dashboard's start page
-              three dots    → Find in page, Ping, Private DNS settings, Settings (ui/OverflowMenu)
+              three dots    → Find in page, Connection details, Private DNS settings, Settings
     There is no Back button on purpose: Android's Back goes back inside the page.
     MainActivity.setupTopBar() connects the buttons; ui/NativeTheme colours them (the colours below are
     only what shows before that).

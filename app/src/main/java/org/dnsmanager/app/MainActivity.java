@@ -51,11 +51,11 @@ import org.dnsmanager.app.theme.Scheme;
 import org.dnsmanager.app.theme.ThemeManager;
 import org.dnsmanager.app.theme.ThemeRebuild;
 import org.dnsmanager.app.ui.AboutWindow;
+import org.dnsmanager.app.ui.ConnectionWindow;
 import org.dnsmanager.app.ui.AccountBadge;
 import org.dnsmanager.app.ui.FindBar;
 import org.dnsmanager.app.ui.LockScreen;
 import org.dnsmanager.app.ui.NativeTheme;
-import org.dnsmanager.app.ui.PingWindow;
 import org.dnsmanager.app.ui.SettingsRestore;
 import org.dnsmanager.app.ui.SettingsWindow;
 import org.dnsmanager.app.ui.SwitcherPopup;
@@ -112,7 +112,7 @@ public class MainActivity extends Activity {
     private Dialog settingsDialog;
     private String settingsSection;
     private Dialog aboutDialog;
-    private Dialog pingDialog;
+    private Dialog connectionDialog;
     private Dialog statusDialog;
     private PopupWindow switcherPopup;
     private PopupMenu overflowMenu;
@@ -370,7 +370,7 @@ public class MainActivity extends Activity {
     /** The three-dots menu. Ids are the string resources, so one switch handles the taps. */
     private void showOverflowMenu(View anchor) {
         PopupMenu menu = new PopupMenu(this, anchor);
-        for (int item : new int[]{R.string.find_in_page, R.string.menu_ping, R.string.menu_private_dns,
+        for (int item : new int[]{R.string.find_in_page, R.string.menu_connection, R.string.menu_private_dns,
                 R.string.menu_settings}) {
             menu.getMenu().add(Menu.NONE, item, Menu.NONE, item);
         }
@@ -378,10 +378,8 @@ public class MainActivity extends Activity {
             int id = item.getItemId();
             if (id == R.string.find_in_page) {
                 openFindInPage();
-            } else if (id == R.string.menu_ping) {
-                if (pingDialog == null || !pingDialog.isShowing()) {
-                    pingDialog = PingWindow.show(this, ThemeManager.scheme(this));
-                }
+            } else if (id == R.string.menu_connection) {
+                openConnectionDetails();
             } else if (id == R.string.menu_private_dns) {
                 openPrivateDnsSettings();
             } else if (id == R.string.menu_settings) {
@@ -391,6 +389,13 @@ public class MainActivity extends Activity {
         });
         overflowMenu = menu;
         menu.show();
+    }
+
+    /** Connection details (ui/ConnectionWindow): what AdGuard's DNS check saw, and the latency test. */
+    private void openConnectionDetails() {
+        if (connectionDialog == null || !connectionDialog.isShowing()) {
+            connectionDialog = ConnectionWindow.show(this, connectionStatus);
+        }
     }
 
     /** Android has no direct door to the Private DNS setting; the network settings page holds it. */
@@ -420,6 +425,7 @@ public class MainActivity extends Activity {
                 .setMessage(connectionStatus.description() + "\n\n" + getString(R.string.status_hint, Site.NAME))
                 .setPositiveButton(R.string.close, null)
                 .setNeutralButton(R.string.menu_private_dns, (d, which) -> openPrivateDnsSettings())
+                .setNegativeButton(R.string.status_details, (d, which) -> openConnectionDetails())
                 .show();
         // A dialog is a window of its own: the main screen's "secure" mark doesn't cover it (ui/Windows.setSecure).
         Windows.setSecure(statusDialog, AppLock.isEnabled(this));
@@ -807,7 +813,7 @@ public class MainActivity extends Activity {
 
     /** Closes every window and menu that may be open (before locking, and when the screen goes). */
     private void dismissWindows() {
-        for (Dialog dialog : new Dialog[]{aboutDialog, pingDialog, statusDialog, settingsDialog}) {
+        for (Dialog dialog : new Dialog[]{aboutDialog, connectionDialog, statusDialog, settingsDialog}) {
             if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
             }
@@ -918,9 +924,9 @@ public class MainActivity extends Activity {
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
         }
-        // Settings, About, the Ping test and the status dialog are windows of their own. The lock is switched
+        // Settings, About, Connection details and the status dialog are windows of their own. The lock is switched
         // inside Settings, so the windows that are open right now must follow the new setting at once.
-        for (Dialog dialog : new Dialog[]{settingsDialog, aboutDialog, pingDialog, statusDialog}) {
+        for (Dialog dialog : new Dialog[]{settingsDialog, aboutDialog, connectionDialog, statusDialog}) {
             if (dialog != null && dialog.isShowing()) {
                 Windows.setSecure(dialog, AppLock.isEnabled(this));
             }

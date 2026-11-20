@@ -50,16 +50,15 @@ how to change each feature**. Start at the top for the big picture or jump to th
 | Theme | White, Black or Match system; the status bar matches the page. | works; AdGuard colours in Phase 4 |
 | Account menu tools | Desktop site, Reload, Hide status bar, Clear cache, unload an account. | works |
 | Downloads | Files the dashboard makes itself (exported user rules) saved to Downloads; server files open in the browser. | Phase D (`blob:` capture) |
-| Ping test, Private DNS shortcut | From NextDNS Manager+; Ping has no AdGuard page (`docs/PHASES.md`, Phase 7). | shortcut works; Ping open |
+| Connection details, Private DNS shortcut | ⋮ → Connection details: what AdGuard's DNS check saw (protocol, own/public server, device, location, Private DNS) and a latency test of AdGuard's servers. Replaces NextDNS's Ping window. | ✅ Phase 7 |
 
 **Today the app is named AdGuardDNS Manager, has its own id and icon, and opens the AdGuard DNS dashboard** (Phase 3,
-2026-11-20): everything about the DNS service is in one file, `site/Site.java`. Two parts still use NextDNS's pages
-until its phase: the Ping window (Phase 7); colours are NextDNS's until Phase 4. The status icon uses AdGuard's own DNS
-check since Phase 6. That is by design: the plan changes one thing per step so each change can be reviewed on its own.
+2026-11-20): everything about the DNS service is in one file, `site/Site.java`. The status icon and Connection details
+use AdGuard's own DNS check (Phases 6, 7); no NextDNS address is left in the code. Colours are NextDNS's until Phase 4. That is by design: the plan changes one thing per step so each change can be reviewed on its own.
 
 Package `org.dnsmanager.app` (code, shared with NextDNS Manager+ on purpose), application id
 `org.rafee_m.adguarddnsmanager` (store identity), Java only, no UI library, one library in total (`androidx.webkit`).
-Release APK 189,470 bytes (clean build, 2026-11-20, after Phase 6 and the latency code).
+Release APK 199,522 bytes (clean build, 2026-11-20, after Phase 7: Connection details).
 
 ---
 
@@ -90,7 +89,7 @@ and keeping it makes a NextDNS fix apply here as a near-identical diff. Only the
 | — | App name | **AdGuardDNS Manager** (first "AdGuard Manager", changed the same day; plan §13 had "AdGuard DNS Manager+"; the trademark question is in `fdroid.md` §3.2) | 2026-11-20 |
 | — | applicationId | **`org.rafee_m.adguarddnsmanager`** (first `org.rafee_m.adguardmanager`, changed the same day, before any release; frozen after the first public release) | 2026-11-20 |
 | Q1 | The dashboard's "Export rules" makes a `blob:` file the copied code can't save | **Port LLM Central's blob capture** (new phase D, §11) | 2026-11-20 |
-| Q2 | AdGuard has no ping page: remove the Ping window? | **Open.** The owner asked why remove it; the options are in `docs/PHASES.md` Phase 7 | asked 2026-11-20 |
+| Q2 | AdGuard has no ping page: remove the Ping window? | **"Connection details" + a latency test** (the recommended option, plus a test like `ping.nextdns.io`'s) | 2026-11-20 |
 | Q3 | The dashboard follows the phone's dark mode only if the account's theme is "Automatic" | **Keep as is**: no script forces the page's theme; README/Settings say so | 2026-11-20 |
 | Q4 | Account and payment pages | **`adguardaccount.com` inside the account's container, `adguardcheckout.com` in the browser** | 2026-11-20 |
 | Q5 | Which sign-in providers | **All three: Apple, Google, Facebook** | 2026-11-20 |
@@ -114,7 +113,7 @@ From the plan's §6, with the owner's answers applied. Details of each phase: [�
 | 4 Theme | `theme/Themes.java` from AdGuard's CSS | to do |
 | 5 Sign-in | Apple, Google, Facebook inside the container; Google's user agent | to do |
 | 6 Status | Status icon from AdGuard's DNS check | ✅ 2026-11-20 (`status/DnsCheck`; REVIEW F3 fixed) |
-| 7 Ping | Owner decision first (Q2) | waiting |
+| 7 Ping | Connection details + latency test (Q2) | ✅ 2026-11-20 (`ui/ConnectionWindow`, `assets/connection.html`, `status/Latency`) |
 | D Downloads | `blob:` files saved to Downloads (Q1) | to do |
 | 8 Texts | Settings Privacy/Disclaimer, store texts, changelog 1 | to do |
 | 9 Workflows | Release workflow names; local release rehearsal | to do |
@@ -139,9 +138,9 @@ From the plan's §6, with the owner's answers applied. Details of each phase: [�
 | Origin | Files |
 |---|---|
 | **NextDNS Manager+ `eaa1665`, unchanged** (shared code; fixes are ported both ways, `UPSTREAM.md`) | everything in `app/` except the files below, all of `tools/page-checks/` (except the stand-in app name), `tools/icon/`, `.github/workflows/`, the Gradle files, the session hook |
-| **Changed for AdGuard so far** | `app/build.gradle` (applicationId, debug name), `res/values/strings.xml` (`app_name`), `assets/about.html` (credits, note), `artwork/icon.svg` + the generated icon files, `gradle.properties` (`app.repoUrl`), `settings.gradle`, `tools/readme-badges/generate.mjs`, `artwork/readme/`, `site/Site.java` + `ui/PingWindow.java` (host rule) and their tests (Phase 3), `assets/settings.html` (stand-in service name), the page checks' stand-in names and the zoom check's sample page, every document |
+| **Changed for AdGuard so far** | `app/build.gradle` (applicationId, debug name), `res/values/strings.xml` (`app_name`), `assets/about.html` (credits, note), `artwork/icon.svg` + the generated icon files, `gradle.properties` (`app.repoUrl`), `settings.gradle`, `tools/readme-badges/generate.mjs`, `artwork/readme/`, `site/Site.java` and its tests (Phase 3), `status/` (Phase 6), Connection details replacing the Ping window (Phase 7), `assets/settings.html` (stand-in service name), the page checks' stand-in names and the zoom check's sample page, every document |
 | **New in this repository** | `tools/site-probe/` (live probe of AdGuard's site), `docs/ADGUARD_PLAN.md`, `docs/PHASES.md`, `docs/research/`, `docs/superpowers/plans/`, `UPSTREAM.md` |
-| **Still NextDNS-specific, to change** | `site/Site.java` `PING_URL`, `PING_TEST_URL` + `PING_DOMAINS` (Phase 7), `theme/Themes.java` + `res/values*/colors.xml` (Phase 4), `status/StatusRules` (Phase 6), `ui/PingWindow` (Phase 7), `downloads/Downloads` naming and `blob:` (Phase D), texts in `settings.html` (filled from `Site.NAME`; wording Phase 8), `fastlane/…/changelogs/1.txt` (Phase 8), `release.yml` names (Phase 9); comments naming NextDNS were updated after Phase 3, except those describing NextDNS colours still in use (`Themes.java`, `values-night/colors.xml`, `ContrastTest`: Phase 4) |
+| **Still NextDNS-specific, to change** | `theme/Themes.java` + `res/values*/colors.xml` (Phase 4), `downloads/Downloads` naming and `blob:` (Phase D), texts in `settings.html` (filled from `Site.NAME`; wording Phase 8), `fastlane/…/changelogs/1.txt` (Phase 8), `release.yml` names (Phase 9); comments naming NextDNS were updated after Phase 3, except those describing NextDNS colours still in use (`Themes.java`, `values-night/colors.xml`, `ContrastTest`: Phase 4) |
 
 Where NextDNS Manager+ itself came from (its `PROJECT.md` §2–3): **LLM Central** (`UpperPanda1/assist`: accounts,
 tabs, settings design; everything AI-related stripped) plus the NextDNS-specific *features* of **NextDNS Manager**
@@ -171,7 +170,7 @@ that app is in the tree). All three are GPL-3.0; About → "Built on" names them
 
 The view tree (`res/layout/activity_main.xml`): `screen` (frame) → `mainRoot` (column: `topBar`, `tabContainer`)
 + the lock cover added at runtime. `tabContainer` holds the tab WebViews, the two black placeholder screens and the
-loading bar. Settings, About and Ping test are full-screen dialogs on top (`ui/Windows`).
+loading bar. Settings, About and Connection details are full-screen dialogs on top (`ui/Windows`).
 
 ### 4.2 The parts and who talks to whom
 
@@ -208,7 +207,7 @@ Java: `app/src/main/java/org/dnsmanager/app/` (43 files, 6,128 lines). Tests: `a
 | `MainActivity.java` | The one screen: lifecycle, top bar, three-dots menu, tab set-up (`configureWebView`), page events (`TabClient`, incl. `shouldOverrideUrlLoading`), Settings host, app lock flow | — (wiring) | 5 (sign-in wiring), 7, D |
 | `Prefs.java` | The settings file's name and shared keys (`max_live_tabs`, `last_account`) | — | |
 | **site/** | | | |
-| `Site.java` | Everything about the service: name, home/test/ping addresses, owned domains (`ownsHost`), the Ping window's extra domains (`pingWindowAllows`, until Phase 7), test answer format, Private DNS marker, legal links, script origin rules | `SiteTest` | 3 ✅, 5, 6, 7 |
+| `Site.java` | Everything about the service: name, home/test/ping addresses, owned domains (`ownsHost`), the DNS check's address parts and encrypted protocols, Private DNS rule (`isPrivateDnsHost`), latency servers, legal links, script origin rules | `SiteTest` | 3 ✅, 5, 6 ✅, 7 ✅ |
 | **account/** | | | |
 | `Account.java` | One account: id + name; `profileName()` (`acct_<id>`, or the default profile for id `main`) | `AccountStoreTest` | |
 | `AccountStore.java` | The account list and all its rules (add, rename, remove, reorder, numbering, limits, safe ids); saved as JSON | `AccountStoreTest` | |
@@ -241,7 +240,7 @@ Java: `app/src/main/java/org/dnsmanager/app/` (43 files, 6,128 lines). Tests: `a
 | `SettingsWindow.java` | Opens Settings, `AndroidSettings` bridge (sends `service` = `Site.NAME`, `app_name` = launcher label), Back handling | page checks `settings-*` | |
 | `SettingsRestore.java` | Reopen Settings after a rebuild; safe section names | `SettingsRestoreTest` | |
 | `AboutWindow.java` | Opens About with name (launcher label), version, repository/author (`BuildConfig`), icon (the launcher icon drawn to a PNG) | page check `about` | |
-| `PingWindow.java` | Ping test window (two service pages); pages stay in it by `Site.pingWindowAllows` | — (rule: `SiteTest`) | 3 ✅ (host rule), **7** |
+| `ConnectionWindow.java` | ⋮ → Connection details (and the status dialog's Details button): opens `connection.html`, bridge `AndroidConnection` (`refresh`, `close`), a fresh check through `ConnectionStatus.checkNow`, the latency test on its own thread (stopped when the window closes) | page check `connection` | 7 ✅ (new; replaces `PingWindow`) |
 | `LockScreen.java` | The lock cover (also hides what's under it from TalkBack/keyboard) | — | |
 | `FindBar.java` | The find bar | — | |
 | `UnloadedPlaceholder.java` | Black "Tap to load" / "Tap to retry" screens | — | |
@@ -251,6 +250,7 @@ Java: `app/src/main/java/org/dnsmanager/app/` (43 files, 6,128 lines). Tests: `a
 | `LockRules.java` | When to lock (fresh start, away > 1 minute) | `LockRulesTest` | |
 | **status/** | | | |
 | `ConnectionStatus.java` | Listens to the network, runs AdGuard's DNS check (a "not in use" is confirmed once, 3 s later), paints the icon | — | 6 ✅ |
+| `ConnectionReport.java` | The JSON the Connection details page gets: codes and numbers only (state, colour, check fields, Private DNS, latency rows in ms) | `ConnectionReportTest` | 7 ✅ (new) |
 | `Latency.java` | Latency test: TCP handshake time to port 443 of each AdGuard server (`Site.LATENCY_SERVERS`), IPv4 + IPv6, best of 3, 2 s timeout; display order (fastest first, IPv6 only if it works) | `LatencyTest` (incl. a local server) | 7 ✅ (new) |
 | `DnsCheck.java` | AdGuard's DNS check: fresh random name, request, answer → in use / not in use / unknown + validated details (protocol, own/public server, device, location) | `DnsCheckTest` (incl. a local HTTP server) | 6 ✅ (new) |
 | `StatusRules.java` | Private DNS (suffix rule) + DNS check → state and colour | `StatusRulesTest` | 6 ✅ |
@@ -267,6 +267,7 @@ Other files:
 |---|---|
 | `app/src/main/assets/settings.html` | The Settings screen (HTML + CSS + JS in one file); the service's name fills every `.svc` element from `Site.NAME` |
 | `app/src/main/assets/about.html` | The About screen ("Built on": NextDNS Manager+, LLM Central, NextDNS Manager) |
+| `app/src/main/assets/connection.html` | The Connection details screen (status, "This connection", "Latency"); words for the app's codes in its `WORDS` table |
 | `app/src/main/assets/js/zoom_viewport.js`, `desktop_viewport.js`, `find_highlight.js` | Scripts added to the dashboard |
 | `app/src/main/assets/lib/reorder.js` | Drag-to-reorder for the account list |
 | `app/src/main/res/layout/activity_main.xml`, `top_bar.xml` | The screen and the top bar |
@@ -300,12 +301,12 @@ Each part says what the user sees, how it works, where to change it, and what ch
 
 - **Sees:** chip `(n) Name ▾` on the left; status icon, home, three dots on the right. No back button: Android's Back
   goes back inside the page (find bar first, then page history, then leaves the app).
-- **Three dots:** Find in page · Ping test · Private DNS settings · Settings. Refresh is not here (it is Reload in the
+- **Three dots:** Find in page · Connection details · Private DNS settings · Settings. Refresh is not here (it is Reload in the
   account menu).
 - **Code:** layout `res/layout/top_bar.xml`; buttons in `MainActivity.setupTopBar`; menu in
   `MainActivity.showOverflowMenu` (each item's id is its string resource); colours `ui/NativeTheme.styleTopBar`.
 - **Fits 360 dp:** chip name max 120 dp + three 48 dp buttons (comment in `top_bar.xml`).
-- **AdGuard:** the Ping item depends on Q2 (Phase 7).
+- **Status icon tap:** the explanation with *Close*, *Private DNS settings* and *Details* (= Connection details).
 
 ### 5.2 Accounts and their containers
 
@@ -436,14 +437,24 @@ Three-dots → Find in page, or Ctrl+F on a keyboard. The bar at the bottom uses
 matches are coloured with the accent where the WebView supports `::search-text` (WebView 144+). Back closes the bar.
 Code: `ui/FindBar`, `web/FindInPage`, `assets/js/find_highlight.js`.
 
-### 5.10 Ping test and Private DNS shortcut
+### 5.10 Connection details and Private DNS shortcut
 
-- **Ping test** (`ui/PingWindow`): two of the service's web pages in a full-screen window, default profile, no login:
-  `Site.PING_URL` (NextDNS: `ping.nextdns.io`, how fast each server location answers) above `Site.TEST_URL` (what the
-  service sees of this phone). **AdGuard has neither page** [research D7]; see `docs/PHASES.md` Phase 7 for the options (Q2).
-  Until then the window still shows NextDNS's two pages. They stay inside the window by `Site.pingWindowAllows`
-  (`Site.DOMAINS` + the temporary `Site.PING_DOMAINS` = `nextdns.io`), because `test.nextdns.io` redirects to a random
-  subdomain; account tabs still use `Site.ownsHost` and never load NextDNS.
+- **Connection details** (Phase 7; ⋮ menu, or *Details* in the status explanation; `ui/ConnectionWindow` +
+  `assets/connection.html`) replaces NextDNS Manager+'s Ping window, which showed two NextDNS web pages AdGuard has no
+  counterpart for [research D7]. Opening it (or *Check again*, the ↻ button) runs a **fresh DNS check** (the same one
+  as the icon, through `ConnectionStatus.checkNow`, so both agree) and a **latency test**. It shows:
+  1. **The status** in words, with the top bar icon's own symbol and colour.
+  2. **This connection** (what AdGuard's check saw): protocol (DNS-over-TLS/HTTPS/QUIC, DNSCrypt, plain DNS; encrypted
+     or not), AdGuard server (your own server = your account's settings apply; AdGuard's public server = they don't,
+     research D8), device ID (own server only), AdGuard location (`node_location` code, e.g. AMS, and the server node),
+     Android's Private DNS (host / Automatic / Not in use). "Not in use" or "no answer" replace the rows with one row
+     saying so.
+  3. **Latency**: one row per AdGuard address (Default, Non-filtering, Family protection, Personal servers; IPv4, and
+     IPv6 where it works), fastest first with a *Fastest* chip, "No answer" last (`status/Latency`: TCP handshake to
+     port 443, best of 3, 2 s; research D9, D10 for why not a list of cities).
+  The page gets codes and numbers only (`status/ConnectionReport`), already validated by `status/DnsCheck`, and inserts
+  text with `textContent`. The latency test runs on the window's own thread and stops when the window closes.
+  Network use: only while the window is open (Settings → Privacy says so).
 - **Private DNS settings:** Android has no direct screen for it; the app opens the network settings
   (`Settings.ACTION_WIRELESS_SETTINGS`) where it sits.
 
@@ -557,12 +568,17 @@ built APKs (CHANGES.md 2026-11-20).
 colours.
 
 **Point the app at the service** (done for AdGuard in Phase 3): `site/Site.java` only (`NAME`, `HOME_URL`, `DOMAINS`,
-`TEST_URL`, `PING_URL`, `PRIVATE_DNS_MARKER`, test fields, `LINKS`), then `SiteTest` and the hosts in `TabManagerTest`,
+`PRIVATE_DNS_DOMAIN`, the DNS check's `DNS_CHECK_DOMAIN`/`PATH` and `SECURE_PROTOCOLS`, `LATENCY_SERVERS`, `LINKS`), then `SiteTest` and the hosts in `TabManagerTest`,
 `DownloadsTest` (file name) and `StatusRulesTest` (marker); the stand-in name in `tools/page-checks/common.mjs` and the
 link texts in `settings-options.mjs`; mutation-check `ownsHost`. **Add a domain that opens inside the app:** add it to
 `Site.DOMAINS` (with a comment saying why), add an "inside" and a lookalike "outside" case to `SiteTest`, and update
 `scriptRulesCover…` (the app's scripts then run there too). A payment or other company's site belongs in the browser,
 not in this list.
+
+**Change Connection details:** words and rows in `assets/connection.html` (the `WORDS` table turns the app's codes into
+text); which servers the latency test times: `Site.LATENCY_SERVERS` (name → host; give a new name a word in `WORDS`);
+how a time is taken: `status/Latency` (`PORT`, `TRIES`, `TIMEOUT_MS`); what the page receives: `status/ConnectionReport`
+(+ its test). Run `tools/page-checks` (check `connection`) and look at the `connection-*` screenshots.
 
 **Add a simple switch to Settings** (example: "Keep screen on"):
 
@@ -642,10 +658,10 @@ add the row in both repositories).
 
 | Layer | What | Command |
 |---|---|---|
-| Unit tests | 112 JUnit tests of the plain-Java rules (accounts, site, status, lock, colours/contrast, theme rebuild, downloads/data URLs, tab LRU, start URLs, load errors, desktop mode, find, scripts, cache size, insets, badge, external links, wipe gate). Phases 3–6 change `SiteTest`, `StatusRulesTest`, `ContrastTest` and add the sign-in tests | `./gradlew test` |
+| Unit tests | 117 JUnit tests of the plain-Java rules (accounts, site, status, lock, colours/contrast, theme rebuild, downloads/data URLs, tab LRU, start URLs, load errors, desktop mode, find, scripts, cache size, insets, badge, external links, wipe gate). Phases 3–6 change `SiteTest`, `StatusRulesTest`, `ContrastTest` and add the sign-in tests | `./gradlew test` |
 | Lint | Android lint, warnings = errors | `./gradlew lint` |
 | Builds | debug + release (R8) | `./gradlew assembleDebug assembleRelease` |
-| Page checks | 6 Chromium checks of Settings, About and the zoom script with stand-in bridges (accounts flow, options, permissions = manifest, dark colours = `Themes.java`, 360 px width, About links) | `tools/page-checks` (README) |
+| Page checks | 7 Chromium checks of Settings, About, Connection details and the zoom script with stand-in bridges (accounts flow, options, permissions = manifest, dark colours = `Themes.java`, 360 px width, About links) | `tools/page-checks` (README) |
 | Live probes | `tools/site-probe`: AdGuard's sign-in chain, colours, DNS check against the live site (development only, not in CI) | README in the folder |
 | CI | `.github/workflows/ci.yml`: job `android` (all of the above + APK artifact + size, `ubuntu-latest`) and job `pages` (page checks + screenshots, `ubuntu-24.04`: Playwright 1.56.1 does not support 26.04) on every push and PR | GitHub Actions |
 | Icon check | `.github/workflows/icon.yml`: on a push touching the icon, regenerates the vector files from `artwork/icon.svg` and fails if they differ | GitHub Actions |
@@ -668,7 +684,8 @@ status bar colours, cache size, sign-in). See the phone checklists in `CHANGES.m
   compiling, lint, unit tests, page checks and reading the Android/Chromium behaviour it relies on.
 - **The DNS check's real answer was never seen** (the sandbox's proxy resolves names itself, research D6): its format
   is taken from AdGuard's open-source server and the dashboard's code; the phone test confirms it (P6).
-- **Until Phase 7** the Ping window shows NextDNS's pages (owner Q2).
+- **Latency is a TCP handshake time**, not an ICMP ping (apps can't send those without root); it measures AdGuard's
+  anycast addresses, so it shows how fast the nearest AdGuard location answers, not a list of cities (D9).
 - **Until Phase 4** the colours are NextDNS's (`#0056B3` accent, `#212529` dark background).
 - **Not seen live** (no AdGuard account signed in): the signed-in dashboard's HTML (`BACKEND_BASE_URI`,
   `DNS_SERVER_DOMAIN`, `LOGOUT_PATH`), the DNS check's JSON from a phone that uses AdGuard DNS (format read in
@@ -698,7 +715,7 @@ and packages it needs, and the LLM Central code to port. Summary:
 | **4 Theme** | `theme/Themes.java` etc.: `#ffffff`/`#242d38`, AdGuard blue accent chosen by `ContrastTest` | T1–T2 | Q3 ✅ |
 | **5 Sign-in** | sign-in host list in `Site` (main frame only), `web/SignInUserAgent` from LLM Central, Desktop site interplay | S1–S10 | Q5 ✅ |
 | **D Downloads** | `blob:` capture script + origin-restricted message listener + MediaStore save; R6 and F2 fixed on the way | W1–W3 | Q1 ✅ |
-| **7 Ping** | remove / "Connection details" (recommended) / latency test | D7 | **Q2 open** |
+| **7 Ping** ✅ 2026-11-20 | "Connection details" + latency test (`ui/ConnectionWindow`, `assets/connection.html`, `status/Latency`, `status/ConnectionReport`) | D7–D10 | Q2 ✅ |
 | **8 Texts** | Settings Privacy/Disclaimer, store texts, changelog 1, README | F9, S9 | — |
 | **9 Workflows** | `release.yml` names (`AdGuardDNS-Manager-<version>.apk`), local release rehearsal with apksigner 34 + apksigcopier | — | — |
 | **10 Review** | adversarial + security review of `abb10bf..HEAD` (REVIEW.md §4) | — | — |
@@ -708,8 +725,8 @@ and packages it needs, and the LLM Central code to port. Summary:
 
 ## 12. Roadmap
 
-1. Owner: answer Q2 (Ping, `docs/PHASES.md` Phase 7). Phone test of the identity and of Phase 3 (CHANGES.md).
-2. ~~Phase 3 (Site)~~ ✅ → ~~6 (Status)~~ ✅ → 4 (Theme) → 5 (Sign-in) → D (Downloads) → 7 (Ping) → 8 → 9 → 10 → 11
+1. Owner: phone tests of the identity and of Phases 3, 6 and 7 (CHANGES.md).
+2. ~~Phase 3 (Site)~~ ✅ → ~~6 (Status)~~ ✅ → ~~7 (Connection details)~~ ✅ → 4 (Theme) → 5 (Sign-in) → D (Downloads) → 8 → 9 → 10 → 11
    (`docs/PHASES.md`).
 3. Owner: phone tests along the way, repository rename (§7), release key + secrets, first `v0.1.0`, F-Droid.
 4. Later: translations; inherited review items (REVIEW.md); keep `UPSTREAM.md` current.

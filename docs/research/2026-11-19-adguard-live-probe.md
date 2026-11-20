@@ -66,7 +66,7 @@ only; all requests from `adguard-dns.io`, `auth.adguardaccount.com`, `st2.adguar
 | S9 | **hCaptcha** is shown **only when the login API asks for it** (an error answer carries the site key; the token goes back in an `x-captcha-token` header). Library loader: `https://js.hcaptcha.com`; its frames and API: `newassets.hcaptcha.com`, `api.hcaptcha.com`, `api2.hcaptcha.com` (in the loader `api.js`). | bundle | `auth.min.js`, `vendor.min.js`, `js.hcaptcha.com/1/api.js` |
 | S10 | Login steps in the code: `login`, `sign_up`, `two_factor`, `two_factor_email`, `forgot_password`, `wait_social`, OTP by e-mail (`/api/1.0/web/send_otp`). | bundle | `auth.min.js` |
 
-### 1.3 Private DNS, status check, ping (→ `site/`, `status/`, `ui/PingWindow`)
+### 1.3 Private DNS, status check, ping (→ `site/`, `status/`, `ui/ConnectionWindow`)
 
 | # | Fact | Sure | Source |
 |---|---|---|---|
@@ -109,7 +109,7 @@ still can't fetch the JSON): **unchanged**. New: D8.
 | **4 Theme** | `Themes.java`: page `#ffffff` / `#242d38`, accent from T1 (contrast test decides the exact shade on white). Dark mode of the **page** follows the app only if the account's theme is AUTOMATIC (T2): see Q3. |
 | **5 Sign-in** | Sign-in hosts for main-frame decisions only: `accounts.google.com`, `appleid.apple.com` (+ `idmsa.apple.com` kept from LLM Central, unseen here), `www.facebook.com`, `m.facebook.com` (S4, S6, S7). Port `SignInUserAgent` (S4: `disallow_webview=true`). **No `PopupWindows`** needed (S2). Facebook's `login_via/app` step may try to open the Facebook app: the app already drops `intent:`/`fb:` links (only http(s)/mailto/tel leave); check on a phone. hCaptcha: sub-frames already load (only main-frame navigations are filtered, `MainActivity` `TabClient`); third-party cookies are off in tabs (`setAcceptThirdPartyCookies(…, false)`): phone check P3. |
 | **6 Status** | `TEST_URL` = `https://a<random>-dnscheck.adguard-dns.com/dnscheck/test` (a new random part each time, 4–63 characters of `a–z A–Z 0–9 -`: AdGuardDNS `dnscheck.go` `validateRandomID`); in use = HTTP 200 with JSON (D3–D5); encrypted = `protocol` in `doh`/`dot`/`doq` (**lower case**; compare without case); `server_type` `private` = the user's own server. The NextDNS fields `status`/`ok` disappear. |
-| **7 Ping** | The window shows two service **web pages**; AdGuard has neither (D7). Owner asked why remove it (Q2, open): options are remove, a native "Connection details" view of the DNS check's answer (D5), or an in-app latency test (PROJECT.md §11 Phase 7). |
+| **7 Ping** ✅ 2026-11-20 | The window showed two service **web pages**; AdGuard has neither (D7). Owner Q2: **"Connection details"** (the DNS check's answer, D5, D8) **plus a latency test** of AdGuard's anycast addresses (D9; how NextDNS's ping page differs: D10). |
 | **D Downloads** (new step, not in the plan) | `blob:` export (W1) fails today: `downloads/Downloads` shows "download failed" for `blob:`. **Owner Q1: port LLM Central's blob capture.** Server files (W2): whether their links work **without** login (the browser can't send the page's Bearer token) is unproven (P4); if they need the session, the browser hand-off fails too. |
 | **8 Texts** | Privacy text: the login page loads AdGuard's own telemetry config (F9) and hCaptcha (S9); the README must say Google's page gets a disguised user agent (plan §11). |
 
@@ -122,8 +122,7 @@ Answers given by the owner on 2026-11-20 (also in PROJECT.md §2.2) are marked *
   **→ Port it** (Phase D).
 - **Q2 Ping.** AdGuard has no ping page (D7): remove the Ping window (recommended), or show `status.adguard.com`
   there instead?
-  **→ Open:** the owner asked why remove it. Answer: it shows two service web pages and AdGuard has neither; the
-  alternatives ("Connection details" from the DNS check, an in-app latency test) are in PROJECT.md §11 Phase 7.
+  **→ "Connection details" + a latency test** (owner, 2026-11-20; built in Phase 7).
 - **Q3 Page dark mode.** The dashboard follows the phone/app only when the account's theme is "Automatic" (T2; it is a
   setting on AdGuard's server). Leave it to the user (recommended; say so in Settings/README), or make the app set
   the page's theme (an injected script; the server setting would still win when it isn't Automatic)?

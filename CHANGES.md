@@ -11,6 +11,94 @@ too.
 
 ---
 
+## 2026-11-20 — Phase 7: "Connection details" replaces the Ping window
+
+**What.** ⋮ → **Ping test** is now ⋮ → **Connection details**. The old window showed two NextDNS web pages
+(`ping.nextdns.io`, `test.nextdns.io`); AdGuard has no such pages (research D7). Your answer to Q2: the recommended
+"Connection details" **plus** a latency test. The new screen looks and works like Settings and About.
+
+**What the screen shows** (it opens with a fresh check; ↻ in the top right = *Check again*):
+
+1. **The status**: the same sentence, symbol and colour as the top bar icon.
+2. **This connection** (what AdGuard's own DNS check saw):
+   - **Protocol**: DNS-over-TLS / -HTTPS / -QUIC, DNSCrypt or plain DNS, and whether it is encrypted;
+   - **AdGuard server**: *your own server* (your account's settings apply) or *AdGuard's public server* (they don't);
+   - **Device ID** (own server only), **AdGuard location** (e.g. AMS, and the server that answered);
+   - **Android's Private DNS**: your host name, "Automatic" or "Not in use".
+   If AdGuard didn't see the phone (or didn't answer), one row says so instead of empty rows.
+3. **Latency**: how fast each AdGuard DNS address answers (Default, Non-filtering, Family protection, Personal
+   servers; IPv4, and IPv6 if your network has it), **fastest first** with a *Fastest* chip, "No answer" last. Rows
+   appear one by one while the test runs (about a second on a good network).
+
+Tapping the status icon now also offers **Details**, which opens this screen.
+
+**How it is built (for a beginner).**
+
+- The screen is a local web page, `assets/connection.html`, shown in a full-screen window (`ui/ConnectionWindow`),
+  exactly like About: same app bar, rounded row groups, section labels, notes, colours from the app's theme.
+- The page talks to the app through a small **bridge** (`AndroidConnection`: `refresh`, `close`), only on this local
+  page. The app answers with **codes and numbers** (`status/ConnectionReport`: `"dot"`, `"private"`, `8.4`), never
+  sentences or HTML built from network data; the page turns codes into words and inserts them as plain text.
+- The DNS check is the status icon's own (`ConnectionStatus.checkNow`), so the icon and the screen always agree.
+- The latency test runs on the window's **own background thread**, so it can't delay the icon's check; closing the
+  window stops it.
+- Removed: `ui/PingWindow`, the NextDNS addresses (`Site.PING_URL`, `PING_TEST_URL`, `PING_DOMAINS`,
+  `pingWindowAllows`), the strings `menu_ping`, `ping_title`, `back` and the icon `ic_arrow_back` (only the Ping window
+  used them; lint fails on unused files). **No NextDNS address is left in the app's code** (checked in the release dex).
+- Settings → Privacy now also says: only while Connection details is open, a few short connections to AdGuard DNS's
+  public addresses time them; nothing is sent over them.
+
+**Found and fixed while checking.**
+
+- The page's first screenshot showed rows that should have been hidden: a row's `display: flex` overrides the
+  browser's rule for the `hidden` attribute. Fixed with `[hidden] { display: none !important; }`. The page check had
+  passed anyway because it tested the attribute, not the screen; it now tests what is on screen (and fails without the
+  fix — tried).
+- Closing the window and opening it again at once could have stopped the new window's updates (a dialog's "dismissed"
+  message arrives later and would have removed the new window's listener). Now a window removes only its own listener
+  (`ConnectionStatus.removeListener`).
+- The bridge first had a `snapshot()` method that read the status on WebView's thread while the main thread changes it.
+  Removed: the status is now built and sent from the main thread only.
+
+**Files.** New `assets/connection.html`, `ui/ConnectionWindow.java`, `status/ConnectionReport.java` (+
+`ConnectionReportTest`, 4 tests), `tools/page-checks/connection.mjs`; changed `status/ConnectionStatus.java`
+(`checkNow`, listener, last answer, Private DNS host, icon colour), `MainActivity.java` (menu item, Details button),
+`site/Site.java` (+ `SiteTest`: Private DNS rule, latency servers), `strings.xml`, `ui/Windows.java`, `top_bar.xml`
+comment, `assets/settings.html` (Privacy); removed `ui/PingWindow.java`, `drawable/ic_arrow_back.xml`.
+
+**Verified.**
+- `test lint assembleDebug assembleRelease`: **117 tests**, **0 lint issues**. Page checks **7 of 7**: the new
+  `connection` check covers opening (asks for a fresh check), checking state, the in-use answer (every row's text, the
+  icon's colour and symbol), latency arriving row by row then sorted with *Fastest*, the IPv6 note, *Check again*, Back,
+  "not in use" (rows collapse), HTML in values stays text, the app's dark colours, 360 px width.
+- Screenshots looked at: `connection-light`, `-dark`, `-not-in-use`, `-360`.
+- Release dex: the bridge methods `refresh` and `close` are kept by R8; `nextdns` appears 0 times.
+- **Not verified:** on a phone (the window, real latency times, the real DNS check answer: research P6).
+
+**Size.** Release APK (clean build) **199,522 bytes** (+10,052): the page (5,560 compressed) and the new classes
+(the dex is stored uncompressed: +4,808). The same commit built in a separate `git worktree` gave a figure 72 bytes
+smaller than in the main folder (probably the build's version-control info; not checked further), so sizes here are
+always measured in the main folder.
+
+**What to test on your phone**
+
+1. ⋮ → **Connection details**. The screen opens, says "Checking…" for a moment, then shows the same sentence and colour
+   as the icon in the top bar. The ↻ button turns while it works.
+2. With Private DNS set to your AdGuard address: Protocol "DNS-over-TLS · encrypted", AdGuard server "Your own server",
+   your **Device ID** (compare with the dashboard's device), an AdGuard location, and your Private DNS host name.
+3. With Private DNS on `dns.adguard-dns.com`: AdGuard server "AdGuard's public server · your account's settings don't
+   apply"; no Device ID row.
+4. With Private DNS off (and no AdGuard on your router): one row "AdGuard didn't see this phone's DNS"; Private DNS
+   "Not in use".
+5. **Latency**: rows appear one by one; when done, the fastest has a *Fastest* chip; typical times are a few to a few
+   dozen ms. On a network without IPv6 the note "IPv6 didn't answer…" appears.
+6. Tap ↻: everything is checked again. Close the window while it measures, open it again at once: it works normally.
+7. Tap the **status icon** → **Details**: the same screen opens.
+8. Switch Settings → Theme between White and Black: the screen follows (open it again after switching).
+9. With the app lock on: take a screenshot of Connection details → it must be blocked (black), like Settings.
+
+---
+
 ## 2026-11-20 — The Connection details page and window (Phase 7, part 3: not reachable yet)
 
 **What.** The new screen itself: `assets/connection.html` (the page), `ui/ConnectionWindow.java` (the full-screen

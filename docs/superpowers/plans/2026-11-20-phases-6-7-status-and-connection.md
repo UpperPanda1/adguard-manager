@@ -75,4 +75,29 @@ row titles, the latency note.
 
 ## 5. Result
 
-(filled in when done)
+| # | Commit | Verified by |
+|---|---|---|
+| 1 | `da9dbbe` Check AdGuard DNS use with AdGuard's own DNS check (Phase 6) | 105 tests, 0 lint; mutations M1–M7 caught; APK 189,234 B |
+| 2 | `6adea8f` Add a latency test of AdGuard's DNS servers | 112 tests; mutations L1–L5 caught; APK 189,470 B (R8 drops the unused class) |
+| 3a | `364df21` Let the status report its details and check on request | built alone in a clean worktree: 116 tests, 0 lint |
+| 3b | `0dd2e8e` Add the Connection details page and window (not reachable yet) | built alone: 116 tests, 0 lint, page checks 7/7 (new `connection`), screenshots light/dark/not-in-use/360 |
+| 3c | Replace the Ping window with Connection details (Phase 7) | 117 tests, 0 lint; page checks 7/7; dex: bridge methods kept, no `nextdns`; APK 199,522 B |
+
+Step 3 was split in three (CLAUDE.md §4a: ~650 lines of app code in one commit is too big to review); each part was
+built and tested on its own in a clean `git worktree`.
+
+**Changes to the plan while doing it:**
+
+- Step 1: a "not in use" is **confirmed once, 3 s later**, before the icon turns red (adversarial review: DNS can fail
+  for a moment right after a network switch, and the old code ignored failures).
+- Step 3: the bridge has no synchronous `snapshot()` (it would read main-thread fields on WebView's thread); status is
+  sent from the main thread only. `ConnectionStatus.removeListener` removes only the caller's own listener (a dialog's
+  dismiss message arrives late). The `hidden` rows needed `[hidden] { display: none !important; }`; the page check now
+  tests what is on screen and was shown to fail without the fix.
+- Step 3 also removed `back` and `ic_arrow_back` (only the Ping window used them; lint).
+
+**UI verification:** done by me against the checklist in §3 (the ui-consistency "verifying" step asks for a separate
+reviewer agent; none was started without the owner asking). Every line holds; the one deliberate difference from
+Settings is the 72 px row height, which follows the reference (About).
+
+**Not verified:** anything on a phone (P6: the real DNS check answer; real latency times; the window itself).

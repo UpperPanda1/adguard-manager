@@ -16,9 +16,7 @@ import java.util.Set;
  * {@code docs/research/2026-11-19-adguard-live-probe.md} (re-checked 2026-11-20).
  *
  * <p>Plain Java (no Android classes), so SiteTest checks the rules on the computer.</p>
- *
- * <p><b>Still NextDNS on purpose</b> (replaced by Phase 7, see docs/PHASES.md): {@link #PING_URL},
- * {@link #PING_TEST_URL} and {@link #PING_DOMAINS}.</p>
+
  */
 public final class Site {
 
@@ -50,23 +48,6 @@ public final class Site {
      */
     public static final List<String> DOMAINS = Collections.unmodifiableList(
             Arrays.asList("adguard-dns.io", "adguardaccount.com"));
-
-    /**
-     * The speed test page (three-dots menu → Ping test). <b>Still NextDNS's until Phase 7</b>:
-     * AdGuard has no such page (research D7); the owner decides what the window becomes (Q2).
-     */
-    public static final String PING_URL = "https://ping.nextdns.io/";
-
-    /** The Ping window's lower page (NextDNS's connection test). <b>Removed in Phase 7.</b> */
-    public static final String PING_TEST_URL = "https://test.nextdns.io/";
-
-    /**
-     * Extra domains whose pages may stay inside the Ping window (and only there; never in an
-     * account tab). Needed while that window still shows NextDNS's two pages: {@link #PING_TEST_URL}
-     * redirects to a random subdomain ({@code <random>.test.nextdns.io}, checked 2026-11-20), and
-     * without this the redirect would be sent to the browser. <b>Removed in Phase 7.</b>
-     */
-    public static final List<String> PING_DOMAINS = Collections.singletonList("nextdns.io");
 
     /**
      * Android's Private DNS host names that belong to the service: this domain or any name under it.
@@ -139,14 +120,6 @@ public final class Site {
      */
     public static boolean ownsHost(String host) {
         return matches(host, DOMAINS);
-    }
-
-    /**
-     * @return true if a page on {@code host} may stay inside the Ping window: the service's own
-     *         pages, or the temporary {@link #PING_DOMAINS}. Phase 7 removes this.
-     */
-    public static boolean pingWindowAllows(String host) {
-        return ownsHost(host) || matches(host, PING_DOMAINS);
     }
 
     /**

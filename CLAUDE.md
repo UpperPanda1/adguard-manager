@@ -23,7 +23,7 @@
    **`docs/PHASES.md`**; facts about AdGuard's website are in **`docs/research/2026-11-19-adguard-live-probe.md`**.
 3. The cloud sandbox is prepared by `.claude/hooks/session-start.sh` (Android SDK, Maven mirror, Gradle warm-up).
    Confirm before changing code: `./gradlew --no-daemon test lint assembleDebug assembleRelease` must pass
-   (112 tests, **0 lint issues**) and the page checks must pass (6). If the hook didn't run, see §5 "manual set-up".
+   (117 tests, **0 lint issues**) and the page checks must pass (7). If the hook didn't run, see §5 "manual set-up".
 4. Work on the branch the session instructions name. Never claim on-device behaviour was tested: there is no phone
    or emulator here.
 
@@ -38,8 +38,9 @@ NextDNS Manager+** (`UpperPanda1/nextdnsmanager-plus` at `eaa1665`, imported 202
 phase at a time (`docs/ADGUARD_PLAN.md` §6; status in PROJECT.md §2.3). NextDNS Manager+ was built from **LLM Central**
 (`UpperPanda1/assist`) plus features of **NextDNS Manager** (`doubleangels/nextdnsmanager`); all GPL-3.0.
 **Status (2026-11-20):** Phases 0 (import), 1 (research) and 2 (identity: name, id, repository, About, icon, README,
-docs), **3 (Site: the app opens the AdGuard DNS dashboard)** and **6 (status icon from AdGuard's DNS check)** done.
-Still NextDNS until their phase: the Ping window (Phase 7, next), colours (Phase 4). Not yet tested on a phone.
+docs), **3 (Site: the app opens the AdGuard DNS dashboard)**, **6 (status icon from AdGuard's DNS check)** and **7
+(Connection details + latency test, replacing the Ping window)** done. No NextDNS address left in the code; colours are
+NextDNS's until Phase 4 (next). Not yet tested on a phone.
 
 ## 3. Owner context and preferences
 
@@ -161,7 +162,7 @@ cd tools/readme-badges && npm ci && npm run generate; cd ../..
   The blob download (Phase D) must use an origin-restricted **message listener** (`WebViewCompat.addWebMessageListener`,
   as LLM Central's `AppBridge`), not `addJavascriptInterface`.
 - Every **account tab** WebView: `Profiles.attach` **before** any `loadUrl`/settings. Every WebView (tabs, Settings,
-  About, Ping): a client that handles `onRenderProcessGone` (one unhandled renderer death kills the app). The local
+  About, Connection details): a client that handles `onRenderProcessGone` (one unhandled renderer death kills the app). The local
   pages and the throw-away cache WebView use the default profile on purpose.
 - Navigation decisions go through `Site.ownsHost` (exact host or real subdomain), never `contains`/`endsWith(domain)`.
   Host suffix rules (e.g. the Private DNS marker) are written as `equals(x) || endsWith("." + x)`.
@@ -213,9 +214,15 @@ cd tools/readme-badges && npm ci && npm run generate; cd ../..
   `""`. Read text fields with `opt()` + `instanceof String` (`DnsCheck.text`).
 - Unit tests compile against `android.jar`: no `com.sun.net.httpserver`; a local test server is a `ServerSocket`
   (`DnsCheckTest.serve`). `.invalid` names really fail to resolve in the test JVM (`UnknownHostException`).
-- `test.nextdns.io` redirects to `<random>.test.nextdns.io` (2026-11-20): why the Ping window has its own host rule
-  (`Site.pingWindowAllows`) until Phase 7. `WebView.loadUrl` skips `shouldOverrideUrlLoading` for the first load,
-  but a server redirect goes through it.
+- `WebView.loadUrl` skips `shouldOverrideUrlLoading` for the first load, but a server redirect goes through it (found
+  with `test.nextdns.io` → `<random>.test.nextdns.io`, Phase 3).
+- AdGuard has **no per-location server list**: its public names are anycast addresses [D9]. `ping.nextdns.io` lists
+  NextDNS edge servers named after the hosting company (`vultr-dal-1.edge.nextdns.io`) [D10]. The app's latency =
+  TCP handshake time to port 443 (no ICMP for apps).
+- In the local pages, a class with `display: flex` beats the `hidden` attribute: `connection.html` has
+  `[hidden] { display: none !important; }`. Page checks must test what is on screen (`getClientRects().length`), not the
+  attribute (that check once passed while the rows were visible).
+- `git stash` leaves untracked (new) files alone: to build an older commit for comparison use `git worktree add`.
 
 **This repository**
 
@@ -268,13 +275,15 @@ owner's sign-in on claude.ai (Settings → Connectors).
 - [x] `UPSTREAM.md` (`19fa650`); the plan in `docs/ADGUARD_PLAN.md` (`2c2cf8b`).
 - [x] Phase 2 (2026-11-20): name AdGuardDNS Manager + id `org.rafee_m.adguarddnsmanager` + repository (`8d6c321`), icon
       (`9197934`), README + badges (`1fa8540`), docs for AdGuardDNS Manager.
-- [ ] **Owner:** Q2 (Ping: remove / connection details / latency, `docs/PHASES.md` Phase 7); phone test of Phase 2.
+- [x] **Owner:** Q2 answered 2026-11-20: Connection details + latency test. [ ] Phone test of Phase 2.
 - [x] Renamed **AdGuardDNS Manager**, id `org.rafee_m.adguarddnsmanager` (`d671501`, 2026-11-20); repository stays
       `UpperPanda1/adguard-manager` until the owner renames it `adguard-dns-manager` (PROJECT.md §7).
 - [x] Phase 3 Site (2026-11-20): `Site.java` → AdGuard DNS, tests, page checks, Ping window host rule.
 - [ ] Owner: phone test of Phase 3 (CHANGES.md 2026-11-20 "Phase 3").
 - [x] Phase 6 Status (2026-11-20): `status/DnsCheck`, suffix marker, F3 fixed.
-- [ ] Phase 7 Connection details + latency (next) → 4 Theme → 5 Sign-in → D Downloads → 7 Ping → 8 Texts → 9 Workflows → 10 Review →
+- [x] Phase 7 (2026-11-20): Connection details + latency test (`ui/ConnectionWindow`, `status/Latency`).
+- [ ] Owner: phone tests of Phases 6 and 7 (CHANGES.md).
+- [ ] Phase 4 Theme (next) → 5 Sign-in → D Downloads → 8 Texts → 9 Workflows → 10 Review →
       11 Docs (step by step: `docs/PHASES.md`).
 - [ ] Owner: release key + secrets, dry run, tag `v0.1.0`, F-Droid (RELEASE.md, fdroid.md); name/trademark answer.
 - [ ] Inherited review items (REVIEW.md); translations.

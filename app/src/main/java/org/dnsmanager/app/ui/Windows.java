@@ -9,7 +9,7 @@ import android.view.WindowManager;
 import org.dnsmanager.app.lock.AppLock;
 
 /**
- * The app's extra screens (Settings, About, Ping test) are {@link Dialog}s that fill the whole
+ * The app's extra screens (Settings, About, Connection details) are {@link Dialog}s that fill the whole
  * screen: lighter than extra activities, and they sit on top of the page, which keeps running.
  * This is the one place that makes a dialog full-screen, so all of them behave the same.
  */
@@ -27,7 +27,7 @@ public final class Windows {
     /**
      * The app lock's "secure" mark for ONE window: Android leaves a secure window out of screenshots,
      * screen recordings and the recent-apps card. Every <b>dialog</b> needs it separately: Settings, About,
-     * the Ping test and the status dialog are windows of their own, so the main screen's flag doesn't cover
+     * Connection details and the status dialog are windows of their own, so the main screen's flag doesn't cover
      * them. Pop-up menus (account menu, ⋮ menu) don't need it: they are child windows of the main screen and
      * inherit its mark (SurfaceFlinger: a layer is secure if it or its parent is).
      *

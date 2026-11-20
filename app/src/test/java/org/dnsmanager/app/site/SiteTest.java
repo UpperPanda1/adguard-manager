@@ -47,18 +47,22 @@ public class SiteTest {
     }
 
     @Test
-    public void untilPhases6And7TheTestPagesStayOutOfTheAccountTabs() {
-        // Still NextDNS's pages (docs/PHASES.md): https, allowed in the Ping window, never in a tab.
-        for (String url : new String[]{Site.PING_TEST_URL, Site.PING_URL}) {
-            assertTrue(url, url.startsWith("https://"));
-            assertFalse(url, Site.ownsHost(hostOf(url)));
-            assertTrue(url, Site.pingWindowAllows(hostOf(url)));
+    public void privateDnsHostsAreTheServicesDomainAndItsSubdomainsOnly() {
+        assertTrue(Site.isPrivateDnsHost("abc123.d.adguard-dns.com"));
+        assertTrue(Site.isPrivateDnsHost("DNS.ADGUARD-DNS.COM"));
+        assertTrue(Site.isPrivateDnsHost("adguard-dns.com"));
+        assertFalse(Site.isPrivateDnsHost("adguard-dns.com.evil.com"));
+        assertFalse(Site.isPrivateDnsHost("evil-adguard-dns.com"));
+        assertFalse(Site.isPrivateDnsHost("dns.google"));
+        assertFalse(Site.isPrivateDnsHost(null));
+    }
+
+    @Test
+    public void theLatencyServersAreAdGuardDnsHosts() {
+        assertEquals(4, Site.LATENCY_SERVERS.size());
+        for (String host : Site.LATENCY_SERVERS.values()) {
+            assertTrue(host, Site.isPrivateDnsHost(host));
         }
-        assertTrue(Site.pingWindowAllows("jhdnjx4dwhi3lajgxxpt.test.nextdns.io")); // PING_TEST_URL's redirect
-        assertTrue(Site.pingWindowAllows("adguard-dns.io"));                       // the service's own pages
-        assertFalse(Site.pingWindowAllows("evilnextdns.io"));
-        assertFalse(Site.pingWindowAllows("nextdns.io.evil.com"));
-        assertFalse(Site.pingWindowAllows(null));
     }
 
     @Test

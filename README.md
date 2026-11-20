@@ -53,7 +53,7 @@ tab can't: the connection-status icon, app lock, a theme that matches the dashbo
 > of its sibling [NextDNS Manager+](https://github.com/UpperPanda1/nextdnsmanager-plus) and is being adapted step by
 > step ([the plan](docs/ADGUARD_PLAN.md)). Done so far: the shared app (accounts, tabs, lock, settings…), research of
 > the live AdGuard website, the new name, id and icon, and **the app now opens the AdGuard DNS dashboard**. The
-> status icon uses AdGuard's own DNS check; the Ping window still shows NextDNS's pages until its step. Built, unit-tested and linted on
+> status icon and the new Connection details screen use AdGuard's own DNS check. Built, unit-tested and linted on
 > every change; **not yet tested on a phone**.
 
 | Step | State |
@@ -86,6 +86,10 @@ works in the code (shared with NextDNS Manager+); AdGuard-specific parts are mar
 - **Connection-status icon:** green tick when this phone uses AdGuard DNS with encryption, warning sign otherwise; tap it
   for the explanation. It uses the same check as AdGuard's own dashboard (a name only AdGuard DNS can answer), when the
   network changes and only while the app is on screen.
+- **Connection details** (⋮ menu, or *Details* when you tap the icon): what AdGuard's check saw — the protocol and
+  whether it is encrypted, your own server or AdGuard's public one, your device ID, the AdGuard location that answered,
+  and Android's Private DNS setting — plus a **latency test**: how fast each AdGuard DNS address answers this phone
+  (IPv4 and IPv6), fastest first.
 - A **Private DNS shortcut** to Android's network settings (your personal server is `<device id>.d.adguard-dns.com`).
 
 ### Private and locked
@@ -146,7 +150,8 @@ Once the app opens AdGuard (see [Status](#status)):
 
 - The app talks only to **AdGuard**: the dashboard you open, and one small request to AdGuard's DNS check
   (`…-dnscheck.adguard-dns.com`) when you open the app or your network changes (for the status icon; it carries no
-  account data). If you sign in with Apple, Google or Facebook, their sign-in pages are opened too, inside that account.
+  account data). Only while Connection details is open: short connections to AdGuard DNS's public addresses to time
+  them (nothing is sent over them). If you sign in with Apple, Google or Facebook, their sign-in pages are opened too, inside that account.
 - No analytics, tracking or crash reports from the app; WebView's own usage statistics are switched off. (AdGuard's
   website has its own; see its privacy policy.)
 - Your logins stay on the phone, in each account's container, and are left out of Android's backups.
