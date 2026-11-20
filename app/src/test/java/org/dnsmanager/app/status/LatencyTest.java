@@ -54,8 +54,9 @@ public class LatencyTest {
         int port = listen();
         long micros = Latency.handshakeMicros(InetAddress.getLoopbackAddress(), port, 2000);
         assertTrue("answered: " + micros, micros >= 0 && micros < 2_000_000);
-        server.close();
-        assertEquals(Latency.NO_ANSWER, Latency.handshakeMicros(InetAddress.getLoopbackAddress(), port, 2000));
+        // Port 0 can't be listened on, so the handshake is always refused. (Not "close the server, then
+        // connect": the operating system may give that free port to another program meanwhile.)
+        assertEquals(Latency.NO_ANSWER, Latency.handshakeMicros(InetAddress.getLoopbackAddress(), 0, 2000));
     }
 
     @Test

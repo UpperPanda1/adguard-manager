@@ -130,9 +130,24 @@ public class DnsCheckTest {
     }
 
     @Test
-    public void nothingListeningMeansNoVerdict() throws Exception {
-        String url = serve(200, OWN_SERVER);
+    public void aServerThatHangsUpMeansNoVerdict() throws Exception {
+        // A server that accepts and closes without answering. (Not "close the server, then connect": the
+        // operating system may give that free port to another program meanwhile; this once failed on CI.)
         stopServer();
+        ServerSocket socket = new ServerSocket(0, 0, InetAddress.getLoopbackAddress());
+        server = socket;
+        Thread thread = new Thread(() -> {
+            while (!socket.isClosed()) {
+                try (Socket client = socket.accept()) {
+                    // hang up at once
+                } catch (Exception e) {
+                    return;
+                }
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+        String url = "http://127.0.0.1:" + socket.getLocalPort() + "/dnscheck/test";
         assertEquals(DnsCheck.Outcome.UNKNOWN, DnsCheck.fetch(url, 2000).outcome);
     }
 

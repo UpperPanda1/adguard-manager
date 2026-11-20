@@ -11,6 +11,19 @@ too.
 
 ---
 
+## 2026-11-20 — Fix two tests that could fail by chance (CI)
+
+**What.** CI failed once on `DnsCheckTest.nothingListeningMeansNoVerdict` (it passed here). The test closed its local
+server and then expected a request to that port to fail; but the operating system may give a freed port to another
+program in between, so the request can get an answer. Now that test uses a server that accepts and hangs up without
+answering (renamed `aServerThatHangsUpMeansNoVerdict`), and `LatencyTest` checks a refused handshake on port 0 (nothing
+can listen there) instead of a closed port. Tests only; the app is unchanged.
+
+**Verified.** `test lint assembleDebug assembleRelease`: 117 tests in debug and release, 0 lint issues; both classes run
+three more times with `--rerun-tasks`; CI after the push. **Size.** App unchanged. **What to test on your phone:** nothing.
+
+---
+
 ## 2026-11-20 — Phase 7: "Connection details" replaces the Ping window
 
 **What.** ⋮ → **Ping test** is now ⋮ → **Connection details**. The old window showed two NextDNS web pages

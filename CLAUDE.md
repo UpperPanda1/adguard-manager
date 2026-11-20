@@ -222,6 +222,8 @@ cd tools/readme-badges && npm ci && npm run generate; cd ../..
 - In the local pages, a class with `display: flex` beats the `hidden` attribute: `connection.html` has
   `[hidden] { display: none !important; }`. Page checks must test what is on screen (`getClientRects().length`), not the
   attribute (that check once passed while the rows were visible).
+- Tests: never "close a local server, then connect to its port": the OS may reuse the port (failed once on CI).
+  Use a server that hangs up, or port 0 for a refused connection.
 - `git stash` leaves untracked (new) files alone: to build an older commit for comparison use `git worktree add`.
 
 **This repository**
