@@ -12,9 +12,14 @@
       The foreground also becomes the "themed icon" (Android 13+), drawn in one colour by the phone.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
-  <rect id="background" width="108" height="108" fill="#0056B3"/>
-  <!-- A shield (DNS protection, Material Icons "shield", Apache-2.0) with a "+" cut out: NextDNS Manager+. -->
-  <g id="foreground" transform="translate(24 24) scale(2.5)">
-    <path fill="#FFFFFF" fill-rule="evenodd" d="M12,1L3,5v6c0,5.55 3.84,10.74 9,12 5.16,-1.26 9,-6.45 9,-12V5l-9,-4zM11,7.5h2v3h3v2h-3v3h-2v-3H8v-2h3z"/>
+  <!-- #1A6BF4 = the AdGuard DNS dashboard's own blue scale (--product-primary-60, read from its CSS 2026-11-19);
+       white on it has a contrast of 4.72:1. Lighter than NextDNS Manager+'s #0056B3, so the two apps are easy to
+       tell apart on one phone. -->
+  <rect id="background" width="108" height="108" fill="#1A6BF4"/>
+  <!-- Own drawing (no third-party artwork): two stacked server units, each with a round status light and a slot,
+       = a DNS server. Deliberately not a shield: AdGuard's logo and NextDNS Manager+'s icon are shields.
+       Each unit: a 48 x 18 rectangle with 5-unit rounded corners; holes cut with fill-rule="evenodd". -->
+  <g id="foreground">
+    <path fill="#FFFFFF" fill-rule="evenodd" d="M35,33 H73 A5,5 0 0 1 78,38 V46 A5,5 0 0 1 73,51 H35 A5,5 0 0 1 30,46 V38 A5,5 0 0 1 35,33 Z M36.5,42 A3.5,3.5 0 1 0 43.5,42 A3.5,3.5 0 1 0 36.5,42 Z M51.5,40.5 H69.5 A1.5,1.5 0 0 1 69.5,43.5 H51.5 A1.5,1.5 0 0 1 51.5,40.5 Z M35,57 H73 A5,5 0 0 1 78,62 V70 A5,5 0 0 1 73,75 H35 A5,5 0 0 1 30,70 V62 A5,5 0 0 1 35,57 Z M36.5,66 A3.5,3.5 0 1 0 43.5,66 A3.5,3.5 0 1 0 36.5,66 Z M51.5,64.5 H69.5 A1.5,1.5 0 0 1 69.5,67.5 H51.5 A1.5,1.5 0 0 1 51.5,64.5 Z"/>
   </g>
 </svg>

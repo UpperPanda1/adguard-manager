@@ -4,6 +4,39 @@ Newest first. Each entry: what changed, why, how it was verified, sizes, and wha
 
 ---
 
+## 2026-11-20 — Own app icon for AdGuard Manager (Phase 2)
+
+**What.** A new launcher icon: **two white server units** (each with a round status light and a slot) on a bright
+blue `#1A6BF4`. The same drawing becomes the round and square launcher shapes, the one-colour "themed" icon of
+Android 13+, the About screen's icon and the 512 × 512 store icon. Only `artwork/icon.svg` was edited; the other four
+files are made from it by `tools/icon` (never edit those by hand).
+
+**Why this drawing.** It must be the app's own artwork, not AdGuard's: AdGuard's logo is a green **shield**, and
+NextDNS Manager+ already uses a shield, so a shield would look like either of them. A server rack is the common
+picture for "DNS server". The blue is from the AdGuard dashboard's own colour scale (`--product-primary-60`, read from
+its CSS in Phase 1), so the icon matches the website you see inside; white on it has a contrast of **4.72 : 1**
+(computed). It is lighter than NextDNS Manager+'s `#0056B3`, so the two apps are easy to tell apart on one phone.
+To change it: edit `artwork/icon.svg` (rules at the top of the file), then run the *App icon* workflow (PROJECT.md §7).
+
+**Verified.** Generator: foreground spans 30–78 × 33–75, inside the safe zone 21–87; preview looked at (circle,
+rounded square, themed) and the store icon. Running the generator again gives byte-identical files (what the App icon
+workflow checks on push). Clean `test lint assembleDebug assembleRelease`: 92 tests, 0 lint issues (lint also checks
+vector paths). **Not verified:** how phone launchers draw it (needs a phone); Android's path reader is assumed to read
+the arcs like Chromium (they are written in the standard spaced form, not the compact form that LLM Central found
+Android misreads).
+
+**Size.** Release APK (clean build) 187,438 → **187,414 bytes** (−24).
+
+**What to test on your phone**
+
+1. Install this commit's debug APK. On the home screen and in the app drawer, the icon shows two white bars with dots
+   on blue, inside your launcher's shape (circle, squircle…), nothing cut off.
+2. If your phone has *themed icons* (Android 13+, Wallpaper & style → Themed icons): the icon turns one-coloured like
+   the others.
+3. ⋮ → Settings → About AdGuard Manager: the same icon at the top.
+
+---
+
 ## 2026-11-20 — The app is now "AdGuard Manager" (Phase 2: name, id, repository, About)
 
 **What.** The app's identity changed from NextDNS Manager+ to the owner's choice:

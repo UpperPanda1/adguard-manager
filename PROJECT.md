@@ -266,7 +266,7 @@ Other files:
 | `app/src/main/res/layout/activity_main.xml`, `top_bar.xml` | The screen and the top bar |
 | `app/src/main/res/values/strings.xml` | Texts of the native parts |
 | `app/src/main/res/drawable/ic_*.xml` | Icons (Material Icons, vector) |
-| `app/src/main/res/mipmap-anydpi/ic_launcher.xml` + `drawable/ic_launcher_*.xml` | Launcher icon (own design: white shield with a "+" on `#0056B3`; vector adaptive icon, no PNGs needed at minSdk 29). The two `drawable` files are **generated** from `artwork/icon.svg` |
+| `app/src/main/res/mipmap-anydpi/ic_launcher.xml` + `drawable/ic_launcher_*.xml` | Launcher icon (own design since 2026-11-20: two white server units on `#1A6BF4`, AdGuard dashboard blue; vector adaptive icon, no PNGs needed at minSdk 29). The two `drawable` files are **generated** from `artwork/icon.svg` |
 | `app/src/main/res/xml/*backup*.xml` | Backup: settings yes, logins/site data never |
 | `app/lint.xml` | The lint warnings accepted on purpose, with reasons |
 | `artwork/icon.svg` | **The app icon's source**: edit this to change the icon everywhere ([§7](#7-how-to-change-things)) |
