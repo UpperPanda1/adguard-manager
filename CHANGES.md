@@ -11,6 +11,96 @@ too.
 
 ---
 
+## 2026-11-20 — Phase 3: the app opens the AdGuard DNS dashboard
+
+**What.** The app now shows **AdGuard DNS** instead of NextDNS. All of it is one file, `site/Site.java` (the only
+place in the code that knows which DNS service the app is for):
+
+| | Before | Now |
+|---|---|---|
+| Name shown in the app (`Site.NAME`) | NextDNS | **AdGuard DNS** (status messages, Settings, download names) |
+| Start page (`HOME_URL`) | `my.nextdns.io` | **`https://adguard-dns.io/en/dashboard/`** |
+| Sites that open inside the app (`DOMAINS`) | `nextdns.io` | **`adguard-dns.io`** (dashboard) + **`adguardaccount.com`** (login, "Manage account") |
+| Private DNS name that counts as the service | contains `nextdns` | contains **`adguard-dns.com`** (`<device id>.d.adguard-dns.com`, `dns.adguard-dns.com`…) |
+| Settings → About & legal links | NextDNS's | **`adguard-dns.io/en/privacy.html`**, **`adguard-dns.io/en/eula.html`** |
+
+Everything else (`adguardcheckout.com` = payment, `adguard.com`, Apple/Google/Facebook…) opens in the phone's browser.
+
+**Why the login must stay inside the app.** Opening the dashboard while signed out sends you on to
+`auth.adguardaccount.com/login.html` and back after the login. If that page opened in the browser, the login cookie
+would be saved in the *browser*, and the app's account would never be signed in. That is why `adguardaccount.com` is
+in the list. Payment (`adguardcheckout.com`) is deliberately left out: money is handled by your browser, not by the
+app (owner decision Q4).
+
+**One extra fix the plan didn't foresee — the Ping window.** Until Phase 7 the Ping window still shows NextDNS's two
+test pages. One of them, `test.nextdns.io`, immediately *redirects* to a random address like
+`jhdnjx….test.nextdns.io`. A *redirect* is when a server answers "go to this other address instead". Android's
+`WebView.loadUrl()` does not ask the app about the first address, but it **does** ask about a redirect
+(`shouldOverrideUrlLoading`). The window only kept pages that `Site.ownsHost` accepts, and `nextdns.io` is no longer
+one of them, so the lower half would have been thrown out to your browser each time you opened Ping. Now the window
+asks `Site.pingWindowAllows` (AdGuard's domains + a temporary `Site.PING_DOMAINS` = `nextdns.io`). The **account tabs
+still use `Site.ownsHost`**, so NextDNS can never load inside an account. Phase 7 removes this again.
+
+**Still NextDNS on purpose (each has its own phase):**
+
+- **Status icon (Phase 6, next).** Its Private DNS part now knows AdGuard's names, but the online test still asks
+  `test.nextdns.io`. For a phone on AdGuard DNS that test answers "unconfigured", which the app reads as "no answer", so
+  the icon follows your Private DNS setting — correct for AdGuard users. Only a phone that really uses **NextDNS**
+  would wrongly show green "uses AdGuard DNS". Settings → Privacy already says the test goes to "the AdGuard DNS test
+  address"; that becomes true in Phase 6.
+- **Ping window (Phase 7, waits for your answer to Q2).**
+- **Colours (Phase 4):** still NextDNS's blue and dark grey.
+- **Comments in the code naming NextDNS:** the next, separate commit.
+
+**Facts re-checked on the live site first** (`docs/research/…` rows F1, F2, F7, F8, L1: unchanged). New: **F10**
+the dashboard's files are cached and reused (`ETag` → `304 Not Modified`; they have no `Cache-Control` header, so
+the browser decides how long a copy is fresh and otherwise asks with a tiny request — PROJECT.md §6 rule 2) and **F11**
+the login page's only link, "Terms and conditions", goes to `adguard.com` (opens in the browser).
+
+**Changed files.** `site/Site.java` (+ teacher-style comments: why each domain, why not checkout; the host rule moved
+into one private `matches` method used by both `ownsHost` and `pingWindowAllows`), `ui/PingWindow.java` (one rule),
+tests `SiteTest` (rewritten for AdGuard: 5 tests), `TabManagerTest`, `DownloadsTest`, `StatusRulesTest`;
+`assets/settings.html` (the page's own stand-in name "AdGuard DNS", shown only before the app fills in `Site.NAME`);
+page checks `common.mjs`, `settings-options.mjs` (expects "AdGuard DNS privacy policy"…), `zoom-viewport.mjs` (now
+tests AdGuard's real viewport tag `maximum-scale=1, user-scalable=0` instead of NextDNS's); docs.
+
+**Verified.**
+- `./gradlew --no-daemon test lint assembleDebug assembleRelease`: **93 unit tests** (was 92; `SiteTest` +1), **0 lint
+  issues**. Page checks **6 of 6**; Settings screenshots looked at (says "AdGuard DNS" everywhere).
+- **Mutation checks** (break the rule on purpose, a test must fail, then restore): `ownsHost` with `endsWith(domain)`
+  → 3 tests fail; with `contains(domain)` → 3 fail; `adguardcheckout.com` added to `DOMAINS` → 3 fail; NextDNS let
+  into the account tabs → 3 fail; Ping window without its redirect rule → 1 fails. All restored.
+- `aapt`: package `org.rafee_m.adguarddnsmanager`, label "AdGuardDNS Manager" (unchanged). The release `classes.dex`
+  contains the AdGuard addresses and, as planned, only `test.nextdns.io`, `ping.nextdns.io`, `nextdns.io` of NextDNS.
+- **Not verified:** anything on a phone (login, dashboard, checkout hand-off); the signed-in dashboard was never seen
+  (no AdGuard account here). Found on the way, not caused by this change: the page check's `settings-privacy.png`
+  screenshot shows the text very faint — identical on the code before this change (it seems to be taken while the
+  sub-screen fades in).
+
+**Size.** Release APK (clean build) **187,626 bytes** (+212 bytes: the longer comments don't count, the new addresses
+and the extra method do).
+
+**What to test on your phone**
+
+1. Install this commit's debug APK (**AdGuardDNS Manager (Debug)**). Open it: the **AdGuard login page** appears
+   *inside* the app (not in Chrome).
+2. Log in with your AdGuard e-mail and password. The **AdGuard DNS dashboard** loads inside the app.
+3. Close the app completely and open it again: you are **still signed in**.
+4. Add a second account (⋮ → Settings → Add account) and log in with a different AdGuard account: both stay signed in;
+   switching between them with the number chip shows each one's own dashboard.
+5. In the dashboard, tap a link to **upgrade / buy a plan**: the payment page (`adguardcheckout.com`) opens in your
+   **browser**, not in the app. Tap "Manage account" (if shown): it opens **inside** the app.
+6. On the login page (signed out), tap **"Terms and conditions"**: it opens in your browser.
+7. ⋮ → Settings → About & legal → **"AdGuard DNS privacy policy"** and **"AdGuard DNS user agreement"** open AdGuard's
+   pages in your browser.
+8. Status icon: with Android's Private DNS set to your AdGuard address (`<device id>.d.adguard-dns.com`) it is
+   **green**; with Private DNS off it is **red**. (Phase 6 makes this exact.)
+9. ⋮ → **Ping test**: both halves load inside the window (still NextDNS's pages until Phase 7); nothing opens the
+   browser by itself.
+10. Pinch to zoom (Settings → Behaviour) on the dashboard: zooming works.
+
+---
+
 ## 2026-11-20 — Handoff and a step-by-step guide for every remaining phase (docs only)
 
 **What.** So that a new session can continue without this one:

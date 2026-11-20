@@ -9,7 +9,7 @@ await run(async (browser) => {
     const calls = () => page.evaluate(() => calls);
 
     // The service name is filled in everywhere (it comes from site/Site in the app).
-    expect(await page.$$eval('.svc', s => s.every(x => x.textContent === 'NextDNS')), 'service name everywhere');
+    expect(await page.$$eval('.svc', s => s.every(x => x.textContent === 'AdGuard DNS')), 'service name everywhere');
     expect(await page.$eval('#aboutSub', s => s.textContent).then(t => t.startsWith('Version 0.1.0')), 'version shown');
 
     // Theme: three choices named as decided (White / Black / Match system); the page repaints with the answer.
@@ -52,8 +52,8 @@ await run(async (browser) => {
     expect((await calls()).some(c => c[0] === 'clearCache'), 'clear sent');
 
     // Legal links go by name only; sub-screens open and Back returns.
-    await page.click('text=NextDNS privacy policy');
-    await page.click('text=NextDNS user agreement');
+    await page.click('text=AdGuard DNS privacy policy');
+    await page.click('text=AdGuard DNS user agreement');
     const links = (await calls()).filter(c => c[0] === 'link').map(c => c[1]);
     expect(JSON.stringify(links) === JSON.stringify(['service_privacy', 'service_terms']), 'links: ' + links);
     for (const view of ['privacy', 'permissions', 'disclaimer']) {

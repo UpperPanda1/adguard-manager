@@ -52,17 +52,19 @@ tab can't: the connection-status icon, app lock, a theme that matches the dashbo
 > **Early development (version 0.1), not ready to use with AdGuard yet.** The app was created on 2026-11-19 as a copy
 > of its sibling [NextDNS Manager+](https://github.com/UpperPanda1/nextdnsmanager-plus) and is being adapted step by
 > step ([the plan](docs/ADGUARD_PLAN.md)). Done so far: the shared app (accounts, tabs, lock, settings…), research of
-> the live AdGuard website, the new name, id and icon. **The app still opens the NextDNS dashboard** until the next step
-> (pointing it at AdGuard). Built, unit-tested and linted on every change; **not yet tested on a phone**.
+> the live AdGuard website, the new name, id and icon, and **the app now opens the AdGuard DNS dashboard**. The
+> status icon and the Ping window still use NextDNS's test pages until their steps. Built, unit-tested and linted on
+> every change; **not yet tested on a phone**.
 
 | Step | State |
 |---|---|
 | Shared app copied from NextDNS Manager+ (accounts, tabs, app lock, find, desktop site, pinch zoom, theme, downloads) | ✅ |
 | Research of the live AdGuard DNS website ([findings](docs/research/2026-11-19-adguard-live-probe.md)) | ✅ |
 | Name **AdGuardDNS Manager**, app id `org.rafee_m.adguarddnsmanager`, own icon | ✅ |
-| Opens the AdGuard DNS dashboard; AdGuard's colours | next |
+| Opens the AdGuard DNS dashboard (AdGuard's login stays in the app, payment opens the browser) | ✅ |
+| AdGuard's colours | planned |
 | Sign-in with Apple, Google and Facebook | planned |
-| "Am I using AdGuard DNS?" icon from AdGuard's own check | planned |
+| "Am I using AdGuard DNS?" icon from AdGuard's own check | next |
 | Saving the dashboard's exported files (e.g. user rules) | planned |
 | Store texts, release, F-Droid | planned |
 

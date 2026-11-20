@@ -14,15 +14,18 @@ public class StatusRulesTest {
 
     @Test
     public void privateDnsOfTheServiceIsSecure() {
-        assertEquals(StatusRules.State.SECURE, StatusRules.fromPrivateDns(true, "abc123.dns.nextdns.io"));
-        assertEquals(StatusRules.State.SECURE, StatusRules.fromPrivateDns(true, "ABC123.DNS.NEXTDNS.IO"));
+        // AdGuard DNS: personal <device id>.d.adguard-dns.com, public dns.adguard-dns.com (research D1, D2).
+        assertEquals(StatusRules.State.SECURE, StatusRules.fromPrivateDns(true, "abc123.d.adguard-dns.com"));
+        assertEquals(StatusRules.State.SECURE, StatusRules.fromPrivateDns(true, "ABC123.D.ADGUARD-DNS.COM"));
+        assertEquals(StatusRules.State.SECURE, StatusRules.fromPrivateDns(true, "dns.adguard-dns.com"));
     }
 
     @Test
     public void otherPrivateDnsAndOffAreTold() {
         assertEquals(StatusRules.State.OTHER_DNS, StatusRules.fromPrivateDns(true, "dns.google"));
+        assertEquals(StatusRules.State.OTHER_DNS, StatusRules.fromPrivateDns(true, "abc123.dns.nextdns.io"));
         assertEquals(StatusRules.State.OTHER_DNS, StatusRules.fromPrivateDns(true, null)); // "automatic"
-        assertEquals(StatusRules.State.NOT_PROTECTED, StatusRules.fromPrivateDns(false, "abc.dns.nextdns.io"));
+        assertEquals(StatusRules.State.NOT_PROTECTED, StatusRules.fromPrivateDns(false, "abc.d.adguard-dns.com"));
     }
 
     @Test

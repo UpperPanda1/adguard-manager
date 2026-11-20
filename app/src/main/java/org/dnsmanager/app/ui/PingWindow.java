@@ -121,8 +121,11 @@ public final class PingWindow {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
-                if ("https".equals(uri.getScheme()) && Site.ownsHost(uri.getHost())) {
-                    return false; // the service's own pages stay in the window
+                // The window's own pages (and their redirects, e.g. test.nextdns.io → <random>.test.nextdns.io)
+                // stay in the window. Site.pingWindowAllows, not ownsHost: until Phase 7 these pages are
+                // NextDNS's, which the account tabs must never load.
+                if ("https".equals(uri.getScheme()) && Site.pingWindowAllows(uri.getHost())) {
+                    return false;
                 }
                 ExternalLinks.open(view.getContext(), uri); // safe schemes only; no app = the tap is ignored
                 return true;

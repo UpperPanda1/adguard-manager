@@ -21,6 +21,6 @@ public class DownloadsTest {
 
     @Test
     public void dataFilesGetTheServicesName() {
-        assertEquals("NextDNS download.txt", Downloads.fileName("text/plain"));
+        assertEquals("AdGuard DNS download.txt", Downloads.fileName("text/plain"));
     }
 }

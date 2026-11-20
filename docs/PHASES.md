@@ -13,7 +13,7 @@ The owner's plan is [`ADGUARD_PLAN.md`](ADGUARD_PLAN.md) (§6 phases, §7 rules,
 - [Rules for every phase](#rules-for-every-phase)
 - [Tools and packages each phase needs](#tools-and-packages-each-phase-needs)
 - [Code to port from LLM Central](#code-to-port-from-llm-central)
-- [Phase 3 — Site: point the app at AdGuard DNS](#phase-3--site-point-the-app-at-adguard-dns)
+- [Phase 3 — Site: point the app at AdGuard DNS](#phase-3--site-point-the-app-at-adguard-dns) ✅
 - [Phase 4 — Theme: AdGuard's colours](#phase-4--theme-adguards-colours)
 - [Phase 5 — Sign-in with Apple, Google, Facebook](#phase-5--sign-in-with-apple-google-facebook)
 - [Phase 6 — Status icon from AdGuard's DNS check](#phase-6--status-icon-from-adguards-dns-check)
@@ -25,7 +25,7 @@ The owner's plan is [`ADGUARD_PLAN.md`](ADGUARD_PLAN.md) (§6 phases, §7 rules,
 - [Phase 11 — Docs](#phase-11--docs)
 - [Phase 12 — Owner: phone, key, release, F-Droid](#phase-12--owner-phone-key-release-f-droid)
 
-**Suggested order:** 3 → **6** → 4 → 5 → D → 7 → 8 → 9 → 10 → 11 → 12. Phase 6 moves up because after Phase 3 the
+**Suggested order:** ~~3~~ ✅ → **6** → 4 → 5 → D → 7 → 8 → 9 → 10 → 11 → 12. Phase 6 moves up because after Phase 3 the
 status icon mixes AdGuard's Private DNS marker with NextDNS's test page (harmless in a development build, but wrong
 until Phase 6). Every other dependency is noted in its phase.
 
@@ -82,6 +82,16 @@ No new **app** library may be added in any phase (CLAUDE.md §6: `androidx.webki
 ---
 
 ## Phase 3 — Site: point the app at AdGuard DNS
+
+> **✅ Done 2026-11-20** (CHANGES.md entry of that day). Result: `Site.java` names AdGuard DNS and opens
+> `https://adguard-dns.io/en/dashboard/`; `DOMAINS` = `adguard-dns.io` + `adguardaccount.com`; marker
+> `adguard-dns.com`; AdGuard's legal links. Tests: 93 (SiteTest rewritten + 1 test), 0 lint issues, page checks 6/6;
+> mutation checks M1–M5 all caught; release APK 187,626 bytes (+212). Facts re-checked live: F1, F2, F7, F8, L1
+> unchanged; new F10 (caching: ETag/304, no `Cache-Control`) and F11 (login page links `adguard.com`).
+> **One addition not in the steps below:** `test.nextdns.io` redirects to a random subdomain, which the Ping window
+> would have sent to the browser once `nextdns.io` left `DOMAINS`. Fix: `Site.PING_DOMAINS` + `Site.pingWindowAllows`
+> (Ping window only; account tabs still use `ownsHost`); **Phase 7 removes both.**
+> Comments naming NextDNS (step 6) are a separate commit, "Update comments for AdGuard DNS".
 
 **Goal:** the app opens the AdGuard DNS dashboard and keeps AdGuard's login pages inside the account; everything that
 names the service says "AdGuard DNS".
@@ -205,6 +215,8 @@ parts, protocol names, marker rule), `res/values/strings.xml` (texts if "own ser
 4. Private DNS marker as a **suffix rule** (`equals("adguard-dns.com") || endsWith(".adguard-dns.com")`): fixes inherited
    finding F3/4.5 (REVIEW.md).
 5. Remove the NextDNS test fields from `Site.java`.
+6. (Left by Phase 3) Settings → Privacy says the test request goes to "the AdGuard DNS test address": true only once
+   this phase is done. Check the sentence still matches what `ConnectionStatus` sends (address, no account data).
 
 **Tests:** every answer: secure DoH/DoT/DoQ (upper and lower case), plain DNS, DNSCrypt, malformed JSON, empty body, 404,
 429, timeout; marker: `abc.d.adguard-dns.com` yes, `adguard-dns.com.evil.com` no, `evil-adguard-dns.com` no. Mutation
@@ -249,6 +261,10 @@ page check for the script (a page that makes a blob and clicks a download link; 
 
 **Goal:** decide what the three-dots → "Ping test" item becomes. The window shows two of the service's **web pages**
 (`ping.nextdns.io`, `test.nextdns.io`); AdGuard has neither (D7).
+
+**Whatever the option:** remove `Site.PING_DOMAINS` and `Site.pingWindowAllows` (added in Phase 3 only so the
+NextDNS pages and their redirect stay in the window) and their part of `SiteTest`; a Ping window that keeps web pages
+goes back to `Site.ownsHost`.
 
 **Options (owner Q2, open):**
 1. **Remove** the menu item, `ui/PingWindow.java`, its strings (`menu_ping`, `ping_title`), `Site.PING_URL`, and any
