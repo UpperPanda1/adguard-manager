@@ -17,5 +17,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "NextDNSManagerPlus"
+rootProject.name = "AdGuardManager"
 include ':app'

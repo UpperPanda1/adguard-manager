@@ -74,7 +74,7 @@ window.calls = [];
     let accounts = [{ id: 'main', name: 'Home' }];
     let current = 'main';
     let next = 1;
-    const settings = { service: 'NextDNS', app_name: 'NextDNS Manager+', version: '0.1.0', theme_mode: 'system',
+    const settings = { service: 'NextDNS', app_name: 'AdGuard Manager', version: '0.1.0', theme_mode: 'system',
         pinch_zoom_page: false, max_live_tabs: 3, max_live_tabs_limit: 10, app_lock: false };
     function json(error) {
         const o = { accounts: accounts.map((a, i) => ({ id: a.id, name: a.name, number: i + 1 })),

@@ -8,10 +8,10 @@ await run(async (browser) => {
     for (const scheme of ['light', 'dark']) {
         const page = await phonePage(browser, scheme);
         await page.addInitScript(`window.calls = [];
-            window.AndroidAbout = { info: () => JSON.stringify({ name: 'NextDNS Manager+', version: '0.1.0', repo: 'https://github.com/example-owner/example-repo', author: 'Example Author', icon: '${PNG}' }),
+            window.AndroidAbout = { info: () => JSON.stringify({ name: 'AdGuard Manager', version: '0.1.0', repo: 'https://github.com/example-owner/example-repo', author: 'Example Author', icon: '${PNG}' }),
                                    close: () => calls.push('close') };`);
         await page.goto(pageUrl('about.html'));
-        expect(await page.$eval('#appName', e => e.textContent) === 'NextDNS Manager+', 'name');
+        expect(await page.$eval('#appName', e => e.textContent) === 'AdGuard Manager', 'name');
         expect(await page.$eval('#version', e => e.textContent) === 'Version 0.1.0', 'version');
         expect(await page.$$eval('.hero img', i => i.length) === 1, 'icon');
         const hrefs = await page.$$eval('[data-link]', a => a.map(x => x.href));

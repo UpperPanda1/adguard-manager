@@ -4,6 +4,52 @@ Newest first. Each entry: what changed, why, how it was verified, sizes, and wha
 
 ---
 
+## 2026-11-20 — The app is now "AdGuard Manager" (Phase 2: name, id, repository, About)
+
+**What.** The app's identity changed from NextDNS Manager+ to the owner's choice:
+
+| | Before | Now |
+|---|---|---|
+| Name (launcher, About, Settings, unlock prompt) | NextDNS Manager+ | **AdGuard Manager** |
+| Debug build's name | NextDNS Manager+ (Debug) | AdGuard Manager (Debug) |
+| applicationId (the app's identity on the phone and in F-Droid) | `org.rafee_m.nextdnsmanagerplus` | **`org.rafee_m.adguardmanager`** (`.debug` for debug builds) |
+| Repository (About → Source code, Star, Report an issue) | `UpperPanda1/nextdnsmanager-plus` | **`UpperPanda1/adguard-manager`** (`gradle.properties` `app.repoUrl`) |
+| About → Built on | NextDNS Manager, LLM Central | **NextDNS Manager+** (this app's base), LLM Central, NextDNS Manager |
+| About → note | Not affiliated with NextDNS | Not affiliated with AdGuard |
+
+Also renamed: the Gradle project (`settings.gradle`) and the three tool packages (`tools/*/package.json`). The Java
+package stays `org.dnsmanager.app` on purpose (plan §2: a NextDNS fix then applies here as an almost identical diff).
+
+**Not yet changed (later phases of `docs/ADGUARD_PLAN.md`):** the app still **opens the NextDNS dashboard** and Settings
+still says "NextDNS privacy policy" etc., because the service's name and addresses come from `site/Site.java`
+(Phase 3). The icon is next (own commit), colours are Phase 4, the release workflow's file names Phase 9.
+
+**Why.** Owner's decisions (2026-11-20): repository `adguard-manager`, name *AdGuard Manager*, id
+`org.rafee_m.adguardmanager`. A new applicationId makes it a separate app from NextDNS Manager+: both can be installed
+side by side. It must not change after the first public release.
+
+**How it was found.** `grep -ri nextdns` over the whole tree, then each hit sorted into "identity" (this commit) or
+"service" (`Site.NAME` fills those in at run time).
+
+**Verified.** Clean `test lint assembleDebug assembleRelease`: 92 tests, 0 lint issues. `aapt dump badging`: release
+`org.rafee_m.adguardmanager` / "AdGuard Manager", debug `org.rafee_m.adguardmanager.debug` / "AdGuard Manager (Debug)".
+`BuildConfig.REPO_URL` = `https://github.com/UpperPanda1/adguard-manager`. No old id left in the code. Page checks 6 of
+6 (About and Settings stand-ins now use the new name); About looked at in light and dark. **Not verified:** on a phone.
+
+**Size.** Release APK (clean build) 187,234 → **187,438 bytes** (+204: the third credit row and longer names).
+
+**What to test on your phone**
+
+1. Install the debug APK from this commit's CI run (artifact `apks-<commit>`). It installs as a **new app** "AdGuard
+   Manager (Debug)", next to NextDNS Manager+ (Debug) if you have it; your NextDNS accounts are not carried over.
+2. Open it: it still shows the **NextDNS** dashboard (expected until Phase 3).
+3. ⋮ → Settings → About AdGuard Manager: name "AdGuard Manager", "Developed by Rafee-M", source code
+   `UpperPanda1/adguard-manager`; tap **Source code**, **Star** and **Report an issue**: each opens that repository on GitHub
+   (public). "Built on" lists three apps; each opens its page.
+4. Turn on App lock (Settings), leave the app for a minute, come back: the unlock prompt says "Unlock AdGuard Manager".
+
+---
+
 ## 2026-11-19 — AdGuard DNS: what the live website does (Phase 1 research, docs + a probe tool)
 
 **What.** Before changing any code for AdGuard, every open question of the plan (`ADGUARD_PLAN.md` §4–§5) was checked

@@ -66,7 +66,7 @@ await run(async (browser) => {
     // Nothing left to close: Back lets the window go.
     expect(await page.evaluate(() => window.handleBack()) === false, 'Back closes Settings at the top');
 
-    await page.click('text=About NextDNS Manager+');
+    await page.click('text=About AdGuard Manager');
     expect((await calls()).some(c => c[0] === 'about'), 'about opened');
 
     expect(page.errors.length === 0, 'script errors: ' + page.errors.join('; '));
