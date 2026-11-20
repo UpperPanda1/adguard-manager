@@ -9,7 +9,7 @@
 5. [Build and verify](#5-build-and-verify)
 6. [Hard constraints](#6-hard-constraints)
 7. [Coding conventions](#7-coding-conventions)
-8. [AdGuard DNS Manager: what to reuse and change](#8-adguard-dns-manager-what-to-reuse-and-change)
+8. [The AdGuard work: where to find what](#8-the-adguard-work-where-to-find-what)
 9. [Verified facts and gotchas](#9-verified-facts-and-gotchas)
 10. [Skills and plugins](#10-skills-and-plugins)
 11. [TODO](#11-todo)
@@ -17,8 +17,10 @@
 ## 1. Start here
 
 1. If **`handoff.md`** exists, read it first: the last session's state, open tasks and a ready prompt.
-2. Read this file completely, then **`PROJECT.md`** (planning, architecture, file map, how each feature works and how
-   to change it) and the newest entry of **`CHANGES.md`**. Keep all four in sync with the code.
+2. Read this file completely, then **`PROJECT.md`** (decisions, phases, file map, how each feature works and how to
+   change it; §11 = what each AdGuard phase changes) and the newest entry of **`CHANGES.md`**. Keep them in sync with
+   the code. The owner's plan is **`docs/ADGUARD_PLAN.md`**; facts about AdGuard's website are in
+   **`docs/research/2026-11-19-adguard-live-probe.md`**.
 3. The cloud sandbox is prepared by `.claude/hooks/session-start.sh` (Android SDK, Maven mirror, Gradle warm-up).
    Confirm before changing code: `./gradlew --no-daemon test lint assembleDebug assembleRelease` must pass
    (92 tests, **0 lint issues**) and the page checks must pass (6). If the hook didn't run, see §5 "manual set-up".
@@ -27,40 +29,44 @@
 
 ## 2. The project in one paragraph
 
-**AdGuard Manager** (applicationId `org.rafee_m.adguardmanager` since 2026-11-20; still loads NextDNS until Phase 3, plan `docs/ADGUARD_PLAN.md`) is a copy of **NextDNS Manager+** (code package `org.dnsmanager.app`), which wraps the NextDNS
-dashboard (`my.nextdns.io`) in WebViews with a native top bar: several isolated accounts (one androidx.webkit
-**Profile** per account), a numbered account chip and menu, find in page, app lock, a connection-status icon, ping
-test, Private DNS shortcut, downloads, desktop site, pinch to zoom, White/Black/Match-system theme. It was built
-(2026-11-14/15) on a new orphan branch from **LLM Central** (`UpperPanda1/assist`: accounts, tabs, settings design;
-everything AI-related stripped) plus the NextDNS-specific features of **NextDNS Manager** (`doubleangels/
-nextdnsmanager`, which this repository was forked from). Both GPL-3.0. A sibling **AdGuard DNS Manager** is planned
-from the same code (§8). **Status:** first version built, unit-tested, linted, page-checked, committed and
-pushed (2026-11-15, orphan branch); **not yet tested on a phone**.
+**AdGuard Manager** (applicationId `org.rafee_m.adguardmanager`, code package `org.dnsmanager.app`, repository
+`UpperPanda1/adguard-manager`, public) will wrap the **AdGuard DNS dashboard** (`adguard-dns.io/en/dashboard/`) in
+WebViews with a native top bar: several isolated accounts (one androidx.webkit **Profile** per account), a numbered
+account chip and menu, find in page, app lock, a connection-status icon, Private DNS shortcut, downloads, desktop site,
+pinch to zoom, White/Black/Match-system theme, and sign-in with Apple, Google and Facebook. It is an **unchanged copy of
+NextDNS Manager+** (`UpperPanda1/nextdnsmanager-plus` at `eaa1665`, imported 2026-11-19 as `abb10bf`), adapted one
+phase at a time (`docs/ADGUARD_PLAN.md` §6; status in PROJECT.md §2.3). NextDNS Manager+ was built from **LLM Central**
+(`UpperPanda1/assist`) plus features of **NextDNS Manager** (`doubleangels/nextdnsmanager`); all GPL-3.0.
+**Status (2026-11-20):** Phases 0 (import), 1 (research) and 2 (identity: name, id, repository, About, icon, README,
+docs) done; **the app still opens NextDNS** until Phase 3 (`site/Site.java`). Not yet tested on a phone.
 
 ## 3. Owner context and preferences
 
-- The owner is **new to Android development**. Comment code like a patient teacher: explain *why*, name the Android
-  concept (lifecycle, WebView profile, bridge…), link official docs for non-obvious APIs.
+- The owner (**Rafee-M**) is **new to Android development**. Comment code like a patient teacher: explain *why*, name
+  the Android concept (lifecycle, WebView profile, bridge…), link official docs for non-obvious APIs.
 - Method: **think → act → prove**. Smallest correct change; follow existing conventions; no over-engineering; prefer
   features and design. Never claim success without evidence; separate verified facts from assumptions; end reports
   with what was done, how it was verified, limits, next step.
+- **Facts about websites and libraries come from the live site or the library source, never from memory** (NextDNS
+  Manager+'s review 2 had to withdraw a battery claim made from memory). Re-check AdGuard facts with
+  `tools/site-probe` before a phase depends on them.
 - **Commit, push or open a PR only when the owner asks.**
-- **One commit per feature or fix** (owner, 2026-11-19). The first commit (`5d7aa23`) put the whole app into one
-  commit, which made it impossible to review, revert or bisect one feature. Rules: §4a.
+- **One commit per feature or fix** (owner, 2026-11-19). Rules: §4a.
 - Every change gets a `CHANGES.md` entry written for a beginner: what, why, how it was verified, size delta, and a
   numbered "What to test on your phone" list. `PROJECT.md` is updated when files, features or "how to change" change.
 - `handoff.md` is updated **when the owner asks** for a handoff.
 
 ## 4. How a round of work goes
 
-1. Read the relevant `PROJECT.md` parts and the real code before designing. For a non-trivial change, use the
-   `superpowers:brainstorming` → `superpowers:writing-plans` skills (plans go to `docs/superpowers/plans/`).
+1. Read the relevant `PROJECT.md` parts (§11 for the phase) and the real code before designing. For a non-trivial
+   change, write a short plan (`docs/superpowers/plans/`).
 2. Small steps. After each: `test lint assembleRelease` pass, release size measured. Unit-test plain-Java rules;
    **mutation-check** important ones (break the rule on purpose, see a test fail, restore).
 3. HTML pages: run the page checks and look at the screenshots (`tools/page-checks/screenshots/`).
 4. Re-read the whole diff adversarially ("what if two things happen at once?", "what if the account is removed
    while…?"); fix what you find.
-5. Update CHANGES.md (new entry on top), PROJECT.md, this file (status, facts, TODO).
+5. Update CHANGES.md (new entry on top), PROJECT.md (§2.3 phase table, §3, §4.3, §11), this file (status, facts, TODO).
+   A shared-code fix also gets a row in `UPSTREAM.md`.
 6. Push / PR only when asked; then watch CI.
 
 ### 4a. Commits: one per feature, each one complete
@@ -93,24 +99,30 @@ this sandbox with HTTP 429) and warms Gradle up.
 then `export ANDROID_HOME=$HOME/android-sdk`.
 
 ```bash
-cd /home/user/nextdnsmanager-plus && export ANDROID_HOME=${ANDROID_HOME:-$HOME/android-sdk}
+cd /home/user/adguard-manager && export ANDROID_HOME=${ANDROID_HOME:-$HOME/android-sdk}
 ./gradlew --no-daemon test lint assembleDebug assembleRelease        # what CI runs; must pass
 ./gradlew --no-daemon -q testDebugUnitTest --tests '*AccountStoreTest' # one test class
 ./gradlew --no-daemon clean assembleRelease && stat -c %s app/build/outputs/apk/release/app-release-unsigned.apk
 #   release size: measure on a CLEAN build (incremental builds showed a wrong, smaller figure); record in CHANGES.md
+# what Android reads from an APK (package, label):
+$ANDROID_HOME/build-tools/35.0.0/aapt dump badging app/build/outputs/apk/release/app-release-unsigned.apk | head -3
 # icon files from artwork/icon.svg (after editing the SVG; or run Actions → App icon):
 cd tools/icon && ln -sfn /opt/node-tools/node_modules node_modules && CHROMIUM_PATH=/opt/pw-browsers/chromium node generate.mjs; rm node_modules; cd ../..
 # page checks (Chromium + Playwright are pre-installed in the sandbox):
-cd tools/page-checks && ln -sfn /opt/node-tools/node_modules node_modules && CHROMIUM_PATH=/opt/pw-browsers/chromium node run-all.mjs; rm node_modules
+cd tools/page-checks && ln -sfn /opt/node-tools/node_modules node_modules && CHROMIUM_PATH=/opt/pw-browsers/chromium node run-all.mjs; rm node_modules; cd ../..
+# live AdGuard site (sign-in chain / colours / DNS check):
+cd tools/site-probe && ln -sfn /opt/node-tools/node_modules node_modules && CHROMIUM_PATH=/opt/pw-browsers/chromium node probe.mjs colours; rm node_modules; cd ../..
+# README banner + badges (after a release build; needs npm's registry):
+cd tools/readme-badges && npm ci && npm run generate; cd ../..
 ```
 
 - **Lint: every warning fails the build** (`app/build.gradle` `warningsAsErrors`). The accepted ones are in
   `app/lint.xml`, each with its reason. Don't add to it without a reason the owner would accept.
 - Bridge methods must survive R8: after changing a bridge, check the release dex
   (`dexdump` of `classes.dex`, search `name : 'methodName'`). The default ProGuard file keeps
-  `@JavascriptInterface` methods (verified 2026-11-15: all 19 present).
+  `@JavascriptInterface` methods.
 - `settings.gradle` lists `google()` first for plugins: with the Plugin Portal first, AGP's parts are fetched via
-  Maven Central and fail with 429 in this sandbox (seen 2026-11-15).
+  Maven Central and fail with 429 in this sandbox.
 
 ## 6. Hard constraints
 
@@ -120,12 +132,20 @@ cd tools/page-checks && ln -sfn /opt/node-tools/node_modules node_modules && CHR
 - **One library:** `androidx.webkit`. No OkHttp/Gson/Room/Glide/Firebase/Sentry. Use `HttpURLConnection`,
   `org.json`, framework classes.
 - **No analytics, crash reporting or tracking** of any kind (owner: no Sentry).
-- **No Google/Apple sign-in code** for NextDNS (owner). It comes back only for AdGuard (§8).
+- **Sign-in: required for AdGuard** (owner Q5, 2026-11-20; reverses NextDNS Manager+'s "no Google/Apple sign-in code"):
+  Apple, Google and Facebook, done in their websites inside the account's container, **no SDK**. Their hosts may load
+  in a tab **only for main-frame navigations**; `Site.ownsHost` stays the rule for everything else. Google's sign-in
+  page (`accounts.google.com`) alone gets a desktop user agent while it is on screen (`web/SignInUserAgent`, Phase 5);
+  **never disguise anywhere else**.
 - **No swipe to refresh, no text-size feature, no back button in the top bar** (owner).
-- Theme: exactly **White, Black, Match system**; accent `#0056B3`; status bar = page background.
+- Theme: exactly **White, Black, Match system**; status bar = page background. No script forces the dashboard's own
+  theme (owner Q3). Accent: AdGuard's blue, chosen in Phase 4 (today still NextDNS's `#0056B3`).
 - Everything about the DNS service in `site/Site.java`; all colours in `theme/Themes.java`; the icon only in
-  `artwork/icon.svg` (`drawable/ic_launcher_*.xml` and the store icon are generated; never edit them by hand).
-- applicationId frozen after the first public release.
+  `artwork/icon.svg` (`drawable/ic_launcher_*.xml`, the store icon and the README banner are generated; never edit
+  them by hand).
+- **applicationId `org.rafee_m.adguardmanager`**: frozen after the first public release. Java package
+  `org.dnsmanager.app` stays (shared with NextDNS Manager+, so fixes port as near-identical diffs).
+- `adguardaccount.com` loads inside the account; `adguardcheckout.com` (payment) opens in the browser (owner Q4).
 
 ## 7. Coding conventions
 
@@ -137,120 +157,106 @@ cd tools/page-checks && ln -sfn /opt/node-tools/node_modules node_modules && CHR
   `innerHTML`.
 - **Bridges** (`addJavascriptInterface`) only on the app's own local pages (Settings, About), never on the website.
   Validate every value from a page in Java. Pages name things (e.g. `openLink('service_terms')`), never send URLs.
+  The blob download (Phase D) must use an origin-restricted **message listener** (`WebViewCompat.addWebMessageListener`,
+  as LLM Central's `AppBridge`), not `addJavascriptInterface`.
 - Every **account tab** WebView: `Profiles.attach` **before** any `loadUrl`/settings. Every WebView (tabs, Settings,
   About, Ping): a client that handles `onRenderProcessGone` (one unhandled renderer death kills the app). The local
   pages and the throw-away cache WebView use the default profile on purpose.
 - Navigation decisions go through `Site.ownsHost` (exact host or real subdomain), never `contains`/`endsWith(domain)`.
+  Host suffix rules (e.g. the Private DNS marker) are written as `equals(x) || endsWith("." + x)`.
 - No secrets, cookies, URLs with tokens or page content in logs.
 - Lint's `RequiresFeature` wants `WebViewFeature.isFeatureSupported(...)` in the same method as the call, as a
   positive `if` (a helper like `Profiles.isSupported()` isn't recognised).
 
-## 8. AdGuard DNS Manager: what to reuse and change
+## 8. The AdGuard work: where to find what
 
-Reuse **everything** except what names or depends on NextDNS. Recommended: Gradle product flavors `nextdns` and
-`adguard`, each with its own copy of the files marked ✎ in `src/<flavor>/`.
-
-| File / area | Reuse as is? | For AdGuard |
-|---|---|---|
-| `site/Site.java` ✎ | no | name, `HOME_URL` (AdGuard DNS dashboard), `DOMAINS` (`adguard-dns.io` + AdGuard's account/login domains), `TEST_URL`/test answer format, `PING_URL` (or hide Ping), `PRIVATE_DNS_MARKER` (`adguard-dns`), `LINKS` |
-| `theme/Themes.java` ✎ | no | AdGuard's accent and dark background (read from its CSS as done for NextDNS: `#212529`), keep the contrast test green |
-| `status/StatusRules.fromTest` | maybe | AdGuard's check page answers differently: adapt or rely on Private DNS only |
-| `ui/PingWindow` + menu item | maybe | only if AdGuard has an equivalent page |
-| Sign-in | **add** | AdGuard offers Google/Apple sign-in. Port LLM Central's `provider/SignInHosts`, `web/SignInUserAgent` (Google answers `403 disallowed_useragent` to WebViews; only the `accounts.google.com` page gets a desktop-Linux user agent) and `web/PopupWindows` if sign-in opens pop-ups; add the sign-in hosts to the in-app domains |
-| `strings.xml` `app_name`, `applicationId`, `artwork/icon.svg` ✎ | no | new app name, id, icon (then run the generator) |
-| `assets/settings.html`, `about.html` | yes | service name fills in from `Site.NAME` (`.svc`); check Privacy/Disclaimer wording and the About repository/credits |
-| Everything else (`web/`, `account/`, `ui/`, `lock/`, `downloads/`, `storage/`, `theme/` minus Themes) | **yes** | — |
+| Need | Where |
+|---|---|
+| The plan (phases, rules, testing, F-Droid) | `docs/ADGUARD_PLAN.md` (owner's, unchanged) |
+| Owner decisions (name, id, Q1–Q5) and phase status | PROJECT.md §2.2, §2.3 |
+| What each phase changes, file by file | PROJECT.md §11 and the "AdGuard" column of §4.3 |
+| Facts about AdGuard's website, with sources | `docs/research/2026-11-19-adguard-live-probe.md` (rows F, S, D, T, L, W, B) |
+| Re-check those facts | `tools/site-probe` |
+| Code still to port from LLM Central | `UpperPanda1/assist`, branch `claude/confident-brahmagupta-9iiv9x`: `web/SignInUserAgent` (+ tests), `provider/SignInHosts`, `blob_capture.js` + `AppBridge` (blob part). Attach it with `add_repo` |
+| Keeping in step with NextDNS Manager+ | `UPSTREAM.md` |
 
 ## 9. Verified facts and gotchas
 
-- **NextDNS site** [checked 2026-11-15 on the live site / its `main.*.js` bundle]: login is e-mail + password on
-  `my.nextdns.io`; no captcha, no Google/Apple sign-in code; PayPal referenced (billing). Dark background
-  `[data-bs-theme=dark] --bs-body-bg: #212529`, light white. Theme: `localStorage.theme` if the user set it in the
-  dashboard, else `matchMedia('(prefers-color-scheme: dark)')`. Viewport `maximum-scale=1` (zoom banned). 2FA
-  recovery codes = `<a download href="data:text/plain;charset=UTF-8,…">`. Log export =
-  `window.location = <url from /profiles/{id}/logs/download>`. Static files: hashed names, `Cache-Control: public,
-  max-age=31536000`; HTML: `max-age=0, must-revalidate` + `ETag`. The Apple configuration profile and log export
-  need no login and open in the browser (owner, 2026-11-15); only the `data:` recovery codes need the app.
-- **test.nextdns.io** answers `302` to a random subdomain (fresh DNS lookup) then JSON, e.g. `{"status":
-  "unconfigured","resolver":…,"srcIP":…,"server":…}`; HEAD gives 405. `HttpURLConnection` follows the https→https
-  redirect by itself. The "in use" format (`status: ok`, `protocol`) is from the fork's code, not seen live.
-- `Base64.getMimeDecoder()` silently skips invalid characters; use `getDecoder()` after stripping whitespace
-  (found by `DataUrlTest`, 2026-11-15).
-- WebView: `setVisibility(GONE)` alone never hides a page; `onPause()` does (Chromium `BrowserViewRenderer`).
-  `clearCache(true)` clears only the cache of the WebView's own profile. `ProfileStore.deleteProfile` throws for a
-  profile used in this process → wipe instead, delete at next start. Default profile can't be deleted.
-  `shouldOverrideUrlLoading` is not called for subframe http(s) navigations (Chromium); the app also checks
-  `isForMainFrame()`.
+**AdGuard DNS site** [live research 2026-11-19; full table with sources: `docs/research/2026-11-19-adguard-live-probe.md`]
+
+- Dashboard `adguard-dns.io/en/dashboard/` → signed out `302` to `auth.adguardaccount.com/oauth/authorize?…
+  client_id=adguard-dns-website…` → `login.html`. Account pages on `adguardaccount.com`; checkout `adguardcheckout.com`.
+  API `/api/v1/…` with `Authorization: Bearer ${AUTH_TOKEN}` (a page global), not a cookie; host most likely same origin.
+- Apple/Google/Facebook: whole-page navigations `/auth/<p>` → `/social_auth/<p>` → provider, **no pop-ups**; Google gets
+  `disallow_webview=true`; Facebook `www.` → `m.facebook.com`; all return to `auth.adguardaccount.com/auth/<p>` (Apple by
+  POST, `form_post`). hCaptcha only when the login API asks (frames from `*.hcaptcha.com`). Headless Chromium can't show
+  Google's WebView refusal (no `X-Requested-With`).
+- Private DNS: personal `<device id>.d.adguard-dns.com`; public `dns.`/`family.`/`unfiltered.adguard-dns.com`.
+- DNS check: `https://a<random>-dnscheck.adguard-dns.com/dnscheck/test` resolves **only** via AdGuard DNS (live DoH
+  test); JSON `client_ip, device_id, profile_id, server_group_name, server_name, server_type (private|public),
+  node_location, node_name, protocol (dns|doh|dot|doq|dnscrypt, lower case), tls_curve_id`; 404 when unknown, 429 when
+  rate-limited (AdGuardDNS source `af31bb8`). The sandbox proxy resolves names itself: it can't fetch the JSON.
+- **No ping page.** Colours (Chromium on the real CSS): light `#ffffff`/text `#333e4c`, dark `#242d38`/white, accent
+  `#3c81f6`/`#639af8`. Page theme = account setting (`AUTOMATIC` follows `prefers-color-scheme`, default `LIGHT`),
+  applied as `<html data-theme>`.
+- Downloads: user rules export = **`blob:`** (`rules.txt`); settings export, Apple profile, query log = links from an
+  authenticated API call (login need unverified). No `data:` downloads. Zoom banned (`maximum-scale=1, user-scalable=0`).
+  No WebSocket/EventSource; a 30 s poll on the custom-domains page; query-log auto-refresh off by default.
+- Legal: privacy `https://adguard-dns.io/en/privacy.html`, DNS EULA `https://adguard-dns.io/en/eula.html`.
+
+**This repository**
+
+- `gradle.properties` has **Windows line endings (CRLF)**: a `sed` pattern ending in `$` misses its lines (found
+  2026-11-20); match `\r$` or edit with a tool that keeps them.
+- Reproducible: two fresh clones of `1fa8540` at different paths → same unsigned APK SHA-256 `bb0699c7…0c1c5a` (JDK 21,
+  2026-11-20). Only JDK 21 is installed in the sandbox (`/usr/lib/jvm`); JDK 17 vs 21 was proven for NextDNS Manager+
+  (`fb2a583`, formerly `cc867de`), not yet here.
+- `tools/readme-badges` reads the icon's foreground group and maps the icon's safe zone (21–87) onto the banner, so
+  any `icon.svg` that passes `tools/icon` fits. Size the banner title with capitals (a `g` shrinks it).
+- The App icon workflow compares only the vector files on push (the store PNG may differ by Chromium build).
+
+**Shared code (from NextDNS Manager+, still true here)**
+
+- `Base64.getMimeDecoder()` silently skips invalid characters; use `getDecoder()` after stripping whitespace.
+- WebView: `setVisibility(GONE)` alone never hides a page; `onPause()` does (Chromium `BrowserViewRenderer`), and a
+  hidden page's timers are throttled, not stopped. `clearCache(true)` clears only the cache of the WebView's own
+  profile. `ProfileStore.deleteProfile` throws for a profile used in this process → wipe instead, delete at next start.
+  Default profile can't be deleted. `shouldOverrideUrlLoading` is not called for subframe http(s) navigations
+  (Chromium) nor for POSTs; the app also checks `isForMainFrame()`.
 - `BiometricPrompt` authenticators: `BIOMETRIC_WEAK | DEVICE_CREDENTIAL` on Android 11+; on Android 10 use
-  `setDeviceCredentialAllowed(true)` (combinations with `DEVICE_CREDENTIAL` aren't supported before API 30).
+  `setDeviceCredentialAllowed(true)`.
 - A `Dialog`'s dismiss listener is delivered later as a posted message: never `recreate()` from it when the screen is
   finishing (`ThemeRebuild.onSettingsClosed`).
-- `androidx.webkit` 1.17.1 sources (Google Maven `webkit-1.17.1-sources.jar`) [read 2026-11-19]: `HttpCache` —
-  don't pass `getDefaultQuotaBytes()` to `setQuotaBytes` (use `useDefaultQuota()`); a set quota persists across
-  restarts and is clamped. `WebStorageCompat.deleteBrowsingData` — "not an atomic operation, so it may also delete
-  data that is stored during deletion"; includes cache and cookies.
-- CI runners [2026-11-15/19]: `ubuntu-latest` = Ubuntu 26.04; Playwright 1.56.1 refuses it, so `pages` and `icon` are
-  pinned to `ubuntu-24.04`; `android` stays on latest (owner's choice). Run 6 (`cc867de`) passed.
-- Build: same release APK from different clone paths and from JDK 17 and JDK 21 (commit `cc867de`, 2026-11-19).
-  `-PrepoUrl` changes the APK: never use it for a release (F-Droid builds without it).
-- Dashboard background behaviour [read in `main.7f28998e.js`, 2026-11-19]: Logs live stream = `EventSource` on
-  `/profiles/{id}/logs/stream`, off until the stream button is tapped, closed after 5 min without user activity; the
-  Setup status re-check stops when idle (60 s) or hidden; the root-CA check runs only while visible and focused. So the
-  app needs no `pauseTimers` (it would block the dashboard's own idle switch-off). Setup reads `test.nextdns.io`
-  `status` = `ok` / `mismatch` / `unconfigured`.
-- Release signing [tested 2026-11-19, apksigcopier 1.1.1]: apksigner 34 + `--v1-signing-enabled false` passes
-  `apksigcopier compare`; 34 default (adds v1 JAR files) and 35 fail ("CHUNKED_SHA512 digest mismatch"). keytool
-  rejects `+` in a certificate name ("Incorrect AVA format"): write "Plus".
-- A view drawn over others hides them only from eyes and touches: TalkBack still reaches (and presses) covered
-  views, and keyboard focus still moves to them. Hide with `IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS` +
-  `FOCUS_BLOCK_DESCENDANTS`, and clear existing focus yourself: AOSP `ViewGroup.setDescendantFocusability` only sets a
-  flag [read 2026-11-19]; `requestFocus` on a button that isn't focusable-in-touch-mode does nothing in touch mode.
-- **AdGuard DNS site** [live research 2026-11-19, full table with sources: `docs/research/2026-11-19-adguard-live-probe.md`;
-  re-check with `tools/site-probe`]: dashboard `adguard-dns.io/en/dashboard/` → login `auth.adguardaccount.com`
-  (OAuth, `client_id=adguard-dns-website`); account pages on `adguardaccount.com`; API `/api/v1/…` with a Bearer token
-  (not a cookie). Apple/Google/Facebook = whole-page navigations via `/auth/<p>` → `/social_auth/<p>`, **no pop-ups**;
-  Google gets `disallow_webview=true`; Facebook uses `www.` → `m.facebook.com`; all return to
-  `auth.adguardaccount.com/auth/<p>` (Apple by POST). hCaptcha only when the login API asks. Personal DoT host
-  `<device>.d.adguard-dns.com`; public `dns.`/`family.`/`unfiltered.adguard-dns.com`. Check: `https://a<random>-dnscheck.
-  adguard-dns.com/dnscheck/test` resolves only via AdGuard DNS; JSON with `protocol` in lower case and `server_type`
-  `private`/`public` (AdGuardDNS source). **No ping page.** Colours: light `#ffffff`, dark `#242d38`, accent `#3c81f6` /
-  `#639af8`; page theme = account setting (Automatic follows `prefers-color-scheme`, default Light). User rules export
-  is a **`blob:`** download (the NextDNS code can't save it). Zoom banned (`maximum-scale=1`). No WebSocket/EventSource.
-- Not verifiable here: anything on a phone (WebView profiles, unlock sheet, MediaStore, status bar
-  colours, the website's dark mode following the app). Live site checks work with curl/Playwright.
+- `androidx.webkit` 1.17.1 sources [read 2026-11-19]: `HttpCache` — don't pass `getDefaultQuotaBytes()` to
+  `setQuotaBytes`; a set quota persists and is clamped. `WebStorageCompat.deleteBrowsingData` is not atomic (may delete
+  data stored meanwhile) → `web/WipeGate`.
+- CI runners: `ubuntu-latest` = Ubuntu 26.04; Playwright 1.56.1 refuses it, so `pages` and `icon` are pinned to
+  `ubuntu-24.04`. `-PrepoUrl` changes the APK: never use it for a release (F-Droid builds without it).
+- Release signing [tested on NextDNS Manager+, 2026-11-19, apksigcopier 1.1.1]: apksigner 34 + `--v1-signing-enabled
+  false` passes `apksigcopier compare`; 34 default and 35 fail. keytool rejects `+` in a certificate name.
+- A view drawn over others hides them only from eyes and touches: TalkBack and keyboard focus still reach covered
+  views → `IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS` + `FOCUS_BLOCK_DESCENDANTS` + clear focus (`LockScreen.covers`).
+- Not verifiable here: anything on a phone (WebView profiles, unlock sheet, MediaStore, status bar colours, sign-in,
+  hCaptcha). Live site checks work with curl/Playwright (not the signed-in dashboard).
 
 ## 10. Skills and plugins
 
-Visible in this environment (2026-11-15): `superpowers` (brainstorming, writing-plans, test-driven-development,
-verification-before-completion, requesting-code-review, systematic-debugging), `feature-dev`, `code-review`,
-`engineering` (architecture, testing-strategy, code-review), `frontend-design`, `design` (accessibility-review),
-`security-review`, `simplify`. Use brainstorming → writing-plans for features, verification-before-completion before
-claiming done, code-review / security-review on bigger diffs, accessibility-review for screens.
-**Need the owner's sign-in on claude.ai (Settings → Connectors) before they work:** `context7` (current AndroidX
-docs; recommended), `figma`. The `engineering` plugin's GitHub connector failed to connect (the session's own GitHub
-tools work).
+Visible in this environment: `superpowers` (brainstorming, writing-plans, test-driven-development,
+verification-before-completion, requesting-code-review, systematic-debugging), `ui-consistency` (adjusting →
+implementing → verifying for anything the user sees), `feature-dev`, `code-review`, `engineering`, `frontend-design`,
+`design` (accessibility-review), `security-review`, `simplify`. Use writing-plans for phases, verification-before-
+completion before claiming done, security-review for Phase 5 (sign-in) and Phase D (bridge). `context7` needs the
+owner's sign-in on claude.ai (Settings → Connectors).
 
 ## 11. TODO
 
-- [x] Planning: option 2 chosen; minSdk 29 (2026-11-14).
-- [x] First version on the orphan branch: all features in PROJECT.md §2.3; 83 unit tests, 0 lint issues, 6 page
-      checks, CI workflow (2026-11-15).
-- [x] Own launcher icon (nothing of the fork left); first commit (2026-11-15).
-- [x] Icon generated from `artwork/icon.svg` + App icon workflow; downloads simplified; pushed (2026-11-15).
-- [x] First CI and App icon runs checked: failures were Playwright on Ubuntu 26.04 → jobs pinned to 24.04 by the
-      owner; CI green at `cc867de` (2026-11-19).
-- [x] Review 1 fixes (`cc867de`) verified; review 2 docs, F-Droid plan corrected (REVIEW.md §9, 2026-11-19).
-- [x] R1 (wait for the sign-out deletion, `web/WipeGate`) and R3 (status dialog secure) done 2026-11-19, 92 tests;
-      phone tests in CHANGES.md.
-- [x] Review 3 (REVIEW.md §10, 2026-11-19): F1 app-lock bypass via TalkBack/keyboard fixed.
-- [ ] REVIEW.md §9.6 R4, R6 and §10 F2–F6 (owner to choose); decisions A–F in REVIEW.md §7.
-- [ ] Owner: phone test (CHANGES.md checklist).
-- [x] Release workflow + `RELEASE.md` + `BUILDING.md` (ported from LLM Central; signing needs apksigner 34 **and**
-      `--v1-signing-enabled false` for this app, tested 2026-11-19). First GitHub run (dry run) still to do.
-- [ ] README screenshots, store texts (`title`, `short_description`, `full_description`), release key + secrets (owner).
-- [ ] Translations.
-- [ ] AdGuard DNS Manager (§8, PROJECT.md §11; plan `ADGUARD_PLAN.md` §6, kept by the owner).
-  - [x] Phase 0: NextDNS Manager+ `eaa1665` imported unchanged (`abb10bf`, CI green, 2026-11-19).
-  - [x] Phase 1: live research, facts + owner questions Q1–Q5 + phone checks P1–P6 in
-        `docs/research/2026-11-19-adguard-live-probe.md`; `tools/site-probe` (2026-11-19).
-  - [ ] Owner answers Q1–Q5 and plan §13; then Phase 2 (identity).
+- [x] Phase 0: NextDNS Manager+ `eaa1665` imported unchanged (`abb10bf`, CI green, 2026-11-19).
+- [x] Phase 1: live research; `tools/site-probe`; facts, owner questions and phone checks P1–P6 (`8642642`, 2026-11-19).
+- [x] `UPSTREAM.md` (`19fa650`); the plan in `docs/ADGUARD_PLAN.md` (`2c2cf8b`).
+- [x] Phase 2 (2026-11-20): name AdGuard Manager + id `org.rafee_m.adguardmanager` + repository (`8d6c321`), icon
+      (`9197934`), README + badges (`1fa8540`), docs for AdGuard Manager.
+- [ ] **Owner:** Q2 (Ping: remove / connection details / latency, PROJECT.md §11 Phase 7); phone test of Phase 2.
+- [ ] Phase 3 Site → 4 Theme → 5 Sign-in → 6 Status → D Downloads → 7 Ping → 8 Texts → 9 Workflows → 10 Review →
+      11 Docs (PROJECT.md §11).
+- [ ] Owner: release key + secrets, dry run, tag `v0.1.0`, F-Droid (RELEASE.md, fdroid.md); name/trademark answer.
+- [ ] Inherited review items (REVIEW.md); translations.

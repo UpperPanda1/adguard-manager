@@ -1,6 +1,6 @@
 # AdGuard DNS: live research (Phase 1)
 
-Phase 1 of `ADGUARD_PLAN.md` §6: every **[to verify]** item of the plan (§4, §5), checked on the live site before
+Phase 1 of [`docs/ADGUARD_PLAN.md`](../ADGUARD_PLAN.md) §6: every **[to verify]** item of the plan (§4, §5), checked on the live site before
 any code depends on it. Nothing here is from memory.
 
 - **Date:** 2026-11-19, Claude cloud sandbox (curl 8.5.0, Chromium via Playwright 1.56.1, Node 22).
@@ -92,23 +92,32 @@ No account was signed in: the signed-in dashboard page itself (its HTML) was **n
 | **4 Theme** | `Themes.java`: page `#ffffff` / `#242d38`, accent from T1 (contrast test decides the exact shade on white). Dark mode of the **page** follows the app only if the account's theme is AUTOMATIC (T2): see Q3. |
 | **5 Sign-in** | Sign-in hosts for main-frame decisions only: `accounts.google.com`, `appleid.apple.com` (+ `idmsa.apple.com` kept from LLM Central, unseen here), `www.facebook.com`, `m.facebook.com` (S4, S6, S7). Port `SignInUserAgent` (S4: `disallow_webview=true`). **No `PopupWindows`** needed (S2). Facebook's `login_via/app` step may try to open the Facebook app: the app already drops `intent:`/`fb:` links (only http(s)/mailto/tel leave); check on a phone. hCaptcha: sub-frames already load (only main-frame navigations are filtered, `MainActivity` `TabClient`); third-party cookies are off in tabs (`setAcceptThirdPartyCookies(…, false)`): phone check P3. |
 | **6 Status** | `TEST_URL` = `https://a<random>-dnscheck.adguard-dns.com/dnscheck/test` (a new random part each time, 4–63 characters of `a–z A–Z 0–9 -`: AdGuardDNS `dnscheck.go` `validateRandomID`); in use = HTTP 200 with JSON (D3–D5); encrypted = `protocol` in `doh`/`dot`/`doq` (**lower case**; compare without case); `server_type` `private` = the user's own server. The NextDNS fields `status`/`ok` disappear. |
-| **7 Ping** | Remove `PingWindow`, its menu item and strings (D7) unless the owner wants something else there (Q2). |
-| **Downloads** (new step, not in the plan) | `blob:` export (W1) fails today: `downloads/Downloads` shows "download failed" for `blob:`. Needs LLM Central's blob capture or an owner decision (Q1). Server files (W2): whether their links work **without** login (the browser can't send the page's Bearer token) is unproven (P4); if they need the session, the browser hand-off fails too. |
+| **7 Ping** | The window shows two service **web pages**; AdGuard has neither (D7). Owner asked why remove it (Q2, open): options are remove, a native "Connection details" view of the DNS check's answer (D5), or an in-app latency test (PROJECT.md §11 Phase 7). |
+| **D Downloads** (new step, not in the plan) | `blob:` export (W1) fails today: `downloads/Downloads` shows "download failed" for `blob:`. **Owner Q1: port LLM Central's blob capture.** Server files (W2): whether their links work **without** login (the browser can't send the page's Bearer token) is unproven (P4); if they need the session, the browser hand-off fails too. |
 | **8 Texts** | Privacy text: the login page loads AdGuard's own telemetry config (F9) and hCaptcha (S9); the README must say Google's page gets a disguised user agent (plan §11). |
 
 ## 3. Owner decisions this research raises
 
+Answers given by the owner on 2026-11-20 (also in PROJECT.md §2.2) are marked **→**.
+
 - **Q1 Downloads.** The rules export is a `blob:` file (W1), which the NextDNS code can't save. Port LLM Central's
   blob capture (`blob_capture.js` + the `blob` message), or accept "Export rules" not working in the app?
+  **→ Port it** (Phase D).
 - **Q2 Ping.** AdGuard has no ping page (D7): remove the Ping window (recommended), or show `status.adguard.com`
   there instead?
+  **→ Open:** the owner asked why remove it. Answer: it shows two service web pages and AdGuard has neither; the
+  alternatives ("Connection details" from the DNS check, an in-app latency test) are in PROJECT.md §11 Phase 7.
 - **Q3 Page dark mode.** The dashboard follows the phone/app only when the account's theme is "Automatic" (T2; it is a
   setting on AdGuard's server). Leave it to the user (recommended; say so in Settings/README), or make the app set
   the page's theme (an injected script; the server setting would still win when it isn't Automatic)?
+  **→ Keep as is** (no script).
 - **Q4 Payment and account pages.** Open `adguardaccount.com` inside the account's container (recommended: same
   login, F7) and `adguardcheckout.com` in the browser (like NextDNS's billing), or both inside?
+  **→ That split.**
 - **Q5 Providers.** Plan §13.3: all three (Apple, Google, Facebook; all seen working up to the provider's page) or
   fewer?
+  **→ All three.** Also decided: name *AdGuard Manager*, id `org.rafee_m.adguardmanager`, repository
+  `UpperPanda1/adguard-manager`.
 
 ## 4. Still open
 

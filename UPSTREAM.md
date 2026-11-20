@@ -1,8 +1,8 @@
-# Upstream: keeping AdGuard DNS Manager+ and NextDNS Manager+ in step
+# Upstream: keeping AdGuard Manager and NextDNS Manager+ in step
 
 This app started as an **unchanged copy** of NextDNS Manager+ (one import commit, no history). From then on the two
 apps live in separate repositories, so a fix made in one of them reaches the other only if someone ports it by hand.
-This file is that "port list" (plan `ADGUARD_PLAN.md` §7.5).
+This file is that "port list" (plan [`docs/ADGUARD_PLAN.md`](docs/ADGUARD_PLAN.md) §7.5).
 
 **When to add a row:** a commit changes **shared code**, i.e. code that is the same in both apps: `account/`, `web/`
 (except the sign-in files), `ui/`, `lock/`, `downloads/`, `storage/`, `theme/` (except `Themes.java`), the build

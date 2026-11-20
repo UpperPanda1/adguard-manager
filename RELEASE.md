@@ -1,7 +1,7 @@
-# Releasing NextDNS Manager+ (GitHub + F-Droid)
+# Releasing AdGuard Manager (GitHub + F-Droid)
 
-Written for a first-time Android publisher, modelled on LLM Central's `RELEASE.md` (`UpperPanda1/assist`, newest branch
-`claude/confident-brahmagupta-9iiv9x`, read 2026-11-19). It covers:
+Written for a first-time Android publisher. Copied from NextDNS Manager+'s `RELEASE.md` (same workflow, same signing
+rules) and adapted to this app. It covers:
 
 1. what is still needed before the first public release;
 2. the store files;
@@ -10,9 +10,10 @@ Written for a first-time Android publisher, modelled on LLM Central's `RELEASE.m
 5. F-Droid (the details are in [`fdroid.md`](fdroid.md));
 6. what was checked.
 
-The workflow is `.github/workflows/release.yml`. **Status 2026-11-19:** its scripts were run locally on this app's APK
-(version/tag/changelog/address check in four cases; signing with a test key; F-Droid's `apksigcopier compare`: passed).
-It has **not run on GitHub yet**: the first run will be a dry run (§4).
+The workflow is `.github/workflows/release.yml`, inherited unchanged. **Status 2026-11-20:** it has **not run in this
+repository yet**, and it still names the APK and the release after NextDNS Manager+ until **Phase 9**
+(`docs/ADGUARD_PLAN.md` §6), which renames them and re-runs its scripts locally with a test key. Its scripts and the
+signing table below were tested on NextDNS Manager+'s APK (2026-11-19); the build set-up is identical.
 
 ---
 
@@ -20,27 +21,29 @@ It has **not run on GitHub yet**: the first run will be a dry run (§4).
 
 | # | What | Why | Status |
 |---|---|---|---|
-| 1 | Own app icon (`artwork/icon.svg`) and store icon (`fastlane/…/images/icon.png`) | F-Droid requires forks to change name, icon and strings | ✅ done |
-| 2 | `changelogs/1.txt` | the workflow refuses to release without the versionCode's changelog | ✅ done (342 characters) |
-| 3 | `title.txt`, `short_description.txt` (≤ 80), `full_description.txt` (≤ 4000) | F-Droid listing; texts suggested in `fdroid.md` §3.1 | **to do** |
-| 4 | Screenshots `fastlane/…/images/phoneScreenshots/1.png …` | F-Droid's listing; the README can show them too | **to do (phone)** |
-| 5 | Decide the public name ("NextDNS" is a trademark) | reviewers may ask: `fdroid.md` §3.2 | **owner** |
-| 6 | Phone test (`CHANGES.md` checklists) | nothing has run on a phone yet | **owner** |
-| 7 | Signing key + 4 GitHub secrets (§3) | needed for a real release | **owner (once)** |
-| 8 | Dry run with the test key, then with the real key (§4) | proves the workflow on GitHub; gives the fingerprint for F-Droid | after 7 |
-| 9 | `app.repoUrl` in `gradle.properties` = the repository you release from | the workflow stops a real release otherwise (§4) | check before tagging |
+| 1 | The AdGuard features: Phases 3 (site), 4 (theme), 5 (sign-in), 6 (status), D (downloads), 7 (Ping) | the app still opens NextDNS | **to do** (PROJECT.md §11) |
+| 2 | Own app icon (`artwork/icon.svg`) and store icon (`fastlane/…/images/icon.png`) | F-Droid requires derived apps to change name, icon and strings | ✅ done 2026-11-20 |
+| 3 | `changelogs/1.txt` | the workflow refuses to release without the versionCode's changelog | exists, **still NextDNS text** (Phase 8) |
+| 4 | `title.txt`, `short_description.txt` (≤ 80), `full_description.txt` (≤ 4000) | F-Droid listing; what to say: `fdroid.md` §3.1 | **to do** (Phase 8) |
+| 5 | Screenshots `fastlane/…/images/phoneScreenshots/1.png …` | F-Droid's listing; the README can show them too | **to do (phone)** |
+| 6 | Name/trademark ("AdGuard Manager" is chosen; reviewers may ask) | `fdroid.md` §3.2 | **owner** |
+| 7 | `release.yml` names: `AdGuard-Manager-<version>.apk`, title "AdGuard Manager <version>" | the F-Droid recipe's `Binaries:` line must match | **Phase 9** |
+| 8 | Phone test (`CHANGES.md` checklists) | nothing has run on a phone yet | **owner** |
+| 9 | Signing key + 4 GitHub secrets (§3) | needed for a real release | **owner (once)** |
+| 10 | Dry run with the test key, then with the real key (§4) | proves the workflow on GitHub; gives the fingerprint for F-Droid | after 7 and 9 |
+| 11 | `app.repoUrl` in `gradle.properties` = the repository you release from | the workflow stops a real release otherwise (§4) | ✅ `https://github.com/UpperPanda1/adguard-manager` |
 
 ## 2. Store files
 
-Paths from F-Droid's "All About Descriptions, Graphics and Screenshots" (as in LLM Central):
+Paths from F-Droid's "All About Descriptions, Graphics and Screenshots":
 
 ```
 fastlane/metadata/android/en-US/
-├── title.txt               app name, max 50 characters
+├── title.txt               app name, max 50 characters             ("AdGuard Manager"; Phase 8)
 ├── short_description.txt   one line, max 80 characters, no final "."
 ├── full_description.txt    max 4000 characters, simple HTML allowed
 ├── changelogs/
-│   └── 1.txt               "what's new" for versionCode 1, max 500   (done; next release: 2.txt)
+│   └── 1.txt               "what's new" for versionCode 1, max 500   (exists; rewrite in Phase 8)
 └── images/
     ├── icon.png            512×512 store icon                         (done: made by tools/icon)
     ├── featureGraphic.png  optional, 1024×500
@@ -51,28 +54,27 @@ fastlane/metadata/android/en-US/
 
 Android only installs an **update** signed with the **same key** as the installed app. **If you lose this key, you can
 never update the app again**; users would have to uninstall it and lose their accounts. Back it up (password manager
-plus an offline copy).
+plus an offline copy). Use a **different key from NextDNS Manager+'s**: they are separate apps.
 
 1. **Create the key** on your computer (`keytool` comes with any JDK):
    ```bash
-   keytool -genkeypair -v -keystore nextdnsmanager-release.jks -alias nextdnsmanager \
+   keytool -genkeypair -v -keystore adguardmanager-release.jks -alias adguardmanager \
      -keyalg RSA -keysize 4096 -validity 10000
    ```
-   When it asks for your name, type e.g. **NextDNS Manager Plus**: avoid `+` and `,` (special characters in
-   certificate names; `keytool` refuses `+` with "Incorrect AVA format", seen 2026-11-19). **Never commit the `.jks`**;
-   keep it outside the repository folder (`*.jks` is git-ignored anyway).
-2. **Add four secrets** to the repository you release from: Settings → Secrets and variables → Actions → *New
-   repository secret*:
+   When it asks for your name, type e.g. **AdGuard Manager**: avoid `+` and `,` (special characters in certificate
+   names; `keytool` refuses `+` with "Incorrect AVA format", seen 2026-11-19). **Never commit the `.jks`**; keep it
+   outside the repository folder (`*.jks` is git-ignored anyway).
+2. **Add four secrets** to this repository: Settings → Secrets and variables → Actions → *New repository secret*:
 
    | Secret | Value |
    |---|---|
-   | `RELEASE_KEYSTORE_BASE64` | `base64 -w0 nextdnsmanager-release.jks` (macOS: `base64 -i …`; Windows PowerShell: `[Convert]::ToBase64String([IO.File]::ReadAllBytes("nextdnsmanager-release.jks"))`) |
+   | `RELEASE_KEYSTORE_BASE64` | `base64 -w0 adguardmanager-release.jks` (macOS: `base64 -i …`; Windows PowerShell: `[Convert]::ToBase64String([IO.File]::ReadAllBytes("adguardmanager-release.jks"))`) |
    | `RELEASE_KEYSTORE_PASSWORD` | the keystore password |
-   | `RELEASE_KEY_ALIAS` | `nextdnsmanager` |
-   | `RELEASE_KEY_PASSWORD` | **the same password**: current `keytool` makes a PKCS12 keystore with one password for store and key (LLM Central, checked 2026-10-18) |
+   | `RELEASE_KEY_ALIAS` | `adguardmanager` |
+   | `RELEASE_KEY_PASSWORD` | **the same password**: current `keytool` makes a PKCS12 keystore with one password for store and key |
 
 3. **Note the fingerprint** for F-Droid's `AllowedAPKSigningKeys`: the workflow prints it on the run's summary page
-   (`Signer #1 certificate SHA-256 digest`), or `keytool -list -v -keystore nextdnsmanager-release.jks` (SHA256 line,
+   (`Signer #1 certificate SHA-256 digest`), or `keytool -list -v -keystore adguardmanager-release.jks` (SHA256 line,
    colons removed, lower case).
 
 ## 4. Publishing a release on GitHub
@@ -100,23 +102,23 @@ the same dry run with a test key.)
    3. signs it with `apksigner` 34, v1 off;
    4. runs F-Droid's check (`apksigcopier compare`);
    5. shows the APK's SHA-256, the unsigned APK's SHA-256 and the key fingerprint on the summary page;
-   6. creates the release "NextDNS Manager+ 0.1.0" with `NextDNS-Manager-Plus-0.1.0.apk` (notes = changelog + SHA-256).
-7. Install that APK on your phone. It is a different app from the debug build (`org.rafee_m.nextdnsmanagerplus` vs
-   `….debug`), so both can be installed; accounts and settings don't move between them.
+   6. creates the release (after Phase 9: "AdGuard Manager 0.1.0" with `AdGuard-Manager-0.1.0.apk`; notes = changelog +
+      SHA-256).
+7. Install that APK on your phone. It is a different app from the debug build (`org.rafee_m.adguardmanager` vs
+   `….debug`) and from NextDNS Manager+, so all can be installed; accounts and settings don't move between them.
 
-**Why signing is done this way (tested on this app's APK, 2026-11-19).** F-Droid checks the developer's APK by copying
-its signature onto its own build of the same commit (`apksigcopier`, version 1.1.1):
+**Why signing is done this way** (tested on NextDNS Manager+'s APK, 2026-11-19; same Gradle/AGP/build set-up here; to
+re-test on this app's APK in Phase 9). F-Droid checks the developer's APK by copying its signature onto its own build of
+the same commit (`apksigcopier`, version 1.1.1):
 
 | Signed with | F-Droid check |
 |---|---|
 | `apksigner` 34, `--v1-signing-enabled false` | **passes** |
 | `apksigner` 34, default options | fails ("CHUNKED_SHA512 digest mismatch"): apksigner adds v1 JAR signature files, and copying them breaks the v3 digest |
 | `apksigner` 35, `--v1-signing-enabled false` | fails (same message; F-Droid documents this for 35) |
-| Gradle's own signing (`signing.*` in `local.properties`) | fails in LLM Central's test ("APK Signing Block offset < central directory offset"); not re-tested here |
+| Gradle's own signing (`signing.*` in `local.properties`) | fails in LLM Central's test ("APK Signing Block offset < central directory offset") |
 
-LLM Central's workflow uses apksigner 34 *without* the v1 switch, which passed **for LLM Central** (2026-09-30); for this
-app it does not, hence the difference. With v1 off, the APK is signed with scheme **v3** only, which every Android
-version this app supports (10+) verifies.
+With v1 off, the APK is signed with scheme **v3** only, which every Android version this app supports (10+) verifies.
 
 **If a tag was wrong:** delete the release and the tag on GitHub (and locally: `git tag -d v0.1.0`), fix, tag again.
 Never re-use a versionCode that users may have installed.
@@ -125,7 +127,7 @@ Never re-use a versionCode that users may have installed.
 
 Everything about the submission (checklist, recipe draft, anti-feature, reproducibility evidence, risks) is in
 [`fdroid.md`](fdroid.md). In short: after the first GitHub release, fork `gitlab.com/fdroid/fdroiddata`, add
-`metadata/org.rafee_m.nextdnsmanagerplus.yml` with `Binaries:` pointing at `NextDNS-Manager-Plus-%v.apk` and
+`metadata/org.rafee_m.adguardmanager.yml` with `Binaries:` pointing at `AdGuard-Manager-%v.apk` and
 `AllowedAPKSigningKeys:` = your fingerprint (§3), run `fdroid lint` / `fdroid build`, open the merge request. Later
 releases are picked up from the tags automatically.
 
@@ -133,7 +135,8 @@ releases are picked up from the tags automatically.
 
 | Claim | How |
 |---|---|
-| Same unsigned APK from different clones and from JDK 17 and 21 | builds of commit `cc867de`, 2026-11-19 (`fdroid.md` §5) |
-| Signing table above | `apksigner` 34.0.0 / 35.0.0 and `apksigcopier` 1.1.1 on this app's release APK, 2026-11-19 |
-| The workflow's scripts | its `run:` blocks extracted from the YAML and executed locally: check step (good tag → pass; wrong tag → fail; moved repository + tag → fail; fork dry run → warning), sign (test key) → compare → summary, all passed; keystore deleted afterwards |
+| Same unsigned APK from two fresh clones at different paths | this app, commit `1fa8540`, JDK 21, 2026-11-20: SHA-256 `bb0699c7…0c1c5a` both times (`fdroid.md` §5) |
+| JDK 17 = JDK 21 | NextDNS Manager+ commit `fb2a583`, formerly `cc867de`, 2026-11-19; not yet repeated here (only JDK 21 in the sandbox) |
+| Signing table above | `apksigner` 34.0.0 / 35.0.0 and `apksigcopier` 1.1.1 on NextDNS Manager+'s release APK, 2026-11-19 |
+| The workflow's scripts | run locally for NextDNS Manager+ (check step in four cases, sign with a test key → compare → summary: passed); repeat in Phase 9 |
 | Not checked | a run on GitHub (runner image, `sdkmanager` path, secrets), F-Droid's own build server, a real key |

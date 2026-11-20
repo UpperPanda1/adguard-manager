@@ -1,8 +1,8 @@
 # Re-sign all commits with your GPG key
 
 How to put your own GPG signature on every commit of a branch, so GitHub shows them as **Verified**. Authors, dates,
-messages and files stay exactly as they are; only the signatures are added. Tested on 2026-11-19 on a copy of this
-branch (git 2.43, GnuPG 2.4.4): 18 of 18 commits got a good signature, and files, authors, author dates, committer
+messages and files stay exactly as they are; only the signatures are added. Tested on 2026-11-19 on a copy of NextDNS
+Manager+'s branch, from which this repository was copied (git 2.43, GnuPG 2.4.4): 18 of 18 commits got a good signature, and files, authors, author dates, committer
 dates and messages were byte-identical afterwards.
 
 > **This rewrites history.** Every commit ID changes (a signature is part of the commit). Do it on your own
@@ -55,7 +55,7 @@ add the new export: GitHub only knows the user IDs it was given.)
 ## 3. Tell git to sign with that key (in the repository)
 
 ```bash
-cd nextdnsmanager-plus
+cd adguard-manager
 git config user.name "Rafee-M"
 git config user.email "69535896+Rafee-M@users.noreply.github.com"
 git config gpg.format openpgp
@@ -81,7 +81,7 @@ echo test | gpg --clearsign --local-user KEYID > /dev/null && echo "gpg works"
 
 ```bash
 git fetch origin
-git checkout claude/nextdns-manager-plus-review-el0q2u
+git checkout claude/trusting-wozniak-hk9afh
 git status                                   # must say "nothing to commit, working tree clean"
 git pull --ff-only                           # be exactly at the remote's newest commit
 git branch backup/before-signing             # a safety copy of the unsigned history
@@ -109,7 +109,7 @@ git diff backup/before-signing HEAD --stat              # empty = no file change
 ## 6. Push
 
 ```bash
-git push --force-with-lease origin claude/nextdns-manager-plus-review-el0q2u
+git push --force-with-lease origin claude/trusting-wozniak-hk9afh
 ```
 
 `--force-with-lease` refuses if GitHub has commits you haven't fetched, so nothing of anybody else is overwritten.
@@ -130,4 +130,4 @@ Then open the branch's commits on GitHub: each should show **Verified**. When yo
 ## Undo
 
 Before pushing: `git reset --hard backup/before-signing`. After pushing: push the backup back with
-`git push --force-with-lease origin backup/before-signing:claude/nextdns-manager-plus-review-el0q2u`.
+`git push --force-with-lease origin backup/before-signing:claude/trusting-wozniak-hk9afh`.

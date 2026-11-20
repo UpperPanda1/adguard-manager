@@ -1,8 +1,8 @@
-# Building NextDNS Manager+
+# Building AdGuard Manager
 
 From nothing to a running build, with Android Studio or the command line. The app is plain Java on the Android
-framework with a single library (`androidx.webkit`), so there is not much to install. (Structure taken from LLM
-Central's `BUILDING.md`; every fact below is this app's.)
+framework with a single library (`androidx.webkit`), so there is not much to install. (Copied from NextDNS Manager+,
+whose build is identical; names and ids below are this app's.)
 
 **Contents:** [Requirements](#requirements) · [Get the source](#get-the-source) ·
 [Android Studio](#option-a-android-studio) · [Command line](#option-b-command-line) ·
@@ -14,7 +14,7 @@ Central's `BUILDING.md`; every fact below is this app's.)
 
 | What | Version | Notes |
 |---|---|---|
-| JDK | **17 or newer** (17 and 21 give the identical APK, tested 2026-11-19) | Android Studio's bundled JDK works |
+| JDK | **17 or newer** (17 and 21 gave the identical APK for NextDNS Manager+, 2026-11-19; for this app two clones on JDK 21 matched, 2026-11-20) | Android Studio's bundled JDK works |
 | Android SDK Platform | **36** (`platforms;android-36`) | `compileSdk = 36`; the app targets 35 and runs on Android 10 (API 29) and newer |
 | Android SDK Build-Tools | **35.0.0** for building | the version AGP 8.13 uses; releases are *signed* with 34.0.0 (see [signing](#release-builds-and-signing)) |
 | Gradle | 8.14.5, **downloaded by the wrapper** | always run `./gradlew`; the download is checked against a pinned SHA-256 |
@@ -87,7 +87,7 @@ per feature or fix (`CLAUDE.md` §4a).
 
 | Path | What |
 |---|---|
-| `app/src/main/java/org/dnsmanager/app/` | The app: `MainActivity` (wiring only), then `account/`, `web/`, `ui/`, `theme/`, `site/` (everything about NextDNS), `status/`, `lock/`, `storage/`, `downloads/` |
+| `app/src/main/java/org/dnsmanager/app/` | The app: `MainActivity` (wiring only), then `account/`, `web/`, `ui/`, `theme/`, `site/` (everything about the DNS service: AdGuard DNS from Phase 3), `status/`, `lock/`, `storage/`, `downloads/` |
 | `app/src/main/assets/` | Local pages (`settings.html`, `about.html`) and scripts added to the dashboard (`js/`) |
 | `app/src/test/` | Unit tests |
 | `fastlane/metadata/` | Store texts, screenshots, changelogs (used by F-Droid and the release workflow) |
@@ -107,6 +107,7 @@ Optional helpers in `tools/`, each with its own `package.json` (Node.js 18+). No
 | `tools/page-checks/` | Opens Settings, About and the injected scripts in Chromium with stand-in bridges and checks them | `npm install && npx playwright install chromium && npm run check` |
 | `tools/icon/` | Makes every launcher icon file and the store icon from `artwork/icon.svg` | `npm install && npm run generate` |
 | `tools/readme-badges/` | Rebuilds the README banner and badges (`artwork/readme/`) in the icon's blue; run after a version change | `npm ci && npm run generate` (needs a release build first, for the APK size) |
+| `tools/site-probe/` | Checks facts about the **live** AdGuard website (sign-in chain, page colours, DNS check); development only, needs the internet | `npm install && npx playwright install chromium && node probe.mjs colours` |
 
 ## Reproducible builds
 
