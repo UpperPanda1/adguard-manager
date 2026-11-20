@@ -106,7 +106,7 @@ Optional helpers in `tools/`, each with its own `package.json` (Node.js 18+). No
 |---|---|---|
 | `tools/page-checks/` | Opens Settings, About and the injected scripts in Chromium with stand-in bridges and checks them | `npm install && npx playwright install chromium && npm run check` |
 | `tools/icon/` | Makes every launcher icon file and the store icon from `artwork/icon.svg` | `npm install && npm run generate` |
-| `tools/readme-badges/` | Rebuilds the README banner and badges (`artwork/readme/`) in NextDNS blue; run after a version change | `npm ci && npm run generate` (needs a release build first, for the APK size) |
+| `tools/readme-badges/` | Rebuilds the README banner and badges (`artwork/readme/`) in the icon's blue; run after a version change | `npm ci && npm run generate` (needs a release build first, for the APK size) |
 
 ## Reproducible builds
 

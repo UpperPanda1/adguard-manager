@@ -4,6 +4,35 @@ Newest first. Each entry: what changed, why, how it was verified, sizes, and wha
 
 ---
 
+## 2026-11-20 — README for AdGuard Manager, banner and badges in the icon's blue (Phase 2)
+
+**What.** The public page (`README.md`) now describes **AdGuard Manager**: why it exists, an honest **Status** table
+(what is done, what is next: the app still opens NextDNS until Phase 3), the features (shared ones work; AdGuard
+parts marked *planned*), a section on **Sign-in with Apple, Google or Facebook** that says openly that Google's page
+gets a desktop user agent (plan §11, F-Droid), WebView limits, privacy, credits. The banner shows the new icon,
+"AdGuard Manager" and "Every AdGuard DNS account, one private Android app"; every badge is re-coloured from the icon's
+blue `#1A6BF4`.
+
+**How.** `tools/readme-badges/generate.mjs`: `BRAND` = `#1A6BF4`, new banner texts. One fix the new icon needed: the
+banner drew the icon with a transform made for the old 24-unit shield; it now keeps the icon group's own transform
+and maps the icon's safe zone (21–87) onto the banner, so any future `icon.svg` fits. The title is sized by its
+capitals ("ADGUARD"), because a sample with a "g" would have made it smaller. All 17 files in `artwork/readme/` are
+generated (never edit them by hand).
+
+**Verified.** Banner and all badges rendered in Chromium and looked at, light and dark. Every `#anchor` and local file
+the README links to exists (script check). Each claim re-read against the research file; one battery sentence was
+corrected (WebView slows a hidden page's timers, it doesn't stop them). **Not verified:** how GitHub itself renders it
+(after the push).
+
+**Size.** App unchanged.
+
+**What to test on your phone**
+
+1. Open the repository on GitHub in your phone's browser, in light and in dark mode: the banner and badges switch
+   with it and nothing overlaps.
+
+---
+
 ## 2026-11-20 — Own app icon for AdGuard Manager (Phase 2)
 
 **What.** A new launcher icon: **two white server units** (each with a round status light and a slot) on a bright

@@ -1,6 +1,6 @@
 // Development-time tool (not part of the app): writes the README's badges and banner into artwork/readme/.
-// Ported from LLM Central (UpperPanda1/assist, tools/readme-badges, 2026-11-16); changes for NextDNS Manager+:
-// BRAND = NextDNS's blue, a "WebView 119+" chip, and the banner drawn here from artwork/icon.svg.
+// Ported from LLM Central (UpperPanda1/assist, tools/readme-badges, 2026-11-16) for NextDNS Manager+, then copied to
+// AdGuard Manager: BRAND = the icon's blue, a "WebView 119+" chip, and the banner drawn here from artwork/icon.svg.
 //
 //   cd tools/readme-badges && npm install && npm run generate
 //
@@ -12,13 +12,13 @@
 //   * Info chips (chip-*.svg): two joined segments, 32 tall: round outer ends, 5-unit inner corners, 3 apart.
 // Each comes as -light.svg and -dark.svg; the README picks one with <picture> + prefers-color-scheme.
 //
-// COLOURS: every colour is BRAND's hue (NextDNS's blue, the app's accent theme/Themes.java and icon background) at a Material tone (lightness) and chroma (colourfulness).
+// COLOURS: every colour is BRAND's hue (the icon background, AdGuard's dashboard blue) at a Material tone (lightness) and chroma (colourfulness).
 // To change them: (1) BRAND = another hex re-colours everything; (2) TONES = lighter/darker or more/less colourful
 // per part; (3) OVERRIDE = a fixed hex for one part. Then run the generator and look at the README in light and dark.
 //
 // Text: Google Sans (OFL), turned into outlines, because GitHub shows README SVGs as plain images that can't load fonts.
 // Version and minimum Android come from app/build.gradle; the APK size from the last release build (or APK_KB=…);
-// the banner's shield from artwork/icon.svg; the WebView version is WEBVIEW_FOR_ACCOUNTS below.
+// the banner's drawing from artwork/icon.svg; the WebView version is WEBVIEW_FOR_ACCOUNTS below.
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync } from 'fs';
 import { fileURLToPath } from 'url';
@@ -32,7 +32,7 @@ const ROOT = path.resolve(HERE, '../..');
 const OUT = path.join(ROOT, 'artwork/readme');
 
 // ---------------------------------------------------------------- inputs
-const BRAND = '#0056B3'; // NextDNS's accent: theme/Themes.java ACCENT and the icon background (artwork/icon.svg)
+const BRAND = '#1A6BF4'; // the icon background (artwork/icon.svg) = AdGuard dashboard --product-primary-60
 // Several accounts need WebView profiles: Android System WebView 119+ (README, PROJECT.md §2.2). Change both together.
 const WEBVIEW_FOR_ACCOUNTS = '119+';
 
@@ -188,20 +188,25 @@ function chip(ch, c) {
 }
 
 // ---------------------------------------------------------------- banner
-// 1280 × 320 (GitHub shows it at the README's width). BRAND background, the app icon's shield (read from
+// 1280 × 320 (GitHub shows it at the README's width). BRAND background, the app icon's drawing (read from
 // artwork/icon.svg so the two never drift apart), the name, and one line of what it is. Text as outlines (see top).
 function banner() {
     const W = 1280, H = 320;
     // Comments removed first: icon.svg's own comment mentions <g id="foreground"> too.
     const iconSvg = readFileSync(path.join(ROOT, 'artwork/icon.svg'), 'utf8').replace(/<!--[\s\S]*?-->/g, '');
-    const fg = (iconSvg.match(/<g id="foreground"[^>]*>([\s\S]*?)<\/g>/) || [])[1];
-    if (!fg) throw new Error('artwork/icon.svg: <g id="foreground"> not found');
+    const group = iconSvg.match(/<g id="foreground"([^>]*)>([\s\S]*?)<\/g>/);
+    if (!group) throw new Error('artwork/icon.svg: <g id="foreground"> not found');
+    // The group's own transform (if any) is kept, so the drawing is placed exactly as in the icon.
+    const groupTransform = (group[1].match(/transform="([^"]*)"/) || [])[1] || '';
+    const fg = `<g transform="${groupTransform}">${group[2]}</g>`;
     const c = { bg: BRAND, ring: hexFromArgb(Hct.from(HUE, 60, 28).toInt()), title: '#FFFFFF',
         sub: hexFromArgb(Hct.from(HUE, 18, 90).toInt()) };
-    const title = 'NextDNS Manager+', sub = 'Every NextDNS account, one private Android app';
-    const TITLE = sizeForHeight(BOLD, 'NextDNS', 64), SUB = sizeForHeight(MEDIUM, 'Every', 22);
-    // Shield: the icon's 24-unit glyph (translate 24 24, scale 2.5 inside 108) drawn 180 units tall.
-    // The whole group (shield + gap + the wider of the two lines) is centred horizontally.
+    const title = 'AdGuard Manager', sub = 'Every AdGuard DNS account, one private Android app';
+    // Sized by capital letters only: a sample with a descender ("g") would make the title smaller.
+    const TITLE = sizeForHeight(BOLD, 'ADGUARD', 64), SUB = sizeForHeight(MEDIUM, 'Every', 22);
+    // Icon drawing: the icon's safe zone (21–87 of its 108 × 108 canvas, where tools/icon keeps the foreground)
+    // drawn 180 units tall.
+    // The whole group (drawing + gap + the wider of the two lines) is centred horizontally.
     const glyph = 180, gap = 56, gy = (H - glyph) / 2;
     const textW = Math.max(width(BOLD, title, TITLE), width(MEDIUM, sub, SUB));
     const gx = r1((W - (glyph + gap + textW)) / 2);
@@ -209,7 +214,7 @@ function banner() {
     return svg(W, H, title + ': ' + sub,
         `<rect width="${W}" height="${H}" fill="${c.bg}"/>`
         + `<rect x="10" y="10" width="${W - 20}" height="${H - 20}" rx="24" fill="none" stroke="${c.ring}" stroke-width="4"/>`
-        + `<g transform="translate(${gx} ${gy}) scale(${glyph / 24})">${fg}</g>`
+        + `<g transform="translate(${gx} ${gy}) scale(${r1(glyph / 66 * 1000) / 1000}) translate(-21 -21)">${fg}</g>`
         + text(BOLD, title, TITLE, textX, 170, c.title)
         + text(MEDIUM, sub, SUB, textX, 222, c.sub));
 }

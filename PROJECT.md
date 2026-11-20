@@ -278,7 +278,7 @@ Other files:
 | `.github/workflows/release.yml` | Release: on a `v*` tag builds unsigned, signs with apksigner 34 (v1 off), runs F-Droid's `apksigcopier compare`, publishes; dry runs by hand or on PRs (`RELEASE.md`) |
 | `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` | Release notes / F-Droid "What's new" (≤ 500 characters; the release workflow requires it) |
 | `BUILDING.md`, `RELEASE.md`, `fdroid.md` | How to build; how to release and sign; the F-Droid submission |
-| `tools/readme-badges/` → `artwork/readme/` | README banner + badges (light/dark), NextDNS blue `#0056B3`; ported from LLM Central. Run after a version change (needs a release build for the APK size) |
+| `tools/readme-badges/` → `artwork/readme/` | README banner + badges (light/dark) in the icon's blue `#1A6BF4` (`BRAND`), banner drawing read from `artwork/icon.svg`; ported from LLM Central. Run after a version change (needs a release build for the APK size) |
 | `.claude/hooks/session-start.sh` | Sets up the Android SDK in Claude's cloud sandbox |
 
 ---
