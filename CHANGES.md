@@ -11,6 +11,18 @@ too.
 
 ---
 
+## 2026-11-20 — Connection details can ask for a fresh check (Phase 7, part 2: the data)
+
+**What.** Preparation for the Connection details screen, nothing visible: `status/ConnectionStatus` can now run a
+check on request (`checkNow`), tell one listener about every change, and report its last answer, Android's Private DNS
+host and the icon's colour. New `status/ConnectionReport` builds what the screen's page receives: **codes and numbers
+only** (`"dot"`, `"private"`, `8.4` ms), never sentences or HTML from the network (+ `ConnectionReportTest`, 4 tests).
+
+**Verified.** `test lint assembleDebug assembleRelease`: 116 tests (+4), 0 lint issues (this commit built alone in a
+clean checkout). **What to test on your phone:** nothing (no visible change).
+
+---
+
 ## 2026-11-20 — A latency test of AdGuard's DNS servers (Phase 7, part 1: the measuring)
 
 **What.** The code that measures how fast AdGuard's DNS servers answer this phone. It is shown in the next change

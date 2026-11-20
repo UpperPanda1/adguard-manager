@@ -52,6 +52,11 @@ public final class ConnectionStatus {
     private ConnectivityManager.NetworkCallback callback;
     private StatusRules.State privateDnsState = StatusRules.State.NOT_PROTECTED;
     private StatusRules.State state; // null until the first network callback
+    private DnsCheck.Result lastCheck; // the latest check's answer for this network; null = none yet
+    private boolean checking;          // a check is on its way (Connection details shows "Checking…")
+    private boolean privateDnsActive;  // Android's Private DNS setting, as last reported
+    private String privateDnsServer;   // its host name; null in "automatic" mode
+    private Runnable listener;         // the open Connection details window, told about every change
     private boolean darkTheme;
     // Counts network changes: a test answer that belongs to an older network is thrown away.
     private int generation;
@@ -78,12 +83,12 @@ public final class ConnectionStatus {
             public void onLinkPropertiesChanged(Network network, LinkProperties link) {
                 boolean active = link.isPrivateDnsActive();
                 String server = link.getPrivateDnsServerName();
-                main.post(() -> onNetwork(StatusRules.fromPrivateDns(active, server)));
+                main.post(() -> onNetwork(active, server));
             }
 
             @Override
             public void onLost(Network network) {
-                main.post(() -> onNetwork(StatusRules.State.NOT_PROTECTED));
+                main.post(() -> onNetwork(false, null));
             }
         };
         try {
@@ -139,10 +144,14 @@ public final class ConnectionStatus {
         show();
     }
 
-    private void onNetwork(StatusRules.State fromPrivateDns) {
+    private void onNetwork(boolean active, String server) {
         generation++;
-        privateDnsState = fromPrivateDns;
-        state = fromPrivateDns;
+        privateDnsActive = active;
+        privateDnsServer = server;
+        privateDnsState = StatusRules.fromPrivateDns(active, server);
+        lastCheck = null; // it belonged to the previous network
+        checking = true;  // the check below follows in a moment
+        state = privateDnsState;
         show();
         main.removeCallbacks(startTest);
         main.removeCallbacks(confirmTest);
@@ -162,6 +171,8 @@ public final class ConnectionStatus {
                     main.postDelayed(confirmTest, CONFIRM_DELAY_MS); // ask once more before saying "no"
                     return;
                 }
+                lastCheck = check;
+                checking = false;
                 state = StatusRules.combine(privateDnsState, check);
                 show();
             });
@@ -176,5 +187,64 @@ public final class ConnectionStatus {
                 : (darkTheme ? Themes.DARK : Themes.LIGHT).get(Scheme.ON_SURFACE_VARIANT);
         icon.setImageTintList(ColorStateList.valueOf(color));
         icon.setContentDescription(description());
+        if (listener != null) {
+            listener.run();
+        }
+    }
+
+    /**
+     * Runs a fresh check now (Connection details: on opening and "Check again"); the icon follows too.
+     * Does nothing before the first network callback (nothing is known about the network yet).
+     */
+    public void checkNow() {
+        if (callback == null || state == null) {
+            return;
+        }
+        main.removeCallbacks(startTest);
+        main.removeCallbacks(confirmTest);
+        checking = true;
+        show();
+        runTest(false);
+    }
+
+    /** @param listener told (main thread) after every change. One listener at a time: a new one replaces the old. */
+    public void setListener(Runnable listener) {
+        this.listener = listener;
+    }
+
+    /**
+     * Removes {@code listener}, but only if it is still the current one. A dialog's dismiss listener runs later,
+     * as a posted message: a window closed and quickly reopened must not have its new listener removed by the
+     * old window's late clean-up.
+     */
+    public void removeListener(Runnable listener) {
+        if (this.listener == listener) {
+            this.listener = null;
+        }
+    }
+
+    /** @return the latest check's answer for the current network, or null if none has arrived yet. */
+    public DnsCheck.Result lastCheck() {
+        return lastCheck;
+    }
+
+    /** @return true while a check is on its way. */
+    public boolean isChecking() {
+        return checking;
+    }
+
+    /** @return Android's Private DNS state: true = on (with a host, or "automatic" and working). */
+    public boolean privateDnsActive() {
+        return privateDnsActive;
+    }
+
+    /** @return the Private DNS host name, or null ("automatic" mode, or off). */
+    public String privateDnsServer() {
+        return privateDnsServer;
+    }
+
+    /** @return the icon's colour for the current state (0xAARRGGBB), or 0 while nothing is known. */
+    public int stateColor() {
+        return state == null ? 0 : StatusRules.color(state, darkTheme);
     }
 }
